@@ -145,7 +145,7 @@ async def execute(ctx, *, arg):
         await ctx.message.add_reaction("🔐")
 
 
-@bot.command(aliases=['Eval'], help="Executes code")
+@bot.command(aliases=['Eval'], help="Evaluates things")
 async def evaluate(ctx, *, arg):
     if ctx.author.id in trusted:
         print(f'{bcolors.OKGREEN}Trying to evaluate "{bcolors.OKCYAN}{arg}{bcolors.OKGREEN}"{bcolors.ENDC}')
