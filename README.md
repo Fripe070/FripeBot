@@ -1,2 +1,2 @@
 # FripeBot
-The code for my terible™ Discord bot!
+The code for my terrible™ Discord bot!
