@@ -3,6 +3,7 @@ import os
 import json
 import sys
 from discord.ext import commands
+from discord.ext.commands import *
 
 with open("config.json") as f:
     config = json.load(f)
@@ -17,6 +18,7 @@ bot = commands.Bot(
 
 with open('token.txt', 'r') as f:
     TOKEN = f.read()
+
 
 class bcolors:
     HEADER = '\033[95m'
