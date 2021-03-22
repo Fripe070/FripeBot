@@ -4,6 +4,8 @@ import json
 import sys
 from discord.ext import commands
 from discord.ext.commands import *
+from dotenv import load_dotenv
+load_dotenv()
 
 with open("config.json") as f:
     config = json.load(f)
@@ -15,9 +17,6 @@ bot = commands.Bot(
     command_prefix=prefix,
     case_insensitive=True,
 )
-
-with open('token.txt', 'r') as f:
-    TOKEN = f.read()
 
 
 class bcolors:
@@ -179,4 +178,5 @@ async def evaluate(ctx, *, arg):
         await ctx.message.add_reaction("🔐")
 
 
-bot.run(TOKEN)
+
+bot.run(os.getenv('TOKEN'))
