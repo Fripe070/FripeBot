@@ -32,6 +32,7 @@ class bcolors:
     UNDERLINE = '\033[4m'
     ITALIC = '\033[3m'
 
+
 @bot.event
 async def on_ready():
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
@@ -42,7 +43,7 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
     print(f"{bcolors.BOLD + bcolors.OKBLUE}------------------------------------------------------{bcolors.ENDC}")
 
 
-#ERROR HANDLING -------------------------------------------------------------------------------------------------------------
+# ERROR HANDLING -------------------------------------------------------------------------------------------------------------
 
 
 @bot.event
@@ -52,7 +53,7 @@ async def on_command_error(ctx, error):
         await ctx.message.add_reaction("❓")
     else:
         try:
-            await ctx.send(f"""An error occurred!** :flushed: Please notify Fripe if necessary.
+            await ctx.send(f"""**An error occurred!** :flushed: Please notify Fripe if necessary.
 Error:```{error}```""")
         except Exception as criticalexception:
             print(f"""Couldn't send error message. error:
@@ -61,11 +62,7 @@ Error:```{error}```""")
             print(f"Error: {error}")
 
 
-
-
-
-
-#COMMANDS -------------------------------------------------------------------------------------------------------------------
+# COMMANDS -------------------------------------------------------------------------------------------------------------------
 
 
 @bot.command(help="Command to see if the bot is responding")
@@ -87,6 +84,27 @@ async def ping(ctx):
                           description=f"The ping is **{bot_ping}ms!**",
                           color=color)
     await ctx.reply(embed=embed)
+
+
+@bot.command(help="Restarts the bot") # Currently not working
+async def restart(ctx):
+    if ctx.author.id in trusted:
+        await ctx.message.add_reaction("👍")
+        await ctx.reply("Restarting! :D")
+        bot.reload_extension('main')
+    else:
+        await ctx.message.add_reaction("🔐")
+
+
+@bot.command(aliases=['die', 'kill'], help="Stops the bot")
+async def stop(ctx):
+    if ctx.author.id in trusted:
+        await ctx.message.add_reaction("👍")
+        await ctx.reply("Ok. :(")
+        print(f"{bcolors.FAIL + bcolors.BOLD}{ctx.author.name} Told me to stop{bcolors.ENDC}")
+        await bot.close()
+    else:
+        await ctx.message.add_reaction("🔐")
 
 
 @bot.command(aliases=['Hi'], help="Says hi")
@@ -158,29 +176,6 @@ async def evaluate(ctx, *, arg):
             await ctx.message.add_reaction("<:no:823202604665929779>")
     else:
         print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to evaluate "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
-        await ctx.message.add_reaction("🔐")
-
-
-@bot.command(help="Restarts the bot") # Currently not working
-async def restart(ctx):
-    if ctx.author.id in trusted:
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Restarting! :D")
-#        os.execv(sys.executable, ['python'] + sys.argv)
-#        os.execv("main.py", sys.argv)
-        exit(0)
-    else:
-        await ctx.message.add_reaction("🔐")
-
-
-@bot.command(aliases=['die', 'kill'], help="Stops the bot")
-async def stop(ctx):
-    if ctx.author.id in trusted:
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Ok. :(")
-        print(f"{bcolors.FAIL + bcolors.BOLD}{ctx.author.name} Told me to stop{bcolors.ENDC}")
-        await bot.close()
-    else:
         await ctx.message.add_reaction("🔐")
 
 
