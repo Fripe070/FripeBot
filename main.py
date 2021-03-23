@@ -1,35 +1,19 @@
+# Imports
 import discord
 import os
-import json
 import sys
+from assets.stuff import *
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
 load_dotenv()
 
-with open("config.json") as f:
-    config = json.load(f)
-
-prefix = config["prefixes"]
-trusted = config["trusted"]
 
 bot = commands.Bot(
     command_prefix=prefix,
     case_insensitive=True,
 )
 
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    ITALIC = '\033[3m'
 
 
 @bot.event
@@ -40,6 +24,12 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
     print(f"{bcolors.BOLD + bcolors.OKBLUE}------------------------------------------------------{bcolors.ENDC}")
+
+
+@bot.event
+async def on_message(message):
+    if bot.user.mentioned_in(message):
+        await message.reply("Why did you ping me? My Prefix is `f!`")
 
 
 # ERROR HANDLING -------------------------------------------------------------------------------------------------------------
@@ -85,25 +75,7 @@ async def ping(ctx):
     await ctx.reply(embed=embed)
 
 
-@bot.command(help="Restarts the bot") # Currently not working
-async def restart(ctx):
-    if ctx.author.id in trusted:
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Restarting! :D")
-        bot.reload_extension('main')
-    else:
-        await ctx.message.add_reaction("🔐")
 
-
-@bot.command(aliases=['die', 'kill'], help="Stops the bot")
-async def stop(ctx):
-    if ctx.author.id in trusted:
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Ok. :(")
-        print(f"{bcolors.FAIL + bcolors.BOLD}{ctx.author.name} Told me to stop{bcolors.ENDC}")
-        await bot.close()
-    else:
-        await ctx.message.add_reaction("🔐")
 
 
 @bot.command(aliases=['Hi'], help="Says hi")
@@ -175,6 +147,27 @@ async def evaluate(ctx, *, arg):
             await ctx.message.add_reaction("<:no:823202604665929779>")
     else:
         print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to evaluate "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
+        await ctx.message.add_reaction("🔐")
+
+
+@bot.command(help="Restarts the bot")  # Currently not working
+async def restart(ctx):
+    if ctx.author.id in trusted:
+       await ctx.message.add_reaction("👍")
+       await ctx.reply("Restarting! :D")
+       bot.reload_extension('main')
+    else:
+        await ctx.message.add_reaction("🔐")
+
+
+@bot.command(aliases=['die', 'kill'], help="Stops the bot")
+async def stop(ctx):
+    if ctx.author.id in trusted:
+        await ctx.message.add_reaction("👍")
+        await ctx.reply("Ok. :(")
+        print(f"{bcolors.FAIL + bcolors.BOLD}{ctx.author.name} Told me to stop{bcolors.ENDC}")
+        await bot.close()
+    else:
         await ctx.message.add_reaction("🔐")
 
 
