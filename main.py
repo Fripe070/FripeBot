@@ -141,6 +141,21 @@ async def evaluate(ctx, *, arg):
         print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to evaluate "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
         await ctx.message.add_reaction("🔐")
 
+# Code stolen (with consent) from "! Thonk##2761" on discord
+@bot.command(aliases=['source'], help="Gives the link to my GitHub profile")
+async def github(ctx):
+    embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
+                          description="The link for my github page", color=0x00ffbf, timestamp=ctx.message.created_at)
+
+    embed.set_author(name="Fripe070", url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4",
+                     icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
+
+    embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4")
+
+    embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
+
+    await ctx.send(embed=embed)
+
 
 @bot.command(help="Restarts the bot")  # Currently not working
 async def restart(ctx):
