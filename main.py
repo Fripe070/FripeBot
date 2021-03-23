@@ -1,25 +1,11 @@
-# Imports
-import discord
-import os
-import sys
 from assets.stuff import *
-from discord.ext import commands
-from discord.ext.commands import *
-from dotenv import load_dotenv
 load_dotenv()
-
-
-bot = commands.Bot(
-    command_prefix=prefix,
-    case_insensitive=True,
-)
 
 
 @bot.event
 async def on_ready():
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}{bcolors.ENDC}''')
-    status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
     print(f"{bcolors.BOLD + bcolors.OKBLUE}------------------------------------------------------{bcolors.ENDC}")
@@ -117,7 +103,7 @@ async def echo(ctx, *, tell):
 @bot.command(aliases=['Exec'], help="Executes code")
 async def execute(ctx, *, arg):
 #    if ctx.author.id in trusted:
-    if ctx.author.id == 444800636681453568:
+    if ctx.author.id == ownerid:  # Checking if the person is the owner
         print(f'{bcolors.OKGREEN}Trying to run code "{bcolors.OKCYAN}{arg}{bcolors.OKGREEN}"{bcolors.ENDC}')
         try:
             exec(arg)
@@ -147,8 +133,9 @@ async def evaluate(ctx, *, arg):
         print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to evaluate "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
         await ctx.message.add_reaction("🔐")
 
+
 # Code stolen (with consent) from "! Thonk##2761" on discord
-@bot.command(aliases=['source'], help="Gives the link to my GitHub profile")
+@bot.command(aliases=['source'], help="Links my GitHub profile")
 async def github(ctx):
     embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
                           description="The link for my github page", color=0x00ffbf, timestamp=ctx.message.created_at)
@@ -161,6 +148,14 @@ async def github(ctx):
     embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
     await ctx.message.delete()
     await ctx.send(embed=embed)
+
+
+@bot.command()
+async def setstatus(ctx, *, new_status):
+    status = new_status
+    print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
+    await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
+    await ctx.reply(f'Status set to "watching {status}"')
 
 
 @bot.command(help="Restarts the bot")  # Currently not working
@@ -184,5 +179,17 @@ async def stop(ctx):
     else:
         await ctx.message.add_reaction("🔐")
 
+
+#@bot.command()
+#async def setprefix(ctx, new_prefix):
+#    if ctx.author.id == ownerid:  # Checking if the person is the owner
+#        with open("prefixes.json") as f:
+#            prefixes = json.load(f)
+#
+#        prefixes[str(ctx.guild.id)] = new_prefix
+#
+#        with open("prefixes.json") as f:
+#            json.dump(prefixes, f)
+#
 
 bot.run(os.getenv('TOKEN'))

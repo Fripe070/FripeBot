@@ -1,12 +1,25 @@
+# Imports
+import discord
+import os
+import sys
 import json
+from discord.ext import commands
+from discord.ext.commands import *
+from dotenv import load_dotenv
 
 with open("config.json") as f:
     config = json.load(f)
 
 prefix = config["prefixes"]
 trusted = config["trusted"]
+ownerid = 444800636681453568
 
+bot = commands.Bot(
+    command_prefix=prefix,
+    case_insensitive=True,
+)
 
+status = f'you. And {len(bot.guilds)} servers 👀'
 
 
 
