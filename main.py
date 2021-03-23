@@ -19,11 +19,17 @@ bot = commands.Bot(
 async def on_ready():
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}{bcolors.ENDC}''')
-    status = f'{len(bot.guilds)} servers 👀'
+    status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
     print(f"{bcolors.BOLD + bcolors.OKBLUE}------------------------------------------------------{bcolors.ENDC}")
 
+
+@bot.event
+async def on_message(message):
+    if bot.user in message.mentions:
+        await message.reply("<:ping_gun:823948139504861225>")
+    await bot.process_commands(message)
 
 # ERROR HANDLING -------------------------------------------------------------------------------------------------------------
 
@@ -153,7 +159,7 @@ async def github(ctx):
     embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4")
 
     embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
-
+    await ctx.message.delete()
     await ctx.send(embed=embed)
 
 
