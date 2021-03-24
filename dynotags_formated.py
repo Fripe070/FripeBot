@@ -1,6 +1,6 @@
 dynotags = {
 
-    "DaD": """"*Discord After Dark*""",
+    "DaD": """*Discord After Dark*""",
 
     "ads": """#rules
 :loudspeaker: **6. No self-promotion or advertisements.** This includes unsolicited references and links to other social media, servers, communities, and services in chat or direct messages.""",
