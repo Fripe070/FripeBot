@@ -210,7 +210,7 @@ async def setstatus(ctx, activity, *, new_status): #need to make ppl able to set
 
 
 @bot.command(aliases=['fripemail'], help="Sends a message to fripe")
-@commands.cooldown(1, 30, commands.BucketType.user)
+@commands.cooldown(1, 150, commands.BucketType.user)
 async def mailfripe(ctx, *, arg):
     if arg == "None":
         await ctx.send("You have to specify a message!")
