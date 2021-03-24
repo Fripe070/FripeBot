@@ -2,6 +2,7 @@ token.txt
 .idea/
 venv/
 .env
+dynotags_formated.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

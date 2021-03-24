@@ -2,6 +2,7 @@
 import discord
 import os
 import json
+import sys
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
@@ -18,7 +19,7 @@ bot = commands.Bot(
     case_insensitive=True,
 )
 
-status = f'you. And {len(bot.guilds)} servers 👀'
+
 
 
 
