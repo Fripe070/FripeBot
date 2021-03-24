@@ -197,7 +197,7 @@ async def github(ctx, member: discord.Member = None):
                           color=0x00ffbf, timestamp=ctx.message.created_at)
     embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
                      icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
-    embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4")
+    embed.set_thumbnail(url="https://avatars.githubusercontent.com/fripe070")
     embed.add_field(name="This bot:", value="https://github.com/Fripe070/FripeBot")
     embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
     await ctx.message.delete()
