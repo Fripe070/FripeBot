@@ -14,7 +14,7 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
 @bot.event
 async def on_message(message):
     if bot.user in message.mentions:
-        await message.reply("<:ping_gun:823948139504861225>")
+        await message.add_reaction("<:ping_gun:823948139504861225>")
     await bot.process_commands(message)
 
 # ERROR HANDLING -------------------------------------------------------------------------------------------------------------
@@ -25,6 +25,8 @@ async def on_command_error(ctx, error):
     # If the command does not exist/is not found.
     if isinstance(error, CommandNotFound):
         await ctx.message.add_reaction("❓")
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
     else:
         try:
             await ctx.send(f"""**An error occurred!** :flushed: Please notify Fripe if necessary.
@@ -77,10 +79,11 @@ async def whois(ctx, member: discord.Member = None):
         member = ctx.message.author  # set member as the author
     embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at,
                           title=f"User Info - {member}")
-    embed.set_thumbnail(url=f"{member.avatar_url}")
+    embed.set_thumbnail(url=member.avatar_url)
     embed.set_footer(text=f"Requested by {ctx.author}")
     embed.add_field(name="Username:", value=member.name)
     embed.add_field(name="ID:", value=member.id)
+    embed.add_field(name="Mention:", value=f'<@{member.id}>')
     embed.add_field(name="Account Created At:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC"))
     await ctx.send(embed=embed)
 
@@ -136,7 +139,7 @@ async def evaluate(ctx, *, arg):
 
 # Code stolen (with consent) from "! Thonk##2761" on discord
 @bot.command(aliases=['source'], help="Links my GitHub profile")
-async def github(ctx):
+async def github(ctx, member: discord.Member = None):
     embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
                           description="The link for my github page", color=0x00ffbf, timestamp=ctx.message.created_at)
 
@@ -147,15 +150,32 @@ async def github(ctx):
 
     embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
     await ctx.message.delete()
+    if member != None:
+        await ctx.send(f'<@{member.id}> Please take a look to my github')
     await ctx.send(embed=embed)
 
 
-@bot.command()
-async def setstatus(ctx, *, new_status):
-    status = new_status
-    print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-    await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-    await ctx.reply(f'Status set to "watching {status}"')
+@bot.command(help="Sets the bots status")
+async def setstatus(ctx, *, new_status): #need to make ppl able to set the status to gaming/watching etc
+    if ctx.author.id in trusted:
+        status = new_status
+        print(
+            f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
+        await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
+        await ctx.reply(f'Status set to "Watching {status}"')
+    else:
+        print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}Watching {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
+        await ctx.message.add_reaction("🔐")
+
+
+@bot.command(aliases=['fripemail'], help="Sends a message to fripe")
+@commands.cooldown(1, 30, commands.BucketType.user)
+async def mailfripe(ctx, *, arg):
+    if arg == "None":
+        await ctx.send("You have to specify a message!")
+    else:
+        await ctx.send("Messaged Fripe!")
+        await bot.get_channel(823989070845444106).send(f'<@{ctx.author.id}>\n- {arg}')
 
 
 @bot.command(help="Restarts the bot")  # Currently not working
