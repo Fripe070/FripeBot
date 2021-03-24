@@ -167,7 +167,7 @@ async def github(ctx, member: discord.Member = None):
     embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
                           description="The link for my github page", color=0x00ffbf, timestamp=ctx.message.created_at)
 
-    embed.set_author(name="Fripe070", url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4",
+    embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
                      icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
 
     embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4")
