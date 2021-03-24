@@ -240,7 +240,20 @@ async def stop(ctx):
     else:
         await ctx.message.add_reaction("🔐")
 
+# VC COMMANDS -----------------------------------------------------------------------------------
+# Joining a VC:
+@bot.command(name="VCjoin", help="VC Command - Joins the user's VC")
+async def vcjoin(ctx):
+    channel = ctx.author.voice.channel  # Get the sender's voice channel
+    await channel.connect()  # Join the channel
 
+# Leaving a VC:
+@bot.command(name="VCleave", help="VC Command - Leaves the VC", pass_context=True)
+async def vcleave(ctx):
+    server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
+    await server.disconnect()  # Leave the VC
+
+# -----------------------------------------------------------------------------------------------
 #@bot.command()
 #async def setprefix(ctx, new_prefix):
 #    if ctx.author.id == ownerid:  # Checking if the person is the owner
