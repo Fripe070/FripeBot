@@ -2,5 +2,6 @@
   "prefixes": ["f!", "F!", "thebestprefixever"],
   "trusted": [
     444800636681453568
-  ]
+  ],
+  "logging": "True"
 }

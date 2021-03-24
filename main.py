@@ -270,20 +270,18 @@ async def stop(ctx):
 
 # VC COMMANDS -----------------------------------------------------------------------------------
 # Joining a VC:
-@bot.command(name="VCjoin", help="VC Command - Joins the user's VC")
+@bot.command(name="VCjoin", help="Joins the user's VC")
 async def vcjoin(ctx):
-    voice_state = ctx.member.voice
-	
-    if voice_state is None:
+    if ctx.member.voice is None:
         # Exiting if the user is not in a voice channel
         return await ctx.send('You need to be in a voice channel to use this command!')
-	else:
-		channel = ctx.author.voice.channel  # Get the sender's voice channel
-    	await channel.connect()  # Join the channel
+    else:
+        channel = ctx.author.voice.channel  # Get the sender's voice channel
+        await channel.connect()  # Join the channel
 
 
 # Leaving a VC:
-@bot.command(name="VCleave", help="VC Command - Leaves the VC", pass_context=True)
+@bot.command(name="VCleave", help="Leaves the VC", pass_context=True)
 async def vcleave(ctx):
     server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
     await server.disconnect()  # Leave the VC
