@@ -83,27 +83,56 @@ async def soup(ctx):
 
 @bot.command(help="Displays information about a discord user")
 async def whois(ctx, member: discord.Member = None):
-    if not member:  # if member is no mentioned
-        member = ctx.message.author  # set member as the author
-    embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at,
+    if not member:
+        member = ctx.message.author
+    roles = [role.mention for role in member.roles[1:]]
+    embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
                           title=f"User Info - {member}")
     embed.set_thumbnail(url=member.avatar_url)
     embed.set_footer(text=f"Requested by {ctx.author}")
-    embed.add_field(name="Username:", value=member.name)
-    embed.add_field(name="ID:", value=member.id)
-    embed.add_field(name="Mention:", value=f'<@{member.id}>')
-    embed.add_field(name="Account Created At:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC"))
+
+    embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {member.name}
+**Nickname:** {member.display_name}
+**Mention:** <@{member.id}>
+**ID:** {member.id}
+**Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
+**Activity:** {member.activity.name}
+**Joined server at:** {member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
+**Is user on mobile:** {member.is_on_mobile()}
+**Highest Role:** {member.top_role.mention}
+
+**Roles:** {"".join(roles)}""")
     await ctx.send(embed=embed)
+#**Name:** {value}
+#    embed.add_field(name="Username:", value=member.name)
+#    embed.add_field(name="Nickname:", value=member.display_name)
+#    embed.add_field(name="Mention:", value=f'<@{member.id}>')
+#    embed.add_field(name="ID:", value=member.id)
+#    embed.add_field(name="Account Created At:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC"))
+#    embed.add_field(name="Activity:", value=f'{member.activity.name}')
+#    embed.add_field(name="Name colour:", value=member.colour)
+#    embed.add_field(name="Joined server at:", value=member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC"))
+#    embed.add_field(name="Is user on mobile:", value=member.is_on_mobile())
+#    embed.add_field(name="Highest Role:", value=member.top_role.mention)
+#    embed.add_field(name="Roles:", value="".join(roles))
+#    await ctx.send(embed=embed)
 
 
-@bot.command(aliases=['tags'], help="Tags")
-async def tag(ctx, tagname = None):
+@bot.command(aliases=['tags', 't'], help="Tags for dyno in maincord")
+async def tag(ctx, tagname = None, raw = None):
     if tagname != None:
-        embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at)
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        embed.add_field(name="Tag content:", value=dynotags[tagname])
-        embed.add_field(name="Raw tag data:", value=f"```{dynotags[tagname]}```")
-        await ctx.send(embed=embed)
+        if raw != None and raw.lower() == "raw":
+            await ctx.reply(f"```{dynotags[tagname]}```")
+        else:
+            try:
+                embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at)
+                embed.set_footer(text=f"Requested by {ctx.author}")
+                embed.add_field(name="Tag content:", value=dynotags[tagname])
+                embed.add_field(name="Raw tag data:", value=f"```{dynotags[tagname]}```")
+                await ctx.reply(embed=embed)
+            except KeyError:
+                await ctx.reply("That's not a valid tag!")
+
     else:
         embed = discord.Embed(colour=0x00ffff, title="Dyno tags", timestamp=ctx.message.created_at)
         embed.set_footer(text=f"Requested by {ctx.author}")
@@ -165,13 +194,11 @@ async def evaluate(ctx, *, arg):
 @bot.command(aliases=['source'], help="Links my GitHub profile")
 async def github(ctx, member: discord.Member = None):
     embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
-                          description="The link for my github page", color=0x00ffbf, timestamp=ctx.message.created_at)
-
+                          color=0x00ffbf, timestamp=ctx.message.created_at)
     embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
                      icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
-
     embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066?s=460&v=4")
-
+    embed.add_field(name="This bot:", value="https://github.com/Fripe070/FripeBot")
     embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
     await ctx.message.delete()
     if member != None:
@@ -240,12 +267,14 @@ async def stop(ctx):
     else:
         await ctx.message.add_reaction("🔐")
 
+
 # VC COMMANDS -----------------------------------------------------------------------------------
 # Joining a VC:
 @bot.command(name="VCjoin", help="VC Command - Joins the user's VC")
 async def vcjoin(ctx):
     channel = ctx.author.voice.channel  # Get the sender's voice channel
     await channel.connect()  # Join the channel
+
 
 # Leaving a VC:
 @bot.command(name="VCleave", help="VC Command - Leaves the VC", pass_context=True)
@@ -254,16 +283,5 @@ async def vcleave(ctx):
     await server.disconnect()  # Leave the VC
 
 # -----------------------------------------------------------------------------------------------
-#@bot.command()
-#async def setprefix(ctx, new_prefix):
-#    if ctx.author.id == ownerid:  # Checking if the person is the owner
-#        with open("dynotags.txt") as f:
-#            prefixes = json.load(f)
-#
-#        prefixes[str(ctx.guild.id)] = new_prefix
-#
-#        with open("dynotags.txt") as f:
-#            json.dump(prefixes, f)
-#
 
 bot.run(os.getenv('TOKEN'))
