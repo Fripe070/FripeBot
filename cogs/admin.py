@@ -1,4 +1,3 @@
-"""from discord.ext import commands
 from assets.stuff import *
 
 
@@ -73,4 +72,4 @@ class Admin(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Admin(bot))"""
+    bot.add_cog(Admin(bot))

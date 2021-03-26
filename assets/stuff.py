@@ -1,6 +1,8 @@
 # Imports
 import discord
 import json
+from discord.ext import commands
+from discord.ext.commands import *
 
 with open("config.json") as f:
     config = json.load(f)

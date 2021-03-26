@@ -1,7 +1,5 @@
 import os
 import sys
-from discord.ext import commands
-from discord.ext.commands import *
 from dotenv import load_dotenv
 from assets.stuff import *
 from dynotags_formated import *
