@@ -10,7 +10,8 @@ load_dotenv()
 bot = commands.Bot(
     command_prefix=prefix,
     case_insensitive=True,
-    intents=intents
+    intents=intents,
+    owner_id=ownerid
 )
 
 @bot.event
