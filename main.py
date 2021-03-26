@@ -189,6 +189,16 @@ async def evaluate(ctx, *, arg):
     else:
         print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to evaluate "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
         await ctx.message.add_reaction("🔐")
+ 
+ @bot.command(aliases=["completeshutdown"], help="Shuts down the bot and my PC."
+ async def fullstop(ctx):
+    if ctx.author.id in trusted:
+        await ctx.send("Okay, stopping the bot and your computer.")
+        await bot.close()
+        os.execute("shutdown /s")
+    else:
+        print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to shutdown the computer and bot!{bcolors.ENDC}')
+        await ctx.message.add_reaction("🔐")
 
 
 # Code stolen (with consent) from "! Thonk##2761" on discord
