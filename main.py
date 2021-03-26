@@ -1,7 +1,17 @@
+import os
+import sys
+from discord.ext import commands
+from discord.ext.commands import *
+from dotenv import load_dotenv
 from assets.stuff import *
 from dynotags_formated import *
 load_dotenv()
 
+bot = commands.Bot(
+    command_prefix=prefix,
+    case_insensitive=True,
+    intents=intents
+)
 
 @bot.event
 async def on_ready():
@@ -15,11 +25,16 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
 
 @bot.event
 async def on_message(message):
-    if message.author.id == 87225001874325504 and "xd" in message.content:
-        await message.reply("Hello uriel :wave:")
     if bot.user in message.mentions:
         await message.add_reaction("<:ping_gun:823948139504861225>")
     await bot.process_commands(message)
+
+""""coglist = ['cogs.'']
+
+try:
+    if __name__ == '__main__':
+        for extension in coglist:
+            bot.load_extension(extension)"""
 
 # ERROR HANDLING -------------------------------------------------------------------------------------------------------------
 
@@ -101,21 +116,8 @@ async def whois(ctx, member: discord.Member = None):
 **Is user on mobile:** {member.is_on_mobile()}
 **Highest Role:** {member.top_role.mention}
 
-**Roles:** {"".join(roles)}""")
+**Roles:** {" ".join(roles)}""")
     await ctx.send(embed=embed)
-#**Name:** {value}
-#    embed.add_field(name="Username:", value=member.name)
-#    embed.add_field(name="Nickname:", value=member.display_name)
-#    embed.add_field(name="Mention:", value=f'<@{member.id}>')
-#    embed.add_field(name="ID:", value=member.id)
-#    embed.add_field(name="Account Created At:", value=member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC"))
-#    embed.add_field(name="Activity:", value=f'{member.activity.name}')
-#    embed.add_field(name="Name colour:", value=member.colour)
-#    embed.add_field(name="Joined server at:", value=member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC"))
-#    embed.add_field(name="Is user on mobile:", value=member.is_on_mobile())
-#    embed.add_field(name="Highest Role:", value=member.top_role.mention)
-#    embed.add_field(name="Roles:", value="".join(roles))
-#    await ctx.send(embed=embed)
 
 
 @bot.command(aliases=['tags', 't'], help="Tags for dyno in maincord")
@@ -251,8 +253,8 @@ async def restart(ctx):
     if ctx.author.id in trusted:
         await ctx.message.add_reaction("👍")
         await ctx.reply("Restarting! :D")
-        os.execv(sys.executable, ['python'] + sys.argv)
         await bot.close()
+        os.execv("python3 main.py")
     else:
         await ctx.message.add_reaction("🔐")
 
@@ -272,7 +274,7 @@ async def stop(ctx):
 # Joining a VC:
 @bot.command(name="VCjoin", help="Joins the user's VC")
 async def vcjoin(ctx):
-    if ctx.member.voice is None:
+    if ctx.author.voice is None:
         # Exiting if the user is not in a voice channel
         return await ctx.send('You need to be in a voice channel to use this command!')
     else:
@@ -283,8 +285,12 @@ async def vcjoin(ctx):
 # Leaving a VC:
 @bot.command(name="VCleave", help="Leaves the VC", pass_context=True)
 async def vcleave(ctx):
-    server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
-    await server.disconnect()  # Leave the VC
+    if ctx.author.voice is None:
+        # Exiting if the user is not in a voice channel
+        return await ctx.send('You need to be in a voice channel to use this command!')
+    else:
+        server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
+        await server.disconnect()  # Leave the VC
 
 # -----------------------------------------------------------------------------------------------
 

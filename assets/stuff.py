@@ -1,32 +1,18 @@
 # Imports
 import discord
-import os
 import json
-import sys
-from discord.ext import commands
-from discord.ext.commands import *
-from dotenv import load_dotenv
 
 with open("config.json") as f:
     config = json.load(f)
+
+#with open("dynotags.json") as f:
+#    dynotags = json.load(f)
 
 intents = discord.Intents.all()
 prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
-
-bot = commands.Bot(
-    command_prefix=prefix,
-    case_insensitive=True,
-    intents=intents
-)
-
-
-
-
-
-
-
+debug = config["debug"]
 
 
 class bcolors:
