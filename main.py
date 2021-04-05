@@ -1,9 +1,6 @@
-import os
-import sys
 from dotenv import load_dotenv
 from assets.stuff import *
-from dynotags_formated import *
-load_dotenv()
+from assets.dynotags_formated import *
 
 bot = commands.Bot(
     command_prefix=prefix,
@@ -11,6 +8,7 @@ bot = commands.Bot(
     intents=intents,
     owner_id=ownerid
 )
+
 
 @bot.event
 async def on_ready():
@@ -22,22 +20,34 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
     print(f"{bcolors.BOLD + bcolors.OKBLUE}------------------------------------------------------{bcolors.ENDC}")
 
 
+# ON MESSAGE -----------------------------------------------------------------------------------
 @bot.event
-async def on_message(message):
-    if bot.user in message.mentions:
-        await message.add_reaction("<:ping_gun:823948139504861225>")
-    await bot.process_commands(message)
+async def on_message(ctx):
+    # Detect if the bot is pinged in the message
+    if ctx.author != bot.user and f"<@{bot.user.id}>" in ctx.content or f"<@!{bot.user.id}>" in ctx.content:
+        await ctx.add_reaction("<:ping_gun:823948139504861225>")
+    # Responds with a wave emoji if the message says hi ort similar
+    hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello"]
+    if ctx.content.lower() in hellowords:
+        await ctx.add_reaction('👋')
+    # Sends messages to log channel
+    if debug == "True" and ctx.author.id != 818919767784161293:
+        print(f"[-] {bcolors.BOLD}DEBUG: {ctx.author}{bcolors.ENDC} {ctx.content}".replace('\n', '\n │  '))
+        await bot.get_channel(826426599502381056).send(
+            f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
-""""coglist = ['cogs.'']
+    # BANNED WORDS
+    with open('assets/BadWords.txt', 'r') as f:
+        badwords = f.read().split()
+        for word in badwords:
+            if word in ctx.content:
+                await ctx.delete()
+                await ctx.channel.send("Don't say that :(")
 
-try:
-    if __name__ == '__main__':
-        for extension in coglist:
-            bot.load_extension(extension)"""
-
-# ERROR HANDLING -------------------------------------------------------------------------------------------------------------
+    await bot.process_commands(ctx) # Processes the commands
 
 
+# ERROR HANDLING -----------------------------------------------------------------------------------
 @bot.event
 async def on_command_error(ctx, error):
     # If the command does not exist/is not found.
@@ -51,27 +61,20 @@ async def on_command_error(ctx, error):
             embed.add_field(name="Error:", value=f"```{error}```")
             embed.set_footer(text=f"Caused by {ctx.author}")
             await ctx.send(embed=embed)
-#            await ctx.send(f"""**An error occurred!** :flushed: Please notify Fripe if necessary.
-#Error:```{error}```""")
-        except Exception as criticalexception:
-            print(f"""{bcolors.FAIL + bcolors.BOLD}Couldn't send error message. error:
-{criticalexception}{bcolors.ENDC}""")
+        except Exception:
+            print(f"{bcolors.WARNING}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
         finally:
-            print(f"{bcolors.FAIL}Error: {error}{bcolors.ENDC}")
+            print(f"{bcolors.FAIL}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
 
 
-# COMMANDS -------------------------------------------------------------------------------------------------------------------
-
-
-@bot.command(help="Command to see if the bot is responding")
-async def test(ctx):
-    await ctx.message.add_reaction('👍')
-
-
+# COMMANDS -----------------------------------------------------------------------------------
 @bot.command(help="Displays the bots ping")
-async def ping(ctx):
+async def ping(ctx, real=None):
     await ctx.message.add_reaction("🏓")
-    bot_ping = round(bot.latency * 1000)
+    if real != "fake":
+        bot_ping = round(bot.latency * 1000)
+    else:
+        bot_ping = round(bot.latency * 9999999)
     if bot_ping < 130:
         color = 0x44ff44
     elif bot_ping > 130 and bot_ping < 180:
@@ -82,12 +85,6 @@ async def ping(ctx):
                           description=f"The ping is **{bot_ping}ms!**",
                           color=color)
     await ctx.reply(embed=embed)
-
-
-@bot.command(aliases=['Hi'], help="Says hi")
-async def hello(ctx):
-    await ctx.message.add_reaction('👋')
-    await ctx.reply(f"Hello {ctx.author.name} 👋")
 
 
 @bot.command(help="Gives soup")
@@ -106,24 +103,25 @@ async def whois(ctx, member: discord.Member = None):
     embed.set_footer(text=f"Requested by {ctx.author}")
 
     embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {member.name}
-**Nickname:** {member.display_name}
-**Mention:** <@{member.id}>
-**ID:** {member.id}
-**Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
-**Activity:** {member.activity.name}
-**Joined server at:** {member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
-**Is user on mobile:** {member.is_on_mobile()}
-**Highest Role:** {member.top_role.mention}
+    **Nickname:** {member.display_name}
+    **Mention:** {member.mention}
+    **ID:** {member.id}
+    **Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
+    **Activity:** {member.activity.name}
+    **Joined server at:** {member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
+    **Is user on mobile:** {member.is_on_mobile()}
+    **Highest Role:** {member.top_role.mention}
 
-**Roles:** {" ".join(roles)}""")
+    **Roles:** {" ".join(roles)}""")
     await ctx.send(embed=embed)
 
 
-@bot.command(aliases=['tags', 't'], help="Tags for dyno in maincord")
-async def tag(ctx, tagname = None, raw = None):
+@bot.command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord")
+async def dynotag(ctx, tagname = None, extra = None):
     if tagname != None:
-        if raw != None and raw.lower() == "raw":
-            await ctx.reply(f"```{dynotags[tagname]}```")
+        if extra != None and extra.lower() == "dyno" or "d":
+            await ctx.message.delete()
+            await ctx.send(dynotags[tagname])
         else:
             try:
                 embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at)
@@ -133,7 +131,6 @@ async def tag(ctx, tagname = None, raw = None):
                 await ctx.reply(embed=embed)
             except KeyError:
                 await ctx.reply("That's not a valid tag!")
-
     else:
         embed = discord.Embed(colour=0x00ffff, title="Dyno tags", timestamp=ctx.message.created_at)
         embed.set_footer(text=f"Requested by {ctx.author}")
@@ -142,11 +139,20 @@ async def tag(ctx, tagname = None, raw = None):
         #await ctx.send(dynotags.keys())
 
 
+@bot.command(help="Prints all tags")
+@has_permissions(administrator=True)
+async def alltags(ctx):
+    print("Printing all tags")
+    for key in dynotags.keys():
+        embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
+        await ctx.send(embed=embed)
+
+
 @bot.command(aliases=['Say'], help="Makes the bot say things")
 async def echo(ctx, *, tell):
     if ctx.author.id in trusted:
         if isinstance(ctx.channel, discord.channel.DMChannel):
-            print(f'{bcolors.BOLD + bcolors.WARNING + ctx.author + bcolors.ENDC + bcolors.FAIL} Tried to make me say: "{bcolors.WARNING + bcolors.BOLD + tell + bcolors.ENDC + bcolors.FAIL}" In a dm{bcolors.ENDC}')
+            print(f'{bcolors.BOLD + bcolors.WARNING}{ctx.author}{bcolors.ENDC + bcolors.FAIL} Tried to make me say: "{bcolors.WARNING + bcolors.BOLD}{tell}{bcolors.ENDC + bcolors.FAIL}" In a dm{bcolors.ENDC}')
             await ctx.send("That command isn't available in dms")
         else:
             print(f'{bcolors.BOLD + bcolors.OKCYAN}{ctx.author}{bcolors.ENDC} Made me say: "{bcolors.OKBLUE + bcolors.BOLD}{tell}{bcolors.ENDC}"')
@@ -161,33 +167,39 @@ async def echo(ctx, *, tell):
 async def execute(ctx, *, arg):
 #    if ctx.author.id in trusted:
     if ctx.author.id == ownerid:  # Checking if the person is the owner
-        print(f'{bcolors.OKGREEN}Trying to run code "{bcolors.OKCYAN}{arg}{bcolors.OKGREEN}"{bcolors.ENDC}')
+        print(f"{bcolors.OKGREEN}[EXEC] Trying to run code: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
         try:
             exec(arg)
             await ctx.message.add_reaction("<:yes:823202605123502100>")
         except Exception as error:
-            print(f"Error occurred during execution: {error}")
+            print(f"{bcolors.FAIL}[EXEC] {bcolors.BOLD}ERROR DURING EXECUTION: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
             await ctx.send(f"An error occurred during execution```\n{error}\n```")
             await ctx.message.add_reaction("<:no:823202604665929779>")
     else:
-        print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to run code "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
+        print(f"{bcolors.OKBLUE}[EXEC] Tried to run: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
         await ctx.message.add_reaction("🔐")
 
 
 @bot.command(aliases=['Eval'], help="Evaluates things")
-async def evaluate(ctx, *, arg):
+async def evaluate(ctx, *, arg=None):
     if ctx.author.id in trusted:
-        print(f'{bcolors.OKGREEN}Trying to evaluate "{bcolors.OKCYAN}{arg}{bcolors.OKGREEN}"{bcolors.ENDC}')
-        if not os.getenv('TOKEN') in eval(arg):
-            try:
-                await ctx.send(eval(arg))
-                await ctx.message.add_reaction("<:yes:823202605123502100>")
-            except Exception as error:
-                print(f"Error occurred during evaluation: {error}")
-                await ctx.send(f"An error occurred during evaluation```\n{error}\n```")
-                await ctx.message.add_reaction("<:no:823202604665929779>")
+        if arg != None:
+            print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
+            if not os.getenv('TOKEN') in eval(arg):
+                try:
+                    await ctx.send(eval(arg))
+                    await ctx.message.add_reaction("<:yes:823202605123502100>")
+                except Exception as error:
+                    print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
+                    await ctx.send(f"An error occurred during evaluation```\n{error}\n```")
+                    await ctx.message.add_reaction("<:no:823202604665929779>")
+            else:
+                await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
+        else:
+            await ctx.reply("I cant evaluate nothing")
     else:
-        print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to evaluate "{bcolors.FAIL}{arg}{bcolors.WARNING}"{bcolors.ENDC}')
+        print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
+                                                                                                    f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
         await ctx.message.add_reaction("🔐")
 
 
@@ -203,38 +215,9 @@ async def github(ctx, member: discord.Member = None):
     embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
     await ctx.message.delete()
     if member != None:
-        await ctx.send(f'<@{member.id}> Please take a look to my github')
-    await ctx.send(embed=embed)
-
-
-@bot.command(help="Sets the bots status")
-async def setstatus(ctx, activity, *, new_status): #need to make ppl able to set the status to gaming/watching etc
-    if ctx.author.id in trusted:
-        status = new_status
-
-        if activity == "watching":
-            print(
-                f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}{activity} {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-            await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-            await ctx.reply(f'Status set to "{activity} {status}"')
-
-        elif activity == "playing":
-            print(
-                f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}{activity} {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-            await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.playing))
-            await ctx.reply(f'Status set to "{activity} {status}"')
-
-        elif activity == "listening":
-            print(
-                f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}{activity} {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-            await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.listening))
-            await ctx.reply(f'Status set to "{activity} to {status}"')
-        else:
-            await ctx.reply(f"That's not a valid activity!")
-
+        await ctx.send(f'{member.mention} Please take a look to my github', embed=embed)
     else:
-        print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}{activity} {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
-        await ctx.message.add_reaction("🔐")
+        await ctx.send(embed=embed)
 
 
 @bot.command(aliases=['fripemail'], help="Sends a message to fripe")
@@ -244,29 +227,19 @@ async def mailfripe(ctx, *, arg):
         await ctx.send("You have to specify a message!")
     else:
         await ctx.send("Messaged Fripe!")
-        await bot.get_channel(823989070845444106).send(f'<@{ctx.author.id}>\n- {arg}')
+        await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
 
 
-@bot.command(help="Restarts the bot")  # Currently not working
-async def restart(ctx):
-    if ctx.author.id in trusted:
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Restarting! :D")
-        await bot.close()
-        os.execv("python3 main.py")
+@bot.command(help="Counts the amount of people in the server")
+async def members(ctx, bots=None):
+    if bots.lower() == "all":
+        await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
+    elif bots.lower() == "bots":
+        servermembers = [member for member in ctx.guild.members if member.bot]
+        await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
     else:
-        await ctx.message.add_reaction("🔐")
-
-
-@bot.command(aliases=['die', 'kill'], help="Stops the bot")
-async def stop(ctx):
-    if ctx.author.id in trusted:
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Ok. :(")
-        print(f"{bcolors.FAIL + bcolors.BOLD}{ctx.author.name} Told me to stop{bcolors.ENDC}")
-        await bot.close()
-    else:
-        await ctx.message.add_reaction("🔐")
+        servermembers = [member for member in ctx.guild.members if not member.bot]
+        await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
 
 
 # VC COMMANDS -----------------------------------------------------------------------------------
@@ -291,6 +264,11 @@ async def vcleave(ctx):
         server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
         await server.disconnect()  # Leave the VC
 
-# -----------------------------------------------------------------------------------------------
+# GENERAL RUNNING OF BOT -----------------------------------------------------------------------------------
 
+for cog in COGS:
+    bot.load_extension(f"cogs.{cog}")
+
+
+load_dotenv()
 bot.run(os.getenv('TOKEN'))
