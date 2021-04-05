@@ -3,6 +3,7 @@ import discord, json, os, string, random
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
+from assets.dynotags_formated import dynotags
 
 with open("config.json") as f:
     config = json.load(f)
@@ -15,7 +16,7 @@ prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
 debug = config["debug"]
-COGS = ["admin"]
+COGS = ["admin", "utility"]
 
 bot = commands.Bot(
     command_prefix=prefix,
