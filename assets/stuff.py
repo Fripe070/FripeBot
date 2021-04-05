@@ -21,6 +21,13 @@ ownerid = 444800636681453568
 debug = config["debug"]
 COGS = ["admin"]
 
+bot = commands.Bot(
+    command_prefix=prefix,
+    case_insensitive=True,
+    intents=intents,
+    owner_id=ownerid
+)
+
 
 class bcolors:
     HEADER = '\033[95m'

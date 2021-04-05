@@ -2,13 +2,6 @@ from dotenv import load_dotenv
 from assets.stuff import *
 from assets.dynotags_formated import *
 
-bot = commands.Bot(
-    command_prefix=prefix,
-    case_insensitive=True,
-    intents=intents,
-    owner_id=ownerid
-)
-
 
 @bot.event
 async def on_ready():
@@ -266,8 +259,11 @@ async def vcleave(ctx):
 
 # GENERAL RUNNING OF BOT -----------------------------------------------------------------------------------
 
+print(f"{bcolors.OKBLUE + bcolors.BOLD}Successfully loaded cogs:{bcolors.ENDC}")
 for cog in COGS:
     bot.load_extension(f"cogs.{cog}")
+    print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
+
 
 
 load_dotenv()
