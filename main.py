@@ -1,6 +1,10 @@
-from dotenv import load_dotenv
 from assets.stuff import *
-from assets.dynotags_formated import *
+from assets.dynotags_formated import dynotags
+
+print(f"{bcolors.OKBLUE + bcolors.BOLD}Loaded cogs:{bcolors.ENDC}")
+for cog in COGS:
+    bot.load_extension(f"cogs.{cog}")
+    print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
 
 
 @bot.event
@@ -10,7 +14,7 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
     status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-    print(f"{bcolors.BOLD + bcolors.OKBLUE}------------------------------------------------------{bcolors.ENDC}")
+    print(f"{bcolors.BOLD + bcolors.OKBLUE}───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
@@ -110,7 +114,7 @@ async def whois(ctx, member: discord.Member = None):
 
 
 @bot.command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord")
-async def dynotag(ctx, tagname = None, extra = None):
+async def dynotag(ctx, tagname=None, extra=None):
     if tagname != None:
         if extra != None and extra.lower() == "dyno" or "d":
             await ctx.message.delete()
@@ -225,7 +229,10 @@ async def mailfripe(ctx, *, arg):
 
 @bot.command(help="Counts the amount of people in the server")
 async def members(ctx, bots=None):
-    if bots.lower() == "all":
+    if bots is None:
+        servermembers = [member for member in ctx.guild.members if not member.bot]
+        await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+    elif bots.lower() == "all":
         await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
     elif bots.lower() == "bots":
         servermembers = [member for member in ctx.guild.members if member.bot]
@@ -233,6 +240,7 @@ async def members(ctx, bots=None):
     else:
         servermembers = [member for member in ctx.guild.members if not member.bot]
         await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+
 
 
 # VC COMMANDS -----------------------------------------------------------------------------------
@@ -257,14 +265,6 @@ async def vcleave(ctx):
         server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
         await server.disconnect()  # Leave the VC
 
-# GENERAL RUNNING OF BOT -----------------------------------------------------------------------------------
-
-print(f"{bcolors.OKBLUE + bcolors.BOLD}Successfully loaded cogs:{bcolors.ENDC}")
-for cog in COGS:
-    bot.load_extension(f"cogs.{cog}")
-    print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
-
-
-
+# RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()
 bot.run(os.getenv('TOKEN'))
