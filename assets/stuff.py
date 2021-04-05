@@ -1,13 +1,8 @@
 # Imports
-import discord
-import json
-import os
-import glob as glob
-import string
-import random
-from dotenv import load_dotenv
+import discord, json, os, string, random
 from discord.ext import commands
 from discord.ext.commands import *
+from dotenv import load_dotenv
 
 with open("config.json") as f:
     config = json.load(f)

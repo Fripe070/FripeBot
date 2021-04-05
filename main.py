@@ -50,21 +50,23 @@ async def on_command_error(ctx, error):
     # If the command does not exist/is not found.
     if isinstance(error, CommandNotFound):
         await ctx.message.add_reaction("❓")
+    # If the command is on cooldown.
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
-    else:
+    else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at, title="**An error occurred!** Please notify Fripe if necessary.")
             embed.add_field(name="Error:", value=f"```{error}```")
             embed.set_footer(text=f"Caused by {ctx.author}")
-            await ctx.send(embed=embed)
-        except Exception:
+            await ctx.send(embed=embed)  # Send error in chat
+        except Exception:  # Print error to console
             print(f"{bcolors.WARNING}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
-        finally:
+        finally:  # When big oops happens
             print(f"{bcolors.FAIL}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
 
 
 # COMMANDS -----------------------------------------------------------------------------------
+# Command to get the bots ping
 @bot.command(help="Displays the bots ping")
 async def ping(ctx, real=None):
     await ctx.message.add_reaction("🏓")
@@ -88,7 +90,7 @@ async def ping(ctx, real=None):
 async def soup(ctx):
     await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-
+# Command to get info about a account
 @bot.command(help="Displays information about a discord user")
 async def whois(ctx, member: discord.Member = None):
     if not member:
@@ -113,6 +115,7 @@ async def whois(ctx, member: discord.Member = None):
     await ctx.send(embed=embed)
 
 
+# Command to get info about the minecraft discord dyno tags
 @bot.command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord")
 async def dynotag(ctx, tagname=None, extra=None):
     if tagname != None:
@@ -136,6 +139,7 @@ async def dynotag(ctx, tagname=None, extra=None):
         #await ctx.send(dynotags.keys())
 
 
+# Prints all the minecraft discord dyno tags
 @bot.command(help="Prints all tags")
 @has_permissions(administrator=True)
 async def alltags(ctx):
@@ -229,15 +233,15 @@ async def mailfripe(ctx, *, arg):
 
 @bot.command(help="Counts the amount of people in the server")
 async def members(ctx, bots=None):
-    if bots is None:
+    if bots is None:  # Deafults to just users
         servermembers = [member for member in ctx.guild.members if not member.bot]
         await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-    elif bots.lower() == "all":
+    elif bots.lower() == "all":  # Command to count all acounts in the server
         await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
-    elif bots.lower() == "bots":
+    elif bots.lower() == "bots":  # Command to only count the bots
         servermembers = [member for member in ctx.guild.members if member.bot]
         await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
-    else:
+    else:  # Bad code but it works
         servermembers = [member for member in ctx.guild.members if not member.bot]
         await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
 
