@@ -89,12 +89,6 @@ async def ping(ctx, real=None):
 async def soup(ctx):
     await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-# Command to get info about a account
-
-
-
-
-
 
 @bot.command(aliases=['Say'], help="Makes the bot say things")
 async def echo(ctx, *, tell):

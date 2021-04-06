@@ -37,6 +37,7 @@ class Utility(commands.Cog):
                 embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
                 await ctx.send(embed=embed)
 
+        # Command to get info about a account
         @bot.command(help="Displays information about a discord user")
         async def whois(ctx, member: discord.Member = None):
             if not member:
@@ -61,7 +62,7 @@ class Utility(commands.Cog):
             await ctx.send(embed=embed)
 
         @bot.command(aliases=['Exec'], help="Executes code")
-        async def execute(ctx, *, arg):
+        async def execute(self, ctx, *, arg):
             #    if ctx.author.id in trusted:
             if ctx.author.id == ownerid:  # Checking if the person is the owner
                 print(f"{bcolors.OKGREEN}[EXEC] Trying to run code: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
@@ -83,32 +84,22 @@ class Utility(commands.Cog):
         @bot.command(aliases=['Eval'], help="Evaluates things")
         async def evaluate(ctx, *, arg=None):
             if ctx.author.id in trusted:
-                if arg != None:
-                    print(
-                        f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                                   '\n │  '))
-                    if not os.getenv('TOKEN') in eval(arg):
+                if arg is not None:
+                    print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
+                    if os.getenv('TOKEN') in str(eval(arg)):
+                        await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
+                    else:
                         try:
                             await ctx.send(eval(arg))
                             await ctx.message.add_reaction("<:yes:823202605123502100>")
                         except Exception as error:
-                            print(
-                                f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace(
-                                    '\n', '\n │  '))
-                            await ctx.send(f"An error occurred during evaluation```\n{error}\n```")
+                            print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))
                             await ctx.message.add_reaction("<:no:823202604665929779>")
-                    else:
-                        await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
                 else:
                     await ctx.reply("I cant evaluate nothing")
             else:
-                print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                               f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
+                print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
-
-
-
-
 
 
 def setup(bot):
