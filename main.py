@@ -135,22 +135,6 @@ async def mailfripe(ctx, *, arg):
         await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
 
 
-@bot.command(help="Counts the amount of people in the server")
-async def members(ctx, bots=None):
-    if bots is None:  # Deafults to just users
-        servermembers = [member for member in ctx.guild.members if not member.bot]
-        await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-    elif bots.lower() == "all":  # Command to count all acounts in the server
-        await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
-    elif bots.lower() == "bots":  # Command to only count the bots
-        servermembers = [member for member in ctx.guild.members if member.bot]
-        await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
-    else:  # Bad code but it works
-        servermembers = [member for member in ctx.guild.members if not member.bot]
-        await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-
-
-
 # VC COMMANDS -----------------------------------------------------------------------------------
 # Joining a VC:
 @bot.command(name="VCjoin", help="Joins the user's VC")

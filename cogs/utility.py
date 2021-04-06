@@ -101,6 +101,20 @@ class Utility(commands.Cog):
                 print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
+        @bot.command(help="Counts the amount of people in the server")
+        async def members(ctx, bots=None):
+            if bots is None:  # Deafults to just users
+                servermembers = [member for member in ctx.guild.members if not member.bot]
+                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+            elif bots.lower() == "all":  # Command to count all acounts in the server
+                await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
+            elif bots.lower() == "bots":  # Command to only count the bots
+                servermembers = [member for member in ctx.guild.members if member.bot]
+                await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
+            else:  # Bad code but it works
+                servermembers = [member for member in ctx.guild.members if not member.bot]
+                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
