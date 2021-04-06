@@ -15,14 +15,15 @@ intents = discord.Intents.all()
 prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
-debug = config["debug"]
-COGS = ["admin", "utility"]
+debug = config["debug"].lower()
+COGS = ["admin", "utility", "voice"]
 
 bot = commands.Bot(
     command_prefix=prefix,
     case_insensitive=True,
     intents=intents,
-    owner_id=ownerid
+    owner_id=ownerid,
+    help_command=None
 )
 
 

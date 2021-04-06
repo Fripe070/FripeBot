@@ -1,10 +1,5 @@
 from assets.stuff import *
 
-print(f"{bcolors.OKBLUE + bcolors.BOLD}Loaded cogs:{bcolors.ENDC}")
-for cog in COGS:
-    bot.load_extension(f"cogs.{cog}")
-    print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
-
 
 @bot.event
 async def on_ready():
@@ -13,7 +8,11 @@ Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolo
     status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-    print(f"{bcolors.BOLD + bcolors.OKBLUE}───────────────────────────────────────────────────────{bcolors.ENDC}")
+    print(f"{bcolors.OKBLUE + bcolors.BOLD}Cogs:{bcolors.ENDC}")
+    for cog in COGS:
+        bot.load_extension(f"cogs.{cog}")
+        print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
+    print(f"{bcolors.BOLD + bcolors.OKBLUE}└───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
@@ -23,14 +22,14 @@ async def on_message(ctx):
     if ctx.author != bot.user and f"<@{bot.user.id}>" in ctx.content or f"<@!{bot.user.id}>" in ctx.content:
         await ctx.add_reaction("<:ping_gun:823948139504861225>")
     # Responds with a wave emoji if the message says hi ort similar
-    hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello"]
+    hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello", "hallo", "hej", "tjena", "sup", "wassup", "god dag", "hallå", "holla"]
     if ctx.content.lower() in hellowords:
-        await ctx.add_reaction('👋')
+        await ctx.add_reaction('<a:wave_animated:826546112374243353>')
+
     # Sends messages to log channel
-    if debug == "True" and ctx.author.id != 818919767784161293:
+    if debug == "all" and ctx.author.id != 818919767784161293:
         print(f"[-] {bcolors.BOLD}DEBUG: {ctx.author}{bcolors.ENDC} {ctx.content}".replace('\n', '\n │  '))
-        await bot.get_channel(826426599502381056).send(
-            f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
+        await bot.get_channel(826426599502381056).send(f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
     # BANNED WORDS
     with open('assets/BadWords.txt', 'r') as f:
@@ -59,9 +58,27 @@ async def on_command_error(ctx, error):
             embed.set_footer(text=f"Caused by {ctx.author}")
             await ctx.send(embed=embed)  # Send error in chat
         except Exception:  # Print error to console
-            print(f"{bcolors.WARNING}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
+            print(f"{bcolors.WARNING + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}")
         finally:  # When big oops happens
-            print(f"{bcolors.FAIL}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │  '))
+            print(f"{bcolors.FAIL + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}")
+"""        if debug == "errors" or debug == "cmd&errors":
+            try:
+                embed.title(f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}")
+                await bot.get_channel(826426599502381056).send(embed=embed)
+            except Exception:
+                print(f"{bcolors.FAIL}{bcolors.BOLD}ERROR DURING ERROR LOGGING{bcolors.ENDC}")"""
+
+
+# COMMAND LOGGING -----------------------------------------------------------------------------------
+@bot.event
+async def on_command_completion(ctx):
+    if debug == "cmd" or debug == "cmd&errors":
+        embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
+                              title=f"Command was executed by {ctx.author}")
+        embed.add_field(name=f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}",
+                        value=f"**Command:**\n```{ctx.message.content}```")
+        embed.set_footer(text=f"Ran by {ctx.author.mention}")
+        await bot.get_channel(826426599502381056).send(embed=embed)
 
 
 # COMMANDS -----------------------------------------------------------------------------------
@@ -89,11 +106,15 @@ async def ping(ctx, real=None):
 async def soup(ctx):
     await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-# Command to get info about a account
+
+@bot.command(help="Flips a coin!")
+async def coinflip(ctx):
+    await ctx.reply(random.choice(["Heads!", "Tails!"]))
 
 
-
-
+@bot.command(help="A magic eightball")
+async def eightball(ctx):
+    await ctx.reply(random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
 
 
 @bot.command(aliases=['Say'], help="Makes the bot say things")
@@ -111,10 +132,8 @@ async def echo(ctx, *, tell):
         await ctx.message.add_reaction("🔐")
 
 
-
-
-
 # Code stolen (with consent) from "! Thonk##2761" on discord
+# Code is heavily modified by me
 @bot.command(aliases=['source'], help="Links my GitHub profile")
 async def github(ctx, member: discord.Member = None):
     embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
@@ -139,45 +158,6 @@ async def mailfripe(ctx, *, arg):
     else:
         await ctx.send("Messaged Fripe!")
         await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
-
-
-@bot.command(help="Counts the amount of people in the server")
-async def members(ctx, bots=None):
-    if bots is None:  # Deafults to just users
-        servermembers = [member for member in ctx.guild.members if not member.bot]
-        await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-    elif bots.lower() == "all":  # Command to count all acounts in the server
-        await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
-    elif bots.lower() == "bots":  # Command to only count the bots
-        servermembers = [member for member in ctx.guild.members if member.bot]
-        await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
-    else:  # Bad code but it works
-        servermembers = [member for member in ctx.guild.members if not member.bot]
-        await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-
-
-
-# VC COMMANDS -----------------------------------------------------------------------------------
-# Joining a VC:
-@bot.command(name="VCjoin", help="Joins the user's VC")
-async def vcjoin(ctx):
-    if ctx.author.voice is None:
-        # Exiting if the user is not in a voice channel
-        return await ctx.send('You need to be in a voice channel to use this command!')
-    else:
-        channel = ctx.author.voice.channel  # Get the sender's voice channel
-        await channel.connect()  # Join the channel
-
-
-# Leaving a VC:
-@bot.command(name="VCleave", help="Leaves the VC", pass_context=True)
-async def vcleave(ctx):
-    if ctx.author.voice is None:
-        # Exiting if the user is not in a voice channel
-        return await ctx.send('You need to be in a voice channel to use this command!')
-    else:
-        server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
-        await server.disconnect()  # Leave the VC
 
 # RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()

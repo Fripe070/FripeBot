@@ -5,6 +5,17 @@ class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        @bot.command(help="Shows this page")
+        async def help(ctx):
+            commandlist = ''
+            for command in self.bot.walk_commands():
+                commandlist += f'**{command}** - {command.help}\n'
+            embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title=f"Help",
+                                  description=f"**{bot.user.name}**, a bot created by <@444800636681453568> when he was bored!")
+            embed.add_field(name="Commands", value=commandlist)
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            await ctx.reply(embed=embed)
+
         # Command to get info about the minecraft discord dyno tags
         @bot.command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord")
         async def dynotag(ctx, tagname=None, extra=None):
@@ -32,11 +43,12 @@ class Utility(commands.Cog):
         @bot.command(help="Prints all tags (admin only)")
         @has_permissions(administrator=True)
         async def alltags(ctx):
-            print("Printing all tags")
+            print(f'{bcolors.OKGREEN}Printing all tags in channel: {bcolors.OKCYAN}#{ctx.channel}{bcolors.OKGREEN} ID:"{bcolors.OKCYAN}{ctx.channel.id}{bcolors.OKGREEN}"{bcolors.ENDC}')
             for key in dynotags.keys():
                 embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
                 await ctx.send(embed=embed)
 
+        # Command to get info about a account
         @bot.command(help="Displays information about a discord user")
         async def whois(ctx, member: discord.Member = None):
             if not member:
@@ -82,33 +94,40 @@ class Utility(commands.Cog):
 
         @bot.command(aliases=['Eval'], help="Evaluates things")
         async def evaluate(ctx, *, arg=None):
-            if ctx.author.id in trusted:
-                if arg != None:
-                    print(
-                        f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                                   '\n │  '))
-                    if not os.getenv('TOKEN') in eval(arg):
-                        try:
-                            await ctx.send(eval(arg))
-                            await ctx.message.add_reaction("<:yes:823202605123502100>")
-                        except Exception as error:
-                            print(
-                                f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace(
-                                    '\n', '\n │  '))
-                            await ctx.send(f"An error occurred during evaluation```\n{error}\n```")
-                            await ctx.message.add_reaction("<:no:823202604665929779>")
-                    else:
-                        await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
+            if arg is None:
+                await ctx.reply("I cant evaluate nothing")
+                return
+
+            if ctx.author.id in trusted:  # Checks if the user is trusted
+                print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
+                # Checks if the bots token is in the output
+                if os.getenv('TOKEN') in str(eval(arg)):
+                    # Sends a randomly generated string that looks like a token
+                    await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
                 else:
-                    await ctx.reply("I cant evaluate nothing")
+                    try:
+                        await ctx.reply(eval(arg))  # Actually Evaluates
+                        await ctx.message.add_reaction("<:yes:823202605123502100>")
+                    except Exception as error:
+                        print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))
+                        await ctx.message.add_reaction("<:no:823202604665929779>")
             else:
-                print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                               f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
+                print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
-
-
-
+        @bot.command(help="Counts the amount of people in the server")
+        async def members(ctx, bots=None):
+            if bots is None:  # Defaults to just users
+                servermembers = [member for member in ctx.guild.members if not member.bot]
+                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+            elif bots.lower() == "all":  # Command to count all accounts in the server
+                await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
+            elif bots.lower() == "bots":  # Command to only count the bots
+                servermembers = [member for member in ctx.guild.members if member.bot]
+                await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
+            else:  # Bad code but it works
+                servermembers = [member for member in ctx.guild.members if not member.bot]
+                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
 
 
 def setup(bot):
