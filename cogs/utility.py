@@ -32,7 +32,7 @@ class Utility(commands.Cog):
         @bot.command(help="Prints all tags (admin only)")
         @has_permissions(administrator=True)
         async def alltags(ctx):
-            print("Printing all tags")
+            print(f'{bcolors.OKGREEN}Printing all tags in channel: {bcolors.OKCYAN}#{ctx.channel}{bcolors.OKGREEN} ID:"{bcolors.OKCYAN}{ctx.channel.id}{bcolors.OKGREEN}"{bcolors.ENDC}')
             for key in dynotags.keys():
                 embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
                 await ctx.send(embed=embed)
