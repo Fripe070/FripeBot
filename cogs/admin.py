@@ -5,7 +5,7 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        @bot.command(help="Sets the bots status")
+        @commands.command(help="Sets the bots status")
         async def setstatus(self, ctx, activity, *,
                             new_status):  # need to make ppl able to set the status to gaming/watching etc
             if ctx.author.id in trusted:
@@ -37,7 +37,6 @@ class Admin(commands.Cog):
                 print(
                     f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}{activity} {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
                 await ctx.message.add_reaction("🔐")
-
 
         @bot.command(help="Restarts the bot")  # Currently not working
         async def restart(self, ctx):

@@ -57,13 +57,16 @@ async def on_command_error(ctx, error):
             embed.add_field(name="Error:", value=f"```{error}```")
             embed.set_footer(text=f"Caused by {ctx.author}")
             await ctx.send(embed=embed)  # Send error in chat
-            if debug == "errors" or debug == "cmd&errors":
+        except Exception:  # Print error to console
+            print(f"{bcolors.WARNING + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}")
+        finally:  # When big oops happens
+            print(f"{bcolors.FAIL + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}")
+"""        if debug == "errors" or debug == "cmd&errors":
+            try:
                 embed.title(f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}")
                 await bot.get_channel(826426599502381056).send(embed=embed)
-        except Exception:  # Print error to console
-            print(f"{bcolors.WARNING}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}".replace('\n', '\n │ '))
-        finally:  # When big oops happens
-            print(f"{bcolors.FAIL}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │ '))
+            except Exception:
+                print(f"{bcolors.FAIL}{bcolors.BOLD}ERROR DURING ERROR LOGGING{bcolors.ENDC}")"""
 
 
 # COMMAND LOGGING -----------------------------------------------------------------------------------
