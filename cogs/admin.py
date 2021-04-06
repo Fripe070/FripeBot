@@ -6,7 +6,7 @@ class Admin(commands.Cog):
         self.bot = bot
 
         @bot.command(help="Sets the bots status")
-        async def setstatus(ctx, activity, *,
+        async def setstatus(self, ctx, activity, *,
                             new_status):  # need to make ppl able to set the status to gaming/watching etc
             if ctx.author.id in trusted:
                 status = new_status
@@ -40,7 +40,7 @@ class Admin(commands.Cog):
 
 
         @bot.command(help="Restarts the bot")  # Currently not working
-        async def restart(ctx):
+        async def restart(self, ctx):
             if ctx.author.id in trusted:
                 await ctx.message.add_reaction("👍")
                 await ctx.reply("Restarting! :D")
@@ -50,7 +50,7 @@ class Admin(commands.Cog):
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(aliases=['die', 'kill'], help="Stops the bot")
-        async def stop(ctx):
+        async def stop(self, ctx):
             if ctx.author.id in trusted:
                 await ctx.message.add_reaction("👍")
                 await ctx.reply("Ok. :(")

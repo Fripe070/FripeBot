@@ -7,7 +7,7 @@ class Voice(commands.Cog):
 
         # Joining a VC:
         @bot.command(name="VCjoin", help="Joins the user's VC")
-        async def vcjoin(ctx):
+        async def vcjoin(self, ctx):
             if ctx.author.voice is None:
                 # Exiting if the user is not in a voice channel
                 return await ctx.send('You need to be in a voice channel to use this command!')
@@ -17,7 +17,7 @@ class Voice(commands.Cog):
 
         # Leaving a VC:
         @bot.command(name="VCleave", help="Leaves the VC", pass_context=True)
-        async def vcleave(ctx):
+        async def vcleave(self, ctx):
             if ctx.author.voice is None:
                 # Exiting if the user is not in a voice channel
                 return await ctx.send('You need to be in a voice channel to use this command!')

@@ -5,6 +5,17 @@ class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        @bot.command(help="Shows this page")
+        async def help(ctx):
+            commandlist = ''
+            for command in self.bot.walk_commands():
+                commandlist += f'**{command}** - {command.help}\n'
+            embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title=f"Help",
+                                  description=f"**{bot.user.name}**, a bot created by <@444800636681453568> when he was bored!")
+            embed.add_field(name="Commands", value=commandlist)
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            await ctx.reply(embed=embed)
+
         # Command to get info about the minecraft discord dyno tags
         @bot.command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord")
         async def dynotag(ctx, tagname=None, extra=None):
@@ -62,7 +73,7 @@ class Utility(commands.Cog):
             await ctx.send(embed=embed)
 
         @bot.command(aliases=['Exec'], help="Executes code")
-        async def execute(self, ctx, *, arg):
+        async def execute(ctx, *, arg):
             #    if ctx.author.id in trusted:
             if ctx.author.id == ownerid:  # Checking if the person is the owner
                 print(f"{bcolors.OKGREEN}[EXEC] Trying to run code: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
@@ -86,6 +97,7 @@ class Utility(commands.Cog):
             if arg is None:
                 await ctx.reply("I cant evaluate nothing")
                 return
+
             if ctx.author.id in trusted:  # Checks if the user is trusted
                 print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
                 # Checks if the bots token is in the output
@@ -94,7 +106,7 @@ class Utility(commands.Cog):
                     await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
                 else:
                     try:
-                        await ctx.send(eval(arg))  # Actually Evaluates
+                        await ctx.reply(eval(arg))  # Actually Evaluates
                         await ctx.message.add_reaction("<:yes:823202605123502100>")
                     except Exception as error:
                         print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))

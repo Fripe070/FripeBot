@@ -25,8 +25,9 @@ async def on_message(ctx):
     hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello", "hallo", "hej", "tjena", "sup", "wassup", "god dag", "hallå", "holla"]
     if ctx.content.lower() in hellowords:
         await ctx.add_reaction('<a:wave_animated:826546112374243353>')
+
     # Sends messages to log channel
-    if debug == "True" and ctx.author.id != 818919767784161293:
+    if debug == "all" and ctx.author.id != 818919767784161293:
         print(f"[-] {bcolors.BOLD}DEBUG: {ctx.author}{bcolors.ENDC} {ctx.content}".replace('\n', '\n │  '))
         await bot.get_channel(826426599502381056).send(f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
@@ -56,10 +57,25 @@ async def on_command_error(ctx, error):
             embed.add_field(name="Error:", value=f"```{error}```")
             embed.set_footer(text=f"Caused by {ctx.author}")
             await ctx.send(embed=embed)  # Send error in chat
+            if debug == "errors" or debug == "cmd&errors":
+                embed.title(f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}")
+                await bot.get_channel(826426599502381056).send(embed=embed)
         except Exception:  # Print error to console
             print(f"{bcolors.WARNING}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}".replace('\n', '\n │ '))
         finally:  # When big oops happens
             print(f"{bcolors.FAIL}[X] {bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace('\n', '\n │ '))
+
+
+# COMMAND LOGGING -----------------------------------------------------------------------------------
+@bot.event
+async def on_command_completion(ctx):
+    if debug == "cmd" or debug == "cmd&errors":
+        embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
+                              title=f"Command was executed by {ctx.author}")
+        embed.add_field(name=f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}",
+                        value=f"**Command:**\n```{ctx.message.content}```")
+        embed.set_footer(text=f"Ran by {ctx.author.mention}")
+        await bot.get_channel(826426599502381056).send(embed=embed)
 
 
 # COMMANDS -----------------------------------------------------------------------------------
@@ -95,7 +111,7 @@ async def coinflip(ctx):
 
 @bot.command(help="A magic eightball")
 async def eightball(ctx):
-    await ctx.reply(random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Idk ¯\_(ツ)_/¯"]))
+    await ctx.reply(random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
 
 
 @bot.command(aliases=['Say'], help="Makes the bot say things")
@@ -114,6 +130,7 @@ async def echo(ctx, *, tell):
 
 
 # Code stolen (with consent) from "! Thonk##2761" on discord
+# Code is heavily modified by me
 @bot.command(aliases=['source'], help="Links my GitHub profile")
 async def github(ctx, member: discord.Member = None):
     embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
