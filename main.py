@@ -105,9 +105,6 @@ async def echo(ctx, *, tell):
         await ctx.message.add_reaction("🔐")
 
 
-
-
-
 # Code stolen (with consent) from "! Thonk##2761" on discord
 @bot.command(aliases=['source'], help="Links my GitHub profile")
 async def github(ctx, member: discord.Member = None):

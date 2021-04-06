@@ -16,7 +16,7 @@ prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
 debug = config["debug"]
-COGS = ["admin", "utility"]
+COGS = ["admin", "utility", "voice"]
 
 bot = commands.Bot(
     command_prefix=prefix,
