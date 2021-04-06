@@ -83,30 +83,32 @@ class Utility(commands.Cog):
 
         @bot.command(aliases=['Eval'], help="Evaluates things")
         async def evaluate(ctx, *, arg=None):
-            if ctx.author.id in trusted:
-                if arg is not None:
-                    print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
-                    if os.getenv('TOKEN') in str(eval(arg)):
-                        await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
-                    else:
-                        try:
-                            await ctx.send(eval(arg))
-                            await ctx.message.add_reaction("<:yes:823202605123502100>")
-                        except Exception as error:
-                            print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))
-                            await ctx.message.add_reaction("<:no:823202604665929779>")
+            if arg is None:
+                await ctx.reply("I cant evaluate nothing")
+                return
+            if ctx.author.id in trusted:  # Checks if the user is trusted
+                print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
+                # Checks if the bots token is in the output
+                if os.getenv('TOKEN') in str(eval(arg)):
+                    # Sends a randomly generated string that looks like a token
+                    await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
                 else:
-                    await ctx.reply("I cant evaluate nothing")
+                    try:
+                        await ctx.send(eval(arg))  # Actually Evaluates
+                        await ctx.message.add_reaction("<:yes:823202605123502100>")
+                    except Exception as error:
+                        print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))
+                        await ctx.message.add_reaction("<:no:823202604665929779>")
             else:
                 print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(help="Counts the amount of people in the server")
         async def members(ctx, bots=None):
-            if bots is None:  # Deafults to just users
+            if bots is None:  # Defaults to just users
                 servermembers = [member for member in ctx.guild.members if not member.bot]
                 await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-            elif bots.lower() == "all":  # Command to count all acounts in the server
+            elif bots.lower() == "all":  # Command to count all accounts in the server
                 await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
             elif bots.lower() == "bots":  # Command to only count the bots
                 servermembers = [member for member in ctx.guild.members if member.bot]
