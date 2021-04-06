@@ -1,6 +1,6 @@
 from assets.stuff import *
 
-print(f"{bcolors.OKBLUE + bcolors.BOLD}Loaded cogs:{bcolors.ENDC}")
+print(f"{bcolors.OKBLUE + bcolors.BOLD}Cogs:{bcolors.ENDC}")
 for cog in COGS:
     bot.load_extension(f"cogs.{cog}")
     print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
