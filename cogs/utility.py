@@ -126,6 +126,15 @@ class Utility(commands.Cog):
                 servermembers = [member for member in ctx.guild.members if not member.bot]
                 await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
 
+        @bot.command(aliases=['fripemail'], help="Sends a message to fripe")
+        @commands.cooldown(1, 150, commands.BucketType.user)
+        async def mailfripe(ctx, *, arg):
+            if arg == "None":
+                await ctx.send("You have to specify a message!")
+            else:
+                await ctx.send("Messaged Fripe!")
+                await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))

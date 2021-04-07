@@ -127,15 +127,6 @@ async def github(ctx, member: discord.Member = None):
         await ctx.send(embed=embed)
 
 
-@bot.command(aliases=['fripemail'], help="Sends a message to fripe")
-@commands.cooldown(1, 150, commands.BucketType.user)
-async def mailfripe(ctx, *, arg):
-    if arg == "None":
-        await ctx.send("You have to specify a message!")
-    else:
-        await ctx.send("Messaged Fripe!")
-        await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
-
 # RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()
 bot.run(os.getenv('TOKEN'))
