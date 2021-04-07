@@ -6,10 +6,8 @@ reloads = []
 for cog in COGS:
     try:
         bot.load_extension(f"cogs.{cog}")
-        print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
         reloads.append(f"│ {bcolors.OKCYAN}{cog}{bcolors.OKBLUE}")
     except:
-        print(f"{bcolors.FAIL + bcolors.BOLD}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
         reloads.append(f"│ {bcolors.WARNING}{cog}{bcolors.FAIL}")
 
 
@@ -20,10 +18,8 @@ async def on_ready():
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
 {bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"
-Cogs:
-
-└───────────────────────────────────────────────────────{bcolors.ENDC}
-''')
+Cogs:''')
+    print("\n".join(reloads) + f"\n└───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
