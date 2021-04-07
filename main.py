@@ -1,6 +1,6 @@
 from assets.stuff import *
 
-status = f'you. And {len(bot.guilds)} servers 👀'
+
 
 reloads = []
 for cog in COGS:
@@ -15,6 +15,7 @@ for cog in COGS:
 
 @bot.event
 async def on_ready():
+    status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
