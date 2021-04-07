@@ -48,15 +48,6 @@ class Utility(commands.Cog):
                 embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
                 await ctx.send(embed=embed)
 
-        @bot.command()
-        async def Stats(ctx):
-            embed = discord.Embed(colour=0x09CCA2, timestamp=ctx.message.created_at,
-                                  title="System Info")
-            embed.add_field(name="RAM usage", value=f"{round(psutil.virtual_memory().used / 1000000000, 1)}GB out of a total of {round(psutil.virtual_memory().total / 1000000000, 1)}GB")
-            embed.add_field(name="CPU usage", value=f"{psutil.cpu_percent()}%")
-            embed.add_field(name="e", value=os.uname())
-            await ctx.reply(embed=embed)
-
         # Command to get info about a account
         @bot.command(help="Displays information about a discord user")
         async def whois(ctx, member: discord.Member = None):

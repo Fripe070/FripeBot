@@ -9,11 +9,11 @@ class Fun(commands.Cog):
         async def soup(ctx):
             await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-        @bot.command(help="Flips a coin!")
+        @bot.command(aliases=['flip'], help="Flips a coin!")
         async def coinflip(ctx):
             await ctx.reply(random.choice(["Heads!", "Tails!"]))
 
-        @bot.command(help="A magic eightball")
+        @bot.command(aliases=['8ball'], help="A magic eightball")
         async def eightball(ctx):
             await ctx.reply(
                 random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))

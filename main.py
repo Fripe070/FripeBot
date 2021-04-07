@@ -1,17 +1,21 @@
 from assets.stuff import *
 
+status = f'you. And {len(bot.guilds)} servers 👀'
+
 
 @bot.event
 async def on_ready():
-    print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
-Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}{bcolors.ENDC}''')
-    status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-    print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
+    print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
+Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
+{bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}''')
     print(f"{bcolors.OKBLUE + bcolors.BOLD}Cogs:{bcolors.ENDC}")
     for cog in COGS:
-        bot.load_extension(f"cogs.{cog}")
-        print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
+        try:
+            bot.load_extension(f"cogs.{cog}")
+            print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
+        except:
+            print(f"{bcolors.FAIL + bcolors.BOLD}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
     print(f"{bcolors.BOLD + bcolors.OKBLUE}└───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 

@@ -6,7 +6,7 @@ class Admin(commands.Cog):
         self.bot = bot
 
         @commands.command(help="Sets the bots status")
-        async def setstatus(self, ctx, activity, *,
+        async def setstatus(ctx, activity, *,
                             new_status):  # need to make ppl able to set the status to gaming/watching etc
             if ctx.author.id in trusted:
                 status = new_status
@@ -34,22 +34,34 @@ class Admin(commands.Cog):
                     await ctx.reply(f"That's not a valid activity!")
 
             else:
-                print(
-                    f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}{activity} {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
+                print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}{activity} {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(help="Restarts the bot")  # Currently not working
-        async def restart(self, ctx):
+        async def reload(ctx):
             if ctx.author.id in trusted:
+                reloads = []
+                failedreloads = []
+                successfulreloads = []
                 await ctx.message.add_reaction("👍")
-                await ctx.reply("Restarting! :D")
-                await bot.close()
-                os.execv("python3 main.py")
+                print(f"{bcolors.OKBLUE}Reloading cogs!{bcolors.ENDC}")
+                for cog in COGS:
+                    try:
+                        bot.reload_extension(f"cogs.{cog}")
+                        reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}{bcolors.ENDC}")
+                        successfulreloads.append(cog)
+                    except:
+                        reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
+                        failedreloads.append(cog)
+                print("\n".join(reloads))
+                embed = discord.Embed(title=f"Reloaded cogs!", color=0xeb4034)
+                embed.set_footer(text=f"Requested by {ctx.author}")
+                await ctx.send("Successful reloads:```\n" + "\n".join(successfulreloads) + "```Failed reloads:```" + "\n".join(failedreloads) + "```")
             else:
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(aliases=['die', 'kill'], help="Stops the bot")
-        async def stop(self, ctx):
+        async def stop(ctx):
             if ctx.author.id in trusted:
                 await ctx.message.add_reaction("👍")
                 await ctx.reply("Ok. :(")
