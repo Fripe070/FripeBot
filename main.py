@@ -2,21 +2,27 @@ from assets.stuff import *
 
 status = f'you. And {len(bot.guilds)} servers 👀'
 
+reloads = []
+for cog in COGS:
+    try:
+        bot.load_extension(f"cogs.{cog}")
+        print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
+        reloads.append(f"│ {bcolors.OKCYAN}{cog}{bcolors.OKBLUE}")
+    except:
+        print(f"{bcolors.FAIL + bcolors.BOLD}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
+        reloads.append(f"│ {bcolors.WARNING}{cog}{bcolors.FAIL}")
+
 
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
-{bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}''')
-    print(f"{bcolors.OKBLUE + bcolors.BOLD}Cogs:{bcolors.ENDC}")
-    for cog in COGS:
-        try:
-            bot.load_extension(f"cogs.{cog}")
-            print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
-        except:
-            print(f"{bcolors.FAIL + bcolors.BOLD}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
-    print(f"{bcolors.BOLD + bcolors.OKBLUE}└───────────────────────────────────────────────────────{bcolors.ENDC}")
+{bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"
+Cogs:
+
+└───────────────────────────────────────────────────────{bcolors.ENDC}
+''')
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
@@ -55,6 +61,8 @@ async def on_command_error(ctx, error):
     # If the command is on cooldown.
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
+    elif isinstance(error, MemberNotFound):
+        await ctx.reply("That's not a valid member!")
     else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at, title="**An error occurred!** Please notify Fripe if necessary.")
@@ -96,6 +104,11 @@ async def ping(ctx, real=None):
                           description=f"The ping is **{bot_ping}ms!**",
                           color=color)
     await ctx.reply(embed=embed)
+
+
+@bot.command(help="Scrambles the text supplied")
+async def scramble(ctx, *, arg):
+    await ctx.reply(''.join(random.sample(arg,len(arg))))
 
 
 @bot.command(aliases=['Say'], help="Makes the bot say things")
