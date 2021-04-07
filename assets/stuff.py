@@ -1,5 +1,5 @@
 # Imports
-import discord, json, os, string, random
+import discord, json, os, string, random, psutil, sys
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv

@@ -48,6 +48,15 @@ class Utility(commands.Cog):
                 embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
                 await ctx.send(embed=embed)
 
+        @bot.command()
+        async def Stats(ctx):
+            embed = discord.Embed(colour=0x09CCA2, timestamp=ctx.message.created_at,
+                                  title="System Info")
+            embed.add_field(name="RAM usage", value=f"{round(psutil.virtual_memory().used / 1000000000, 1)}GB out of a total of {round(psutil.virtual_memory().total / 1000000000, 1)}GB")
+            embed.add_field(name="CPU usage", value=f"{psutil.cpu_percent()}%")
+            embed.add_field(name="e", value=os.uname())
+            await ctx.reply(embed=embed)
+
         # Command to get info about a account
         @bot.command(help="Displays information about a discord user")
         async def whois(ctx, member: discord.Member = None):
@@ -76,20 +85,12 @@ class Utility(commands.Cog):
         async def execute(ctx, *, arg):
             #    if ctx.author.id in trusted:
             if ctx.author.id == ownerid:  # Checking if the person is the owner
-                print(f"{bcolors.OKGREEN}[EXEC] Trying to run code: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                                 '\n │  '))
                 try:
                     exec(arg)
                     await ctx.message.add_reaction("<:yes:823202605123502100>")
-                except Exception as error:
-                    print(
-                        f"{bcolors.FAIL}[EXEC] {bcolors.BOLD}ERROR DURING EXECUTION: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace(
-                            '\n', '\n │  '))
-                    await ctx.send(f"An error occurred during execution```\n{error}\n```")
+                except Exception:
                     await ctx.message.add_reaction("<:no:823202604665929779>")
             else:
-                print(f"{bcolors.OKBLUE}[EXEC] Tried to run: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                          f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(aliases=['Eval'], help="Evaluates things")
@@ -97,9 +98,7 @@ class Utility(commands.Cog):
             if arg is None:
                 await ctx.reply("I cant evaluate nothing")
                 return
-
             if ctx.author.id in trusted:  # Checks if the user is trusted
-                print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
                 # Checks if the bots token is in the output
                 if os.getenv('TOKEN') in str(eval(arg)):
                     # Sends a randomly generated string that looks like a token
@@ -108,14 +107,12 @@ class Utility(commands.Cog):
                     try:
                         await ctx.reply(eval(arg))  # Actually Evaluates
                         await ctx.message.add_reaction("<:yes:823202605123502100>")
-                    except Exception as error:
-                        print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))
+                    except Exception:
                         await ctx.message.add_reaction("<:no:823202604665929779>")
             else:
-                print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
-        @bot.command(help="Counts the amount of people in the server")
+        @bot.command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
         async def members(ctx, bots=None):
             if bots is None:  # Defaults to just users
                 servermembers = [member for member in ctx.guild.members if not member.bot]

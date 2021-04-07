@@ -61,18 +61,12 @@ async def on_command_error(ctx, error):
             print(f"{bcolors.WARNING + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}")
         finally:  # When big oops happens
             print(f"{bcolors.FAIL + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}")
-"""        if debug == "errors" or debug == "cmd&errors":
-            try:
-                embed.title(f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}")
-                await bot.get_channel(826426599502381056).send(embed=embed)
-            except Exception:
-                print(f"{bcolors.FAIL}{bcolors.BOLD}ERROR DURING ERROR LOGGING{bcolors.ENDC}")"""
-
 
 # COMMAND LOGGING -----------------------------------------------------------------------------------
 @bot.event
 async def on_command_completion(ctx):
-    if debug == "cmd" or debug == "cmd&errors":
+    if debug == "cmd":
+        print(f"Command was executed by {bcolors.OKCYAN}{ctx.message.author}\n{bcolors.HEADER}{ctx.message.content}{bcolors.ENDC}")
         embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
                               title=f"Command was executed by {ctx.author}")
         embed.add_field(name=f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}",
@@ -86,10 +80,7 @@ async def on_command_completion(ctx):
 @bot.command(help="Displays the bots ping")
 async def ping(ctx, real=None):
     await ctx.message.add_reaction("🏓")
-    if real != "fake":
-        bot_ping = round(bot.latency * 1000)
-    else:
-        bot_ping = round(bot.latency * 9999999)
+    bot_ping = round(bot.latency * 1000)
     if bot_ping < 130:
         color = 0x44ff44
     elif bot_ping > 130 and bot_ping < 180:
