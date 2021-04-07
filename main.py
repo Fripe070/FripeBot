@@ -62,6 +62,7 @@ async def on_command_error(ctx, error):
         finally:  # When big oops happens
             print(f"{bcolors.FAIL + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}")
 
+
 # COMMAND LOGGING -----------------------------------------------------------------------------------
 @bot.event
 async def on_command_completion(ctx):
@@ -91,21 +92,6 @@ async def ping(ctx, real=None):
                           description=f"The ping is **{bot_ping}ms!**",
                           color=color)
     await ctx.reply(embed=embed)
-
-
-@bot.command(help="Gives soup")
-async def soup(ctx):
-    await ctx.reply("Here's your soup! <:soup:823158453022228520>")
-
-
-@bot.command(help="Flips a coin!")
-async def coinflip(ctx):
-    await ctx.reply(random.choice(["Heads!", "Tails!"]))
-
-
-@bot.command(help="A magic eightball")
-async def eightball(ctx):
-    await ctx.reply(random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
 
 
 @bot.command(aliases=['Say'], help="Makes the bot say things")
