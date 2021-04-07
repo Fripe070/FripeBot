@@ -18,8 +18,8 @@ async def on_ready():
     print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
 {bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"
-Cogs:''')
-    print("\n".join(reloads) + f"\n└───────────────────────────────────────────────────────{bcolors.ENDC}")
+Cogs:
+''' + "\n".join(reloads) + f"\n└───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
