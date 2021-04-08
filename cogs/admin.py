@@ -43,28 +43,23 @@ class Admin(commands.Cog):
         async def reload(ctx, to_reload=None):
             if ctx.author.id in trusted:
                 reloads = []
-                failedreloads = []
-                successfulreloads = []
+                reloadembed = []
                 await ctx.message.add_reaction("👍")
                 print(f"{bcolors.OKBLUE}Reloading cogs!{bcolors.ENDC}")
-                for cog in COGS:
-                    try:
-                        bot.reload_extension(f"cogs.{cog}")
-                        reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}{bcolors.ENDC}")
-                        successfulreloads.append(cog)
-                    except:
-                        reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
-                        failedreloads.append(cog)
+                embedcolor = 0x34eb40
+                for cog in os.listdir("COGS"):
+                    if cog.endswith(".py"):
+                        try:
+                            bot.reload_extension(f"cogs.{cog[:-3]}")
+                            reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}{bcolors.ENDC}")
+                            reloadembed.append(f"<:Check:829656697835749377> {cog}")
+                        except:
+                            reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
+                            reloadembed.append(f"<:warning:829656327797604372> {cog}")
+                            embedcolor = 0xeb4034
                 print("\n".join(reloads))
-                if len(failedreloads) > 0:
-                    embedcolor = 0xeb4034
-                else:
-                    embedcolor = 0x34eb40
-                embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
-                                      #description="**Successful reloads:**\n" + "\n".join(successfulreloads) + "\n**Failed reloads:**\n" + "\n".join(failedreloads)
-                                      )
-                embed.add_field(name="Successful reloads:", value="‍"+"\n".join(successfulreloads))
-                embed.add_field(name="Failed reloads:", value="‍"+"\n".join(failedreloads))
+
+                embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor, description="‍"+"\n".join(reloadembed))
                 embed.set_footer(text=f"Requested by {ctx.author}")
                 await ctx.send(embed=embed)
             else:
