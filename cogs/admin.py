@@ -44,24 +44,45 @@ class Admin(commands.Cog):
             if ctx.author.id in trusted:
                 reloads = []
                 reloadembed = []
-                await ctx.message.add_reaction("👍")
-                print(f"{bcolors.OKBLUE}Reloading cogs!{bcolors.ENDC}")
                 embedcolor = 0x34eb40
-                for cog in os.listdir("COGS"):
-                    if cog.endswith(".py"):
-                        try:
-                            bot.reload_extension(f"cogs.{cog[:-3]}")
-                            reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}{bcolors.ENDC}")
-                            reloadembed.append(f"<:Check:829656697835749377> {cog}")
-                        except:
-                            reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
-                            reloadembed.append(f"<:warning:829656327797604372> {cog}")
-                            embedcolor = 0xeb4034
-                print("\n".join(reloads))
+                if to_reload is None:
+                    print(f"{bcolors.OKBLUE}Reloading cogs!{bcolors.ENDC}")
+                    for cog in os.listdir("COGS"):
+                        if cog.endswith(".py"):
+                            try:
+                                bot.reload_extension(f"cogs.{cog[:-3]}")
+                                reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}{bcolors.ENDC}")
+                                reloadembed.append(f"<:Check:829656697835749377> {cog}")
+                            except:
+                                reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
+                                reloadembed.append(f"<:warning:829656327797604372> {cog}")
+                                embedcolor = 0xeb4034
 
-                embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor, description="‍"+"\n".join(reloadembed))
-                embed.set_footer(text=f"Requested by {ctx.author}")
-                await ctx.send(embed=embed)
+                    print("\n".join(reloads))
+
+                    embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
+                                          description="‍" + "\n".join(reloadembed))
+                    embed.set_footer(text=f"Requested by {ctx.author}")
+                    await ctx.message.add_reaction("👍")
+                    await ctx.send(embed=embed)
+                else:
+                    if f"{to_reload}.py" in os.listdir("COGS"):
+                        print(f"{bcolors.OKBLUE}Reloading cog: {bcolors.OKCYAN}{to_reload}{bcolors.ENDC}")
+                        try:
+                            bot.reload_extension(f"cogs.{to_reload}")
+                            print(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{to_reload}{bcolors.ENDC}")
+                            embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
+                                                  description=f"<:Check:829656697835749377> Successfully reloaded cog: {to_reload}")
+                        except:
+                            embedcolor = 0xeb4034
+                            print(f"{bcolors.FAIL}│ {bcolors.WARNING}{to_reload}{bcolors.ENDC}")
+                            embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
+                                                  description=f"<:warning:829656327797604372> Failed to reload cog: {to_reload}")
+                        embed.set_footer(text=f"Requested by {ctx.author}")
+                        await ctx.message.add_reaction("👍")
+                        await ctx.send(embed=embed)
+                    else:
+                        ctx.send("That's not a valid cog!")
             else:
                 await ctx.message.add_reaction("🔐")
 
