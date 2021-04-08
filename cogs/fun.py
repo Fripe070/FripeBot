@@ -18,6 +18,12 @@ class Fun(commands.Cog):
             await ctx.reply(
                 random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
 
+        @bot.command()
+        async def kill(ctx, member: discord.Member = None):
+            if not member:
+                member = ctx.message.author
+            
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))
