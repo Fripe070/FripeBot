@@ -103,7 +103,7 @@ class Utility(commands.Cog):
             else:
                 await ctx.message.add_reaction("🔐")
 
-        @beeeeeeeot.command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
+        @bot.command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
         async def members(ctx):
             embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
             embed.set_footer(text=f"Requested by {ctx.author}")
