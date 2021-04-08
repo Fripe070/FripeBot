@@ -86,7 +86,7 @@ class Admin(commands.Cog):
             else:
                 await ctx.message.add_reaction("🔐")
 
-        @bot.command(aliases=['die', 'kill'], help="Stops the bot")
+        @bot.command(aliases=['die'], help="Stops the bot")
         async def stop(ctx):
             if ctx.author.id in trusted:
                 await ctx.message.add_reaction("👍")
