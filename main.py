@@ -60,6 +60,8 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
     elif isinstance(error, MemberNotFound):
         await ctx.reply("That's not a valid member!")
+    elif isinstance(error, MessageNotFound):
+        await ctx.send("Did you delete your message? ")
     else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at, title="**An error occurred!** Please notify Fripe if necessary.")
