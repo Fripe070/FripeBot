@@ -104,18 +104,13 @@ class Utility(commands.Cog):
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
-        async def members(ctx, bots=None):
-            if bots is None:  # Defaults to just users
-                servermembers = [member for member in ctx.guild.members if not member.bot]
-                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-            elif bots.lower() == "all":  # Command to count all accounts in the server
-                await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
-            elif bots.lower() == "bots":  # Command to only count the bots
-                servermembers = [member for member in ctx.guild.members if member.bot]
-                await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
-            else:  # Bad code but it works
-                servermembers = [member for member in ctx.guild.members if not member.bot]
-                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+        async def members(ctx):
+            embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            embed.add_field(name=f"Users:", value=f"{len([member for member in ctx.guild.members if not member.bot])}")
+            embed.add_field(name=f"Bots:", value=f"{len([member for member in ctx.guild.members if member.bot])}")
+            embed.add_field(name=f"Total:", value=f"{len([member for member in ctx.guild.members])}")
+            await ctx.reply(embed=embed)
 
         @bot.command(aliases=['fripemail'], help="Sends a message to fripe")
         @commands.cooldown(1, 150, commands.BucketType.user)
