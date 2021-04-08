@@ -76,20 +76,12 @@ class Utility(commands.Cog):
         async def execute(ctx, *, arg):
             #    if ctx.author.id in trusted:
             if ctx.author.id == ownerid:  # Checking if the person is the owner
-                print(f"{bcolors.OKGREEN}[EXEC] Trying to run code: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                                 '\n │  '))
                 try:
                     exec(arg)
                     await ctx.message.add_reaction("<:yes:823202605123502100>")
-                except Exception as error:
-                    print(
-                        f"{bcolors.FAIL}[EXEC] {bcolors.BOLD}ERROR DURING EXECUTION: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}".replace(
-                            '\n', '\n │  '))
-                    await ctx.send(f"An error occurred during execution```\n{error}\n```")
+                except Exception:
                     await ctx.message.add_reaction("<:no:823202604665929779>")
             else:
-                print(f"{bcolors.OKBLUE}[EXEC] Tried to run: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n',
-                                                                                                          f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(aliases=['Eval'], help="Evaluates things")
@@ -97,9 +89,7 @@ class Utility(commands.Cog):
             if arg is None:
                 await ctx.reply("I cant evaluate nothing")
                 return
-
             if ctx.author.id in trusted:  # Checks if the user is trusted
-                print(f"{bcolors.OKGREEN}[EVAL] Trying to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', '\n │  '))
                 # Checks if the bots token is in the output
                 if os.getenv('TOKEN') in str(eval(arg)):
                     # Sends a randomly generated string that looks like a token
@@ -108,26 +98,28 @@ class Utility(commands.Cog):
                     try:
                         await ctx.reply(eval(arg))  # Actually Evaluates
                         await ctx.message.add_reaction("<:yes:823202605123502100>")
-                    except Exception as error:
-                        print(f"{bcolors.FAIL}[EVAL] {bcolors.BOLD}ERROR DURING EVALUATION: {bcolors.ENDC + bcolors.FAIL}{error}{bcolors.ENDC}".replace('\n', '\n │  '))
+                    except Exception:
                         await ctx.message.add_reaction("<:no:823202604665929779>")
             else:
-                print(f"{bcolors.OKBLUE}[EVAL] Tried to evaluate: {bcolors.OKCYAN}{arg}{bcolors.ENDC}".replace('\n', f'\n {bcolors.OKGREEN}│{bcolors.OKCYAN}  '))
                 await ctx.message.add_reaction("🔐")
 
-        @bot.command(help="Counts the amount of people in the server")
-        async def members(ctx, bots=None):
-            if bots is None:  # Defaults to just users
-                servermembers = [member for member in ctx.guild.members if not member.bot]
-                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
-            elif bots.lower() == "all":  # Command to count all accounts in the server
-                await ctx.send(f"There is a total of {str(len(ctx.guild.members))} members in this server.")
-            elif bots.lower() == "bots":  # Command to only count the bots
-                servermembers = [member for member in ctx.guild.members if member.bot]
-                await ctx.send(f"There is a total of {len(servermembers)} bots in this server.")
-            else:  # Bad code but it works
-                servermembers = [member for member in ctx.guild.members if not member.bot]
-                await ctx.send(f"There is a total of {len(servermembers)} people in this server.")
+        @beeeeeeeot.command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
+        async def members(ctx):
+            embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            embed.add_field(name=f"Users:", value=f"{len([member for member in ctx.guild.members if not member.bot])}")
+            embed.add_field(name=f"Bots:", value=f"{len([member for member in ctx.guild.members if member.bot])}")
+            embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")
+            await ctx.reply(embed=embed)
+
+        @bot.command(aliases=['fripemail'], help="Sends a message to fripe")
+        @commands.cooldown(1, 150, commands.BucketType.user)
+        async def mailfripe(ctx, *, arg):
+            if arg == "None":
+                await ctx.send("You have to specify a message!")
+            else:
+                await ctx.send("Messaged Fripe!")
+                await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
 
 
 def setup(bot):

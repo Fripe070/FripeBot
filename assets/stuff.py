@@ -1,5 +1,5 @@
 # Imports
-import discord, json, os, string, random
+import discord, json, os, string, random, psutil, sys
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
@@ -16,7 +16,7 @@ prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
 debug = config["debug"].lower()
-COGS = ["admin", "utility", "voice"]
+COGS = ["admin", "utility", "voice", "fun"]
 
 bot = commands.Bot(
     command_prefix=prefix,

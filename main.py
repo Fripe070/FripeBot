@@ -1,18 +1,25 @@
 from assets.stuff import *
 
 
+
+reloads = []
+for cog in COGS:
+    try:
+        bot.load_extension(f"cogs.{cog}")
+        reloads.append(f"│ {bcolors.OKCYAN}{cog}{bcolors.OKBLUE}")
+    except:
+        reloads.append(f"│ {bcolors.WARNING}{cog}{bcolors.FAIL}")
+
+
 @bot.event
 async def on_ready():
-    print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
-Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}{bcolors.ENDC}''')
     status = f'you. And {len(bot.guilds)} servers 👀'
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-    print(f'{bcolors.BOLD + bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-    print(f"{bcolors.OKBLUE + bcolors.BOLD}Cogs:{bcolors.ENDC}")
-    for cog in COGS:
-        bot.load_extension(f"cogs.{cog}")
-        print(f"{bcolors.OKBLUE + bcolors.BOLD}│ {bcolors.OKCYAN}{cog}{bcolors.ENDC}")
-    print(f"{bcolors.BOLD + bcolors.OKBLUE}└───────────────────────────────────────────────────────{bcolors.ENDC}")
+    print(f'''{bcolors.BOLD + bcolors.OKBLUE}Connected successfully!
+Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
+{bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"
+Cogs:
+''' + "\n".join(reloads) + f"\n└───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
@@ -51,6 +58,8 @@ async def on_command_error(ctx, error):
     # If the command is on cooldown.
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
+    elif isinstance(error, MemberNotFound):
+        await ctx.reply("That's not a valid member!")
     else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at, title="**An error occurred!** Please notify Fripe if necessary.")
@@ -61,18 +70,13 @@ async def on_command_error(ctx, error):
             print(f"{bcolors.WARNING + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.WARNING} {error}{bcolors.ENDC}")
         finally:  # When big oops happens
             print(f"{bcolors.FAIL + bcolors.BOLD}ERROR: {bcolors.ENDC + bcolors.FAIL} {error}{bcolors.ENDC}")
-"""        if debug == "errors" or debug == "cmd&errors":
-            try:
-                embed.title(f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}")
-                await bot.get_channel(826426599502381056).send(embed=embed)
-            except Exception:
-                print(f"{bcolors.FAIL}{bcolors.BOLD}ERROR DURING ERROR LOGGING{bcolors.ENDC}")"""
 
 
 # COMMAND LOGGING -----------------------------------------------------------------------------------
 @bot.event
 async def on_command_completion(ctx):
-    if debug == "cmd" or debug == "cmd&errors":
+    if debug == "cmd":
+        print(f"Command was executed by {bcolors.OKCYAN}{ctx.message.author}\n{bcolors.HEADER}{ctx.message.content}{bcolors.ENDC}")
         embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
                               title=f"Command was executed by {ctx.author}")
         embed.add_field(name=f"https://discordapp.com/channels/{ctx.guild.id}/{ctx.channel.id}/{ctx.message.id}",
@@ -86,10 +90,7 @@ async def on_command_completion(ctx):
 @bot.command(help="Displays the bots ping")
 async def ping(ctx, real=None):
     await ctx.message.add_reaction("🏓")
-    if real != "fake":
-        bot_ping = round(bot.latency * 1000)
-    else:
-        bot_ping = round(bot.latency * 9999999)
+    bot_ping = round(bot.latency * 1000)
     if bot_ping < 130:
         color = 0x44ff44
     elif bot_ping > 130 and bot_ping < 180:
@@ -102,19 +103,9 @@ async def ping(ctx, real=None):
     await ctx.reply(embed=embed)
 
 
-@bot.command(help="Gives soup")
-async def soup(ctx):
-    await ctx.reply("Here's your soup! <:soup:823158453022228520>")
-
-
-@bot.command(help="Flips a coin!")
-async def coinflip(ctx):
-    await ctx.reply(random.choice(["Heads!", "Tails!"]))
-
-
-@bot.command(help="A magic eightball")
-async def eightball(ctx):
-    await ctx.reply(random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
+@bot.command(help="Scrambles the text supplied")
+async def scramble(ctx, *, arg):
+    await ctx.reply(''.join(random.sample(arg,len(arg))))
 
 
 @bot.command(aliases=['Say'], help="Makes the bot say things")
@@ -149,15 +140,6 @@ async def github(ctx, member: discord.Member = None):
     else:
         await ctx.send(embed=embed)
 
-
-@bot.command(aliases=['fripemail'], help="Sends a message to fripe")
-@commands.cooldown(1, 150, commands.BucketType.user)
-async def mailfripe(ctx, *, arg):
-    if arg == "None":
-        await ctx.send("You have to specify a message!")
-    else:
-        await ctx.send("Messaged Fripe!")
-        await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
 
 # RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()
