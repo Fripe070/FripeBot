@@ -40,7 +40,7 @@ class Admin(commands.Cog):
                 await ctx.message.add_reaction("🔐")
 
         @bot.command(help="Restarts the bot")  # Currently not working
-        async def reload(ctx):
+        async def reload(ctx, to_reload=None):
             if ctx.author.id in trusted:
                 reloads = []
                 failedreloads = []
@@ -56,9 +56,17 @@ class Admin(commands.Cog):
                         reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}{bcolors.ENDC}")
                         failedreloads.append(cog)
                 print("\n".join(reloads))
-                embed = discord.Embed(title=f"Reloaded cogs!", color=0xeb4034)
+                if len(failedreloads) > 0:
+                    embedcolor = 0xeb4034
+                else:
+                    embedcolor = 0x34eb40
+                embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
+                                      #description="**Successful reloads:**\n" + "\n".join(successfulreloads) + "\n**Failed reloads:**\n" + "\n".join(failedreloads)
+                                      )
+                embed.add_field(name="Successful reloads:", value="‍"+"\n".join(successfulreloads))
+                embed.add_field(name="Failed reloads:", value="‍"+"\n".join(failedreloads))
                 embed.set_footer(text=f"Requested by {ctx.author}")
-                await ctx.send("Successful reloads:```\n" + "\n".join(successfulreloads) + "```Failed reloads:```" + "\n".join(failedreloads) + "```")
+                await ctx.send(embed=embed)
             else:
                 await ctx.message.add_reaction("🔐")
 

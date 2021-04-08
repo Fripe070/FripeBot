@@ -109,7 +109,7 @@ class Utility(commands.Cog):
             embed.set_footer(text=f"Requested by {ctx.author}")
             embed.add_field(name=f"Users:", value=f"{len([member for member in ctx.guild.members if not member.bot])}")
             embed.add_field(name=f"Bots:", value=f"{len([member for member in ctx.guild.members if member.bot])}")
-            embed.add_field(name=f"Total:", value=f"{len([member for member in ctx.guild.members])}")
+            embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")
             await ctx.reply(embed=embed)
 
         @bot.command(aliases=['fripemail'], help="Sends a message to fripe")
