@@ -106,7 +106,7 @@ class Utility(commands.Cog):
         @bot.command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
         async def members(ctx):
             embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
-            embed.set_footer(text=f"Requested by {ctx.author}")
+            embed.set_footer(text=f"Requested by {ctx.author.display_name}")
             embed.add_field(name=f"Users:", value=f"{len([member for member in ctx.guild.members if not member.bot])}")
             embed.add_field(name=f"Bots:", value=f"{len([member for member in ctx.guild.members if member.bot])}")
             embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")

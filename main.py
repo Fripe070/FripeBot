@@ -6,9 +6,9 @@ reloads = []
 for cog in COGS:
     try:
         bot.load_extension(f"cogs.{cog}")
-        reloads.append(f"│ {bcolors.OKCYAN}{cog}{bcolors.OKBLUE}")
+        reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
     except:
-        reloads.append(f"│ {bcolors.WARNING}{cog}{bcolors.FAIL}")
+        reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}")
 
 
 @bot.event
@@ -19,7 +19,7 @@ async def on_ready():
 Logged in as {bcolors.OKCYAN}{bot.user.name}{bcolors.OKBLUE}, with the ID {bcolors.OKCYAN}{bot.user.id}
 {bcolors.OKBLUE}Status set to "{bcolors.OKCYAN}watching {status}{bcolors.OKBLUE}"
 Cogs:
-''' + "\n".join(reloads) + f"\n└───────────────────────────────────────────────────────{bcolors.ENDC}")
+''' + "\n".join(reloads) + f"\n{bcolors.OKBLUE}└───────────────────────────────────────────────────────{bcolors.ENDC}")
 
 
 # ON MESSAGE -----------------------------------------------------------------------------------
@@ -60,6 +60,8 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
     elif isinstance(error, MemberNotFound):
         await ctx.reply("That's not a valid member!")
+    elif isinstance(error, MessageNotFound):
+        await ctx.send("Did you delete your message? ")
     else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at, title="**An error occurred!** Please notify Fripe if necessary.")
