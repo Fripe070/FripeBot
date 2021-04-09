@@ -46,7 +46,7 @@ async def on_message(ctx):
                 await ctx.delete()
                 await ctx.channel.send("Don't say that :(")
 
-    await bot.process_commands(ctx) # Processes the commands
+    await bot.process_commands(ctx)  # Processes the commands
 
 
 # ERROR HANDLING -----------------------------------------------------------------------------------

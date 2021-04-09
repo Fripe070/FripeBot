@@ -54,22 +54,40 @@ class Utility(commands.Cog):
             if not member:
                 member = ctx.message.author
             roles = [role.mention for role in member.roles[1:]]
+            roles.reverse()
+
+            def afunctionthatfroopwants(text):
+                e = list(text)
+                bruh = []
+                for lol in e:
+                    if lol == "`":
+                        bruh.append("\`")
+                    else:
+                        bruh.append(lol)
+                return "".join(bruh)
+
             embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
                                   title=f"User Info - {member}")
             embed.set_thumbnail(url=member.avatar_url)
             embed.set_footer(text=f"Requested by {ctx.author}")
 
-            embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {member.name}
-            **Nickname:** {member.display_name}
+            embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {afunctionthatfroopwants(member.name)}
+            **Nickname:** {afunctionthatfroopwants(member.display_name)}
             **Mention:** {member.mention}
             **ID:** {member.id}
             **Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
-            **Activity:** {member.activity.name}
+            **Activity:** {afunctionthatfroopwants(member.activity.name)}
             **Joined server at:** {member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
             **Is user on mobile:** {member.is_on_mobile()}
             **Highest Role:** {member.top_role.mention}
 
             **Roles:** {" ".join(roles)}""")
+
+            await ctx.send(embed=embed)
+
+        @bot.command()
+        async def allroles(ctx):
+            embed = discord.Embed(colour=0x2c7bd2, title="e", description=f"")
             await ctx.send(embed=embed)
 
         @bot.command(aliases=['Exec'], help="Executes code")
@@ -93,7 +111,7 @@ class Utility(commands.Cog):
                 # Checks if the bots token is in the output
                 if os.getenv('TOKEN') in str(eval(arg)):
                     # Sends a randomly generated string that looks like a token
-                    await ctx.reply(''.join(random.choices(string.ascii_letters + string.digits, k=59)))
+                    await ctx.reply(''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_", k=59)))
                 else:
                     try:
                         await ctx.reply(eval(arg))  # Actually Evaluates

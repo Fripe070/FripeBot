@@ -35,6 +35,7 @@ class Fun(commands.Cog):
             temp_message = temp_message.replace("person1", str(person1))
             temp_message = temp_message.replace("person2", str(person2))
             temp_message = temp_message.replace("itemhere", random.choice(list(mcitems.values())))
+            await ctx.message.delete()
             await ctx.send(temp_message)
 
 
