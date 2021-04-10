@@ -3,6 +3,7 @@ import discord, json, os, random
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
+from traceback import format_exception
 from assets.dynotags_formated import dynotags
 from assets.deathmessages import *
 from assets.en_us import en_us
