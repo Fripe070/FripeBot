@@ -32,6 +32,8 @@ class Utility(commands.Cog):
                         await ctx.reply(embed=embed)
                     except KeyError:
                         await ctx.reply("That's not a valid tag!")
+            elif tagname not in dynotags:
+                await ctx.reply("That does not exist")
             else:
                 embed = discord.Embed(colour=0x00ffff, title="Dyno tags", timestamp=ctx.message.created_at)
                 embed.set_footer(text=f"Requested by {ctx.author}")
