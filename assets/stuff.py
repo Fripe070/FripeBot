@@ -19,7 +19,11 @@ prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
 debug = config["debug"].lower()
-COGS = ["admin", "utility", "voice", "fun"]
+COGS = []
+for cog in os.listdir("COGS"):
+    if cog.endswith(".py"):
+        COGS.append(cog[:-3])
+#COGS = ["admin", "utility", "voice", "fun"]
 
 bot = commands.Bot(
     command_prefix=prefix,
