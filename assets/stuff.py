@@ -1,11 +1,13 @@
 # Imports
-import discord, json, os, string, random
+import discord, json, os, random
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
+from traceback import format_exception
 from assets.dynotags_formated import dynotags
 from assets.deathmessages import *
 from assets.en_us import en_us
+from assets.bannedwords import bannedwords
 
 with open("config.json") as f:
     config = json.load(f)
@@ -18,7 +20,11 @@ prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
 debug = config["debug"].lower()
-COGS = ["admin", "utility", "voice", "fun"]
+COGS = []
+for cog in os.listdir("COGS"):
+    if cog.endswith(".py"):
+        COGS.append(cog[:-3])
+#COGS = ["admin", "utility", "voice", "fun"]
 
 bot = commands.Bot(
     command_prefix=prefix,
