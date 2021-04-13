@@ -20,10 +20,11 @@ class Utility(commands.Cog):
         @bot.command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord")
         async def dynotag(ctx, tagname=None, extra=None):
             if tagname != None:
-                if extra != None and extra.lower() == "dyno" or "d":
-                    await ctx.message.delete()
-                    await ctx.send(dynotags[tagname])
-                else:
+                if extra != None:
+                    if extra.lower() == "dyno" or extra.lower() == "d" or extra.lower() == "raw":
+                        await ctx.message.delete()
+                        await ctx.send(dynotags[tagname])
+                elif tagname in dynotags:
                     try:
                         embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at)
                         embed.set_footer(text=f"Requested by {ctx.author}")
@@ -32,8 +33,8 @@ class Utility(commands.Cog):
                         await ctx.reply(embed=embed)
                     except KeyError:
                         await ctx.reply("That's not a valid tag!")
-            elif tagname not in dynotags:
-                await ctx.reply("That does not exist")
+                else:
+                    await ctx.reply("That does not exist")
             else:
                 embed = discord.Embed(colour=0x00ffff, title="Dyno tags", timestamp=ctx.message.created_at)
                 embed.set_footer(text=f"Requested by {ctx.author}")
@@ -177,23 +178,6 @@ class Utility(commands.Cog):
                 await ctx.send(f'{member.mention} Please take a look to my github', embed=embed)
             else:
                 await ctx.send(embed=embed)
-
-        @bot.command(aliases=['Say'], help="Makes the bot say things")
-        async def echo(ctx, *, tell):
-            if ctx.author.id in trusted:
-                if isinstance(ctx.channel, discord.channel.DMChannel):
-                    print(
-                        f'{bcolors.BOLD + bcolors.WARNING}{ctx.author}{bcolors.ENDC + bcolors.FAIL} Tried to make me say: "{bcolors.WARNING + bcolors.BOLD}{tell}{bcolors.ENDC + bcolors.FAIL}" In a dm{bcolors.ENDC}')
-                    await ctx.send("That command isn't available in dms")
-                else:
-                    print(
-                        f'{bcolors.BOLD + bcolors.OKCYAN}{ctx.author}{bcolors.ENDC} Made me say: "{bcolors.OKBLUE + bcolors.BOLD}{tell}{bcolors.ENDC}"')
-                    await ctx.message.delete()
-                    await ctx.send(tell)
-            else:
-                print(
-                    f'{bcolors.BOLD}{bcolors.WARNING}{ctx.author}{bcolors.ENDC}{bcolors.FAIL} Tried to make me say: "{bcolors.WARNING}{bcolors.BOLD}{tell}{bcolors.ENDC}{bcolors.FAIL}" But '"wasnt"f' allowed to{bcolors.ENDC}')
-                await ctx.message.add_reaction("🔐")
 
 
 def setup(bot):

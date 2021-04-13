@@ -7,6 +7,7 @@ from traceback import format_exception
 from assets.dynotags_formated import dynotags
 from assets.deathmessages import *
 from assets.en_us import en_us
+from assets.bannedwords import bannedwords
 
 with open("config.json") as f:
     config = json.load(f)

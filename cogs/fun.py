@@ -38,6 +38,23 @@ class Fun(commands.Cog):
             await ctx.message.delete()
             await ctx.send(temp_message)
 
+        @bot.command(aliases=['Say'], help="Makes the bot say things")
+        async def echo(ctx, *, tell):
+            if ctx.author.id in trusted:
+                if isinstance(ctx.channel, discord.channel.DMChannel):
+                    print(
+                        f'{bcolors.BOLD + bcolors.WARNING}{ctx.author}{bcolors.ENDC + bcolors.FAIL} Tried to make me say: "{bcolors.WARNING + bcolors.BOLD}{tell}{bcolors.ENDC + bcolors.FAIL}" In a dm{bcolors.ENDC}')
+                    await ctx.send("That command isn't available in dms")
+                else:
+                    print(
+                        f'{bcolors.BOLD + bcolors.OKCYAN}{ctx.author}{bcolors.ENDC} Made me say: "{bcolors.OKBLUE + bcolors.BOLD}{tell}{bcolors.ENDC}"')
+                    await ctx.message.delete()
+                    await ctx.send(tell)
+            else:
+                print(
+                    f'{bcolors.BOLD}{bcolors.WARNING}{ctx.author}{bcolors.ENDC}{bcolors.FAIL} Tried to make me say: "{bcolors.WARNING}{bcolors.BOLD}{tell}{bcolors.ENDC}{bcolors.FAIL}" But '"wasnt"f' allowed to{bcolors.ENDC}')
+                await ctx.message.add_reaction("🔐")
+
 
 def setup(bot):
     bot.add_cog(Fun(bot))

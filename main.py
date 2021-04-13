@@ -30,8 +30,12 @@ async def on_message(ctx):
         await ctx.add_reaction("<:ping_gun:823948139504861225>")
     # Responds with a wave emoji if the message says hi ort similar
     hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello", "hallo", "hej", "tjena", "sup", "wassup", "god dag", "hallå", "holla"]
-    if ctx.content.lower() in hellowords:
-        await ctx.add_reaction('<a:wave_animated:826546112374243353>')
+#    if ctx.content.lower() in hellowords:
+#        await ctx.add_reaction('<a:wave_animated:826546112374243353>')
+
+    if ctx.author != bot.user and isinstance(ctx.channel, discord.channel.DMChannel):
+        print(f"{ctx.author} Send this in a DM: {ctx.content}")
+        await ctx.author.send(ctx.content)
 
     # Sends messages to log channel
     if debug == "all" and ctx.author.id != 818919767784161293:
@@ -39,12 +43,11 @@ async def on_message(ctx):
         await bot.get_channel(826426599502381056).send(f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
     # BANNED WORDS
-    with open('assets/BadWords.txt', 'r') as f:
-        badwords = f.read().split()
-        for word in badwords:
-            if word in ctx.content:
-                await ctx.delete()
-                await ctx.channel.send("Don't say that :(")
+    for word in bannedwords:
+        if word in ctx.content:
+            await ctx.delete()
+            print(f"{ctx.author.display_name} Said a bad thing")
+            await ctx.channel.send(f"Don't say that :( {ctx.author.mention}", delete_after=10)
 
     await bot.process_commands(ctx)  # Processes the commands
 
