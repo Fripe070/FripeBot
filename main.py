@@ -43,11 +43,12 @@ async def on_message(ctx):
         await bot.get_channel(826426599502381056).send(f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
     # BANNED WORDS
-    for word in bannedwords:
-        if word in ctx.content:
-            await ctx.delete()
-            print(f"{ctx.author.display_name} Said a bad thing")
-            await ctx.channel.send(f"Don't say that :( {ctx.author.mention}", delete_after=10)
+    if ctx.author != bot.user:
+        for word in bannedwords:
+            if word in ctx.content:
+                await ctx.delete()
+                print(f"{ctx.author.display_name} Said a bad thing")
+                await ctx.channel.send(f"Don't say that :( {ctx.author.mention}", delete_after=10)
 
     await bot.process_commands(ctx)  # Processes the commands
 
