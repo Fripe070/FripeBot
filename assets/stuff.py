@@ -4,7 +4,6 @@ from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
 from traceback import format_exception
-from bannedwords import bannedwords
 from assets.dynotags_formated import dynotags
 from assets.deathmessages import *
 from assets.en_us import en_us
