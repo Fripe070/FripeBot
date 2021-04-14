@@ -55,6 +55,5 @@ class Fun(commands.Cog):
                     f'{bcolors.BOLD}{bcolors.WARNING}{ctx.author}{bcolors.ENDC}{bcolors.FAIL} Tried to make me say: "{bcolors.WARNING}{bcolors.BOLD}{tell}{bcolors.ENDC}{bcolors.FAIL}" But '"wasnt"f' allowed to{bcolors.ENDC}')
                 await ctx.message.add_reaction("🔐")
 
-
 def setup(bot):
     bot.add_cog(Fun(bot))
