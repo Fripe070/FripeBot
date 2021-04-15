@@ -1,13 +1,12 @@
 from assets.stuff import *
 
 
-
 reloads = []
 for cog in COGS:
     try:
         bot.load_extension(f"cogs.{cog}")
         reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
-    except:
+    except Exception:
         reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}")
 
 
@@ -29,7 +28,6 @@ async def on_message(ctx):
     if ctx.author != bot.user and f"<@{bot.user.id}>" in ctx.content or f"<@!{bot.user.id}>" in ctx.content:
         await ctx.add_reaction("<:ping_gun:823948139504861225>")
     # Responds with a wave emoji if the message says hi ort similar
-    hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello", "hallo", "hej", "tjena", "sup", "wassup", "god dag", "hallå", "holla"]
 #    if ctx.content.lower() in hellowords:
 #        await ctx.add_reaction('<a:wave_animated:826546112374243353>')
 
@@ -61,7 +59,8 @@ async def on_command_error(ctx, error):
         await ctx.message.add_reaction("❓")
     # If the command is on cooldown.
     elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
+        await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.",
+                                           color=0xeb4034))
     elif isinstance(error, MemberNotFound):
         await ctx.reply("That's not a valid member!")
     elif isinstance(error, MessageNotFound):

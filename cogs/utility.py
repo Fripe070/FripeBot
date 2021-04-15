@@ -59,7 +59,7 @@ class Utility(commands.Cog):
             roles = [role.mention for role in member.roles[1:]]
             roles.reverse()
 
-            def afunctionthatfroopwants(text):
+            def afunctionthatfroopwants(text):  # Thanks Discord_
                 e = list(text)
                 bruh = []
                 for lol in e:
