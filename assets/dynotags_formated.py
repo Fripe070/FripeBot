@@ -101,7 +101,7 @@ https://help.minecraft.net/hc/en-us/articles/360040841471""",
 
     "m": """:mining_jump: **Don't post multiplayer requests in this channel.** Read this message in #multiplayer-lfg for more information: https://discord.com/channels/302094807046684672/332967590685310978/821751740188852255""",
 
-    "media": """:frame_photo: Don't have permissions to post images or videos? Upload your media to <https://imgur.com/>, <https://imgbb.com/>, or <https://streamable.com/> and share the link. These services are free and don't require an account.""",
+    "media": """:frame_photo: Don't have permissions to post images or videos? Upload your image to <https://postimages.org> or video clip to <https://streamable.com/> and share the link. These services are free and don't require an account.""",
 
     "migration": """Mojang account to Microsoft account **migration has not started yet**, but will happen sometime early this year. Mojang will notify you when it’s your turn to migrate.
 https://help.minecraft.net/hc/en-us/articles/360050865492""",
