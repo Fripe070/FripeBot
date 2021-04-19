@@ -19,24 +19,27 @@ class Fun(commands.Cog):
                 random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
 
         @bot.command(help="Kill someone with a randomized Minecraft death message")
-        async def kill(ctx, person1: discord.Member = None, person2: discord.Member = None):
-            if not person1:
-                person1 = ctx.message.author.mention
-            else:
-                person1 = str(person1.mention)
-            if ctx.author.id in trusted:
-                if not person2:
-                    person2 = ctx.message.author.mention
-                else:
-                    person2 = str(person2.mention)
-            else:
-                person2 = ctx.message.author.mention
+        async def kill(ctx, person1 = None):
+            if person1 == "None":
+                await ctx.reply("You need to specify who to kill!")
             temp_message = random.choice(list(death_messages.values()))
             temp_message = temp_message.replace("person1", str(person1))
-            temp_message = temp_message.replace("person2", str(person2))
+            temp_message = temp_message.replace("person2", str(ctx.author.display_name))
             temp_message = temp_message.replace("itemhere", random.choice(list(mcitems.values())))
             await ctx.message.delete()
             await ctx.send(temp_message)
+
+        @bot.command(aliases=["ikill"], help="Kill someone with a randomized Minecraft death message")
+        async def itemkill(ctx, person1 = None):
+            if person1 == "None":
+                await ctx.reply("You need to specify who to kill!")
+            else:
+                temp_message = random.choice(list(item_deaths.values()))
+                temp_message = temp_message.replace("person1", str(person1))
+                temp_message = temp_message.replace("person2", str(ctx.author.display_name))
+                temp_message = temp_message.replace("itemhere", random.choice(list(mcitems.values())))
+                await ctx.message.delete()
+                await ctx.send(temp_message)
 
         @bot.command(aliases=['Say'], help="Makes the bot say things")
         async def echo(ctx, *, tell):
