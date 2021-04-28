@@ -36,7 +36,7 @@ async def on_message(ctx):
         await ctx.author.send(ctx.content)
 
     # Sends messages to log channel
-    if debug == "all" and ctx.author.id != 818919767784161293:
+    if debug == "all" and ctx.author.id != bot.user.id:
         print(f"[-] {bcolors.BOLD}DEBUG: {ctx.author}{bcolors.ENDC} {ctx.content}".replace('\n', '\n │  '))
         await bot.get_channel(826426599502381056).send(f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
