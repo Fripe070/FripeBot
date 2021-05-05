@@ -24,7 +24,7 @@ class Fun(commands.Cog):
                 await ctx.reply("You need to specify who to kill!")
             temp_message = random.choice(list(death_messages.values()))
             temp_message = temp_message.replace("person1", str(person1))
-            temp_message = temp_message.replace("person2", str(ctx.author.display_name))
+            temp_message = temp_message.replace("person2", str(ctx.author.mention))
             temp_message = temp_message.replace("itemhere", random.choice(list(mcitems.values())))
             await ctx.message.delete()
             await ctx.send(temp_message)
@@ -36,7 +36,7 @@ class Fun(commands.Cog):
             else:
                 temp_message = random.choice(list(item_deaths.values()))
                 temp_message = temp_message.replace("person1", str(person1))
-                temp_message = temp_message.replace("person2", str(ctx.author.display_name))
+                temp_message = temp_message.replace("person2", str(ctx.author.mention))
                 temp_message = temp_message.replace("itemhere", random.choice(list(mcitems.values())))
                 await ctx.message.delete()
                 await ctx.send(temp_message)

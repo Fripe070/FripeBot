@@ -7,13 +7,13 @@ class Utility(commands.Cog):
 
         @bot.command(help="Shows this page")
         async def help(ctx):
+            embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title=f"Help",
+                                  description=f"**{bot.user.name}**, a bot created by <@444800636681453568> when he was bored!")
+            embed.set_footer(text=f"Requested by {ctx.author}")
             commandlist = ''
             for command in self.bot.walk_commands():
                 commandlist += f'**{command}** - {command.help}\n'
-            embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title=f"Help",
-                                  description=f"**{bot.user.name}**, a bot created by <@444800636681453568> when he was bored!")
             embed.add_field(name="Commands", value=commandlist)
-            embed.set_footer(text=f"Requested by {ctx.author}")
             await ctx.reply(embed=embed)
 
         # Command to get info about the minecraft discord dyno tags
@@ -44,12 +44,31 @@ class Utility(commands.Cog):
 
         # Prints all the minecraft discord dyno tags
         @bot.command(help="Prints all tags (admin only)")
-        @has_permissions(administrator=True)
-        async def alltags(ctx):
-            print(f'{bcolors.OKGREEN}Printing all tags in channel: {bcolors.OKCYAN}#{ctx.channel}{bcolors.OKGREEN} ID:"{bcolors.OKCYAN}{ctx.channel.id}{bcolors.OKGREEN}"{bcolors.ENDC}')
-            for key in dynotags.keys():
-                embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
-                await ctx.send(embed=embed)
+        async def alltags(ctx, channel: discord.TextChannel):
+            if ctx.author.server_premission.administrator or ctx.author.id is ownerid:
+                print(
+                    f'{bcolors.OKGREEN}Printing all tags in channel: {bcolors.OKCYAN}#{channel}{bcolors.OKGREEN} ID:"{bcolors.OKCYAN}{channel.id}{bcolors.OKGREEN}"{bcolors.ENDC}')
+                for key in dynotags.keys():
+                    embed = discord.Embed(colour=0x2c7bd2, title=f"?t {key}", description=dynotags[key])
+                    await channel.send(embed=embed)
+            else:
+                ctx.reply("You don't have the required permissions to perform this command! :pensive:")
+
+        @bot.command(help="Prints all tags (admin only)")
+        async def updatetags(ctx, channel: discord.TextChannel):
+            message = await ctx.reply("Updating all tags (this might take some time)")
+            channel = bot.get_channel(channel.id)
+            tags = {}
+            some_list = []
+            async for e in channel.history(limit=200):
+                some_list.append(e.content)
+            some_list.reverse()
+            for index in range(0, len(some_list), 2):
+                tags[some_list[index]] = some_list[index+1]
+
+            with open('assets/dynotags.json', 'w') as f:
+                json.dump(tags, f)
+            await message.edit(content="Updating all tags (this might take some time)\n\nDone!")
 
         # Command to get info about a account
         @bot.command(help="Displays information about a discord user")
@@ -100,8 +119,9 @@ class Utility(commands.Cog):
                 try:
                     exec(arg)
                     await ctx.message.add_reaction("<:yes:823202605123502100>")
-                except Exception:
+                except Exception as error:
                     await ctx.message.add_reaction("<:no:823202604665929779>")
+                    await ctx.reply(error)
             else:
                 await ctx.message.add_reaction("🔐")
 

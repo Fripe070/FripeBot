@@ -66,7 +66,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, MessageNotFound):
         await ctx.send("Did you delete your message? ")
     elif isinstance(error, MissingPermissions):
-        await ctx.reply("Thonk says you don't have the required permissions to perform this command :pensive:")
+        await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
     else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
