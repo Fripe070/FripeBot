@@ -47,8 +47,6 @@ death_messages = {
     "death.attack.anvil.player": "person1 was squashed by a falling anvil whilst fighting person2",
     "death.attack.fallingBlock": "person1 was squashed by a falling block",
     "death.attack.fallingBlock.player": "person1 was squashed by a falling block whilst fighting person2",
-    "death.attack.mob": "person1 was slain by person2",
-    "death.attack.mob.item": "person1 was slain by person2 using itemhere",
     "death.attack.player": "person1 was slain by person2",
     "death.attack.player.item": "person1 was slain by person2 using itemhere",
     "death.attack.arrow": "person1 was shot by person2",
@@ -58,7 +56,6 @@ death_messages = {
     "death.attack.thrown": "person1 was pummeled by person2",
     "death.attack.thrown.item": "person1 was pummeled by person2 using itemhere",
     "death.attack.indirectMagic": "person1 was killed by person2 using magic",
-    "death.attack.indirectMagic.item": "person1 was killed by person2 using itemhere",
     "death.attack.thorns": "person1 was killed trying to hurt person2",
     "death.attack.thorns.item": "person1 was killed by itemhere trying to hurt person2",
     "death.attack.trident": "person1 was impaled by person2",
@@ -410,4 +407,17 @@ mcitems = {
     "item.minecraft.netherite_shovel": "Netherite Shovel",
     "item.minecraft.netherite_sword": "Netherite Sword",
     "item.minecraft.warped_fungus_on_a_stick": "Warped Fungus on a Stick"
+}
+
+item_deaths = {
+    "death.fell.assist.item": "person1 was doomed to fall by person2 using itemhere",
+    "death.fell.finish.item": "person1 fell too far and was finished by person2 using itemhere",
+    "death.attack.explosion.player.item": "person1 was blown up by person2 using itemhere",
+    "death.attack.player.item": "person1 was slain by person2 using itemhere",
+    "death.attack.arrow.item": "person1 was shot by person2 using itemhere",
+    "death.attack.fireball.item": "person1 was fireballed by person2 using itemhere",
+    "death.attack.thrown.item": "person1 was pummeled by person2 using itemhere",
+    "death.attack.thorns.item": "person1 was killed by itemhere trying to hurt person2",
+    "death.attack.trident.item": "person1 was impaled by person2 with itemhere",
+    "death.attack.fireworks.item": "person1 went off with a bang due to a firework fired from itemhere by person2"
 }

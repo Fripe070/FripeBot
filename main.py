@@ -1,13 +1,12 @@
 from assets.stuff import *
 
 
-
 reloads = []
 for cog in COGS:
     try:
         bot.load_extension(f"cogs.{cog}")
         reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
-    except:
+    except Exception:
         reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{cog}")
 
 
@@ -29,7 +28,6 @@ async def on_message(ctx):
     if ctx.author != bot.user and f"<@{bot.user.id}>" in ctx.content or f"<@!{bot.user.id}>" in ctx.content:
         await ctx.add_reaction("<:ping_gun:823948139504861225>")
     # Responds with a wave emoji if the message says hi ort similar
-    hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello", "hallo", "hej", "tjena", "sup", "wassup", "god dag", "hallå", "holla"]
 #    if ctx.content.lower() in hellowords:
 #        await ctx.add_reaction('<a:wave_animated:826546112374243353>')
 
@@ -38,7 +36,7 @@ async def on_message(ctx):
         await ctx.author.send(ctx.content)
 
     # Sends messages to log channel
-    if debug == "all" and ctx.author.id != 818919767784161293:
+    if debug == "all" and ctx.author.id != bot.user.id:
         print(f"[-] {bcolors.BOLD}DEBUG: {ctx.author}{bcolors.ENDC} {ctx.content}".replace('\n', '\n │  '))
         await bot.get_channel(826426599502381056).send(f"[-] DEBUG: {ctx.author.mention}\n```{ctx.content}```")
 
@@ -61,13 +59,14 @@ async def on_command_error(ctx, error):
         await ctx.message.add_reaction("❓")
     # If the command is on cooldown.
     elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xeb4034))
+        await ctx.send(embed=discord.Embed(title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.",
+                                           color=0xeb4034))
     elif isinstance(error, MemberNotFound):
         await ctx.reply("That's not a valid member!")
     elif isinstance(error, MessageNotFound):
         await ctx.send("Did you delete your message? ")
     elif isinstance(error, MissingPermissions):
-        await ctx.reply("Thonk says you don't have the required permissions to perform this command :pensive:")
+        await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
     else:  # If its a actual error.
         try:
             embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
