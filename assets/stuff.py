@@ -57,3 +57,14 @@ class bcolors:
     BOLDOKGREEN = '\033[1m\033[92m'
     BOLDWARN = '\033[1m\033[93m'
     BOLDFAIL = '\033[1m\033[91m'
+
+
+def rembackslash(text):  # Thanks Discord_
+    e = list(text)
+    bruh = []
+    for unallowed in e:
+        if unallowed == "`":
+            bruh.append("\`")
+        else:
+            bruh.append(unallowed)
+    return "".join(bruh)

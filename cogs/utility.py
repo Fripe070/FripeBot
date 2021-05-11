@@ -70,6 +70,17 @@ class Utility(commands.Cog):
                 json.dump(tags, f)
             await message.edit(content="Updating all tags (this might take some time)\n\nDone!")
 
+        @bot.command(aliases=["pfpget", "gpfp", "pfp"], help="Gets a users profile picture at a high resolution")
+        async def getpfp(ctx, member: discord.Member = None):
+            if not member:
+                member = ctx.message.author
+            pfp = str(member.avatar_url)[:-4] + "4096"
+            embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
+                                  title=f"{member.display_name}'s pfp")
+            embed.set_image(url=pfp)
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            await ctx.send(embed=embed)
+
         # Command to get info about a account
         @bot.command(help="Displays information about a discord user")
         async def whois(ctx, member: discord.Member = None):
@@ -77,34 +88,24 @@ class Utility(commands.Cog):
                 member = ctx.message.author
             roles = [role.mention for role in member.roles[1:]]
             roles.reverse()
-
-            def afunctionthatfroopwants(text):  # Thanks Discord_
-                e = list(text)
-                bruh = []
-                for lol in e:
-                    if lol == "`":
-                        bruh.append("\`")
-                    else:
-                        bruh.append(lol)
-                return "".join(bruh)
+            pfp = str(member.avatar_url)[:-4] + "4096"
 
             embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
                                   title=f"User Info - {member}")
-            embed.set_thumbnail(url=member.avatar_url)
+            embed.set_thumbnail(url=pfp)
             embed.set_footer(text=f"Requested by {ctx.author}")
 
-            embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {afunctionthatfroopwants(member.name)}
-            **Nickname:** {afunctionthatfroopwants(member.display_name)}
+            embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {rembackslash(member.name)}
+            **Nickname:** {rembackslash(member.display_name)}
             **Mention:** {member.mention}
             **ID:** {member.id}
             **Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
-            **Activity:** {afunctionthatfroopwants(member.activity.name)}
             **Joined server at:** {member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
             **Is user on mobile:** {member.is_on_mobile()}
             **Highest Role:** {member.top_role.mention}
 
             **Roles:** {" ".join(roles)}""")
-
+#            **Activity:** {afunctionthatfroopwants(member.activity.name)}
             await ctx.send(embed=embed)
 
         @bot.command()
