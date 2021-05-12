@@ -1,5 +1,8 @@
 # Imports
-import discord, json, os, random
+import discord
+import json
+import os
+import random
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
@@ -20,11 +23,14 @@ prefix = config["prefixes"]
 trusted = config["trusted"]
 ownerid = 444800636681453568
 debug = config["debug"].lower()
+
+hellowords = ["hello", "hi", "greetings", "howdy", "hey", "yo", "ello",
+              "hallo", "hej", "tjena", "sup", "wassup", "god dag", "hallå", "holla"]
+
 COGS = []
 for cog in os.listdir("COGS"):
     if cog.endswith(".py"):
         COGS.append(cog[:-3])
-#COGS = ["admin", "utility", "voice", "fun"]
 
 bot = commands.Bot(
     command_prefix=prefix,
@@ -46,3 +52,19 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
     ITALIC = '\033[3m'
+    BOLDOKBLUE = '\033[1m\033[94m'
+    BOLDOKCYAN = '\033[1m\033[96m'
+    BOLDOKGREEN = '\033[1m\033[92m'
+    BOLDWARN = '\033[1m\033[93m'
+    BOLDFAIL = '\033[1m\033[91m'
+
+
+def rembackslash(text):  # Thanks Discord_
+    e = list(text)
+    bruh = []
+    for unallowed in e:
+        if unallowed == "`":
+            bruh.append("\`")
+        else:
+            bruh.append(unallowed)
+    return "".join(bruh)
