@@ -110,15 +110,24 @@ class Utility(Cog):
         await ctx.send(embed=embed)
 
     @command(aliases=['Exec'], help="Executes code")
-    async def execute(self, ctx, *, arg):
+    async def execute(self, ctx, *, code):
         #    if ctx.author.id in trusted:
         if ctx.author.id == ownerid:  # Checking if the person is the owner
+            code = code.replace('```py', '').replace('```', '').strip()
+            code = '\n'.join([f'\t{line}' for line in code.splitlines()])
+            function_code = (
+                'async def exec_code(self, ctx):\n'
+                f'{code}')
             try:
-                exec(arg)
+                exec(function_code)
+                await locals()['exec_code'](self, ctx)
                 await ctx.message.add_reaction("<:yes:823202605123502100>")
             except Exception as error:
                 await ctx.message.add_reaction("<:no:823202604665929779>")
-                await senderror(ctx, error)
+                await ctx.reply(embed=discord.Embed(colour=0xff0000,
+                                                    timestamp=ctx.message.created_at,
+                                                    title="Your code failed to run!",
+                                                    description=f"```{error}```"))
         else:
             await ctx.message.add_reaction("🔐")
 
