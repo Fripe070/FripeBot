@@ -103,9 +103,11 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
 
 bot.help_command = Help()
+
+# This is pain, it wont work, therefore its comented out. Dont use this
 """
 @bot.command()
-async def test(ctx):
+async def test(ctx):  
 
     headers = {
         "Authorization": f"Bot {os.getenv('TOKEN')}",
