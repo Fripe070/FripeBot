@@ -1,5 +1,5 @@
 # Imports
-import discord, json, os, random
+import discord, json, os, random, aiohttp, requests
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
@@ -57,6 +57,16 @@ def rembackslash(text):  # Thanks Discord_
         else:
             bruh.append(unallowed)
     return "".join(bruh)
+
+
+def getpfp(member):
+
+    pfp = f"https://cdn.discordapp.com/"
+
+    pfp = str(member.avatar_url)[:-4] + "4096"
+    pfp = pfp.replace(".webp", ".png")
+
+    return pfp
 
 
 # COGS  -----------------------------------------------------------------------------------
