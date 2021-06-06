@@ -70,14 +70,22 @@ def getpfp(member):
 
 
 # COGS  -----------------------------------------------------------------------------------
-def getcogs(dir: str = ""):
-    COGS = [] # Makes a list named "COGS" that is empty
-    if dir == "":  # If the "dir" variable is empty deafult it to "cogs"
+def getcogs(dir: str = None):
+    COGS = []  # Makes a empty list named "COGS"
+
+    if dir is None:  # If the "dir" variable is empty deafult it to "cogs"
         dir = "cogs"
+    elif dir.startswith("cogs"):
+        pass
+    else:
+        dir = f"cogs/{dir}"
+
     dir = dir.replace(".", "/")  # Replaces "." with "/"
     dir = dir.replace("\\", "/")  # Replaces "\" with "/"
-    if os.path.isfile(f"cogs/{dir}.py"):  # If the path provided is a file (aka not a directory)
-        return [f"cogs.{dir}"]  # Just return that file
+
+    if os.path.isfile(f"{dir}.py"):  # If the path provided is a file (aka not a directory)
+        return [dir]  # Replaces "\" and "/" with "." and returns the file
+
     for path, subdirs, files in os.walk(dir):  # For evcerything in the "dir" directory
         for filename in files:  # For all files in that directory
             if filename.endswith(".py"):  # Makes sure the file is actualy a python file
@@ -85,7 +93,8 @@ def getcogs(dir: str = ""):
                 COGS.append(
                     (os.path.join(path, filename)
                      # Replaces "\" and "/" with "."
-                     ).replace("\\", ".").replace("/", ".")[:-3])
+                     ).replace("\\", "/")[:-3])
+
     return COGS if COGS != [] else None
 
 

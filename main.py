@@ -4,7 +4,7 @@ from assets.stuff import *
 reloads = []
 for cog in getcogs():
     try:
-        bot.load_extension(f"{cog}")
+        bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
         reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
     except Exception as error:
         reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
