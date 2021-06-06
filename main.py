@@ -4,7 +4,7 @@ from assets.stuff import *
 reloads = []
 for cog in getcogs():
     try:
-        bot.load_extension(f"{cog}")
+        bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
         reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
     except Exception as error:
         reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
@@ -103,6 +103,45 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
 
 bot.help_command = Help()
+
+# This is pain, it wont work, therefore its comented out. Dont use this
+"""
+@bot.command()
+async def test(ctx):  
+
+    headers = {
+        "Authorization": f"Bot {os.getenv('TOKEN')}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "components": [{
+            "type": 1,
+            "components": [
+                {
+                    "type": 2,
+                    "label": "Test",
+                    "style": 3
+                },
+                {
+                    "type": 2,
+                    "label": "Pog",
+                    "style": 5,
+                    "url": "https://www.google.com/"
+                }
+            ]
+        }]
+    }
+
+    session = aiohttp.ClientSession()
+    r = await session.post(
+        f"https://discord.com/api/v9/channels/{ctx.channel.id}/messages",
+        headers=headers,
+        data=data
+    )
+    await session.close()
+    await ctx.send(r)
+"""
 
 # RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()

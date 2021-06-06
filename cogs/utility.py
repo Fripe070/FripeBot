@@ -1,3 +1,7 @@
+import json
+
+import discord
+
 from assets.stuff import *
 
 
@@ -35,34 +39,41 @@ class Utility(Cog):
     @command(help="Prints all tags (admin only)")
     async def alltags(self, ctx, channel: discord.TextChannel):
         if ctx.author.id in trusted or ctx.author.server_premission.administrator:
+            await ctx.message.add_reaction("<a:loading:848604953953435670>")
+            message = await ctx.reply(f"Deleting mesages in {channel.mention}")
             await channel.purge(limit=200)
+            await message.edit(content=f"Sending all the tags in {channel.mention}")
             print(
                 f'{bcolors.OKGREEN}Printing all tags in channel: {bcolors.OKCYAN}#{channel}{bcolors.OKGREEN} ID:"{bcolors.OKCYAN}{channel.id}{bcolors.OKGREEN}"{bcolors.ENDC}')
             for key in dtags.keys():
                 embed = discord.Embed(colour=0x2c7bd2, title=key, description=dtags[key])
                 await channel.send(embed=embed)
+            await message.edit(content="Tag printing complete!")
         else:
             ctx.reply("You don't have the required permissions to perform this command! :pensive:")
 
     @command(help="Gets all tags")
     async def updatetags(self, ctx, channel: discord.TextChannel):
         if ctx.author.id in trusted or ctx.author.server_premission.administrator:
-            message = await ctx.reply("Updating all tags (this might take some time)")
+            await ctx.message.add_reaction("<a:loading:848604953953435670>")
+            message = await ctx.reply("Getting all the tags (this might take some time)")
             channel = bot.get_channel(channel.id)
             tags = {}
             some_list = []
 
             async for e in channel.history(limit=200):
                 some_list.append(e.content)
-
             some_list.reverse()  # Reverses the list
 
+            await message.edit(content="Saving all the tags (this might take some time)")
             for index in range(0, len(some_list), 2):
                 tags[some_list[index]] = some_list[index + 1]
 
-                with open('assets/dynotags.json', 'w') as f:
-                    json.dump(tags, f, indent=4)
+            with open('assets/dynotags.json', 'w') as f:
+                json.dump(tags, f, indent=4)
+            await ctx.message.remove_reaction("<a:loading:848604953953435670>", ctx.guild.me)
             await message.edit(content="Updated all the tags!")
+            await ctx.message.add_reaction("<:yes:823202605123502100>")
         else:
             ctx.reply("You don't have the required permissions to perform this command! :pensive:")
 
@@ -70,10 +81,10 @@ class Utility(Cog):
     async def getpfp(self, ctx, member: discord.Member = None):
         if not member:
             member = ctx.message.author
-        pfp = str(member.avatar_url)[:-4] + "4096"
+
         embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
                               title=f"{member.display_name}'s pfp")
-        embed.set_image(url=pfp)
+        embed.set_image(url=getpfp(member))
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -110,15 +121,33 @@ class Utility(Cog):
         await ctx.send(embed=embed)
 
     @command(aliases=['Exec'], help="Executes code")
-    async def execute(self, ctx, *, arg):
+    async def execute(self, ctx, *, code):
         #    if ctx.author.id in trusted:
         if ctx.author.id == ownerid:  # Checking if the person is the owner
+            if code is None:
+                await ctx.reply("I cant execute nothing")
+                return
+            code = code.replace('```py', '').replace('```', '').strip()
+            code = '\n'.join([f'\t{line}' for line in code.splitlines()])
+            function_code = (
+                'async def exec_code(self, ctx):\n'
+                f'  {code}')
             try:
-                exec(arg)
+                exec(function_code)
+                output = await locals()['exec_code'](self, ctx)
+                if output:
+                    formatted_output = '\n'.join(output) if len(code.splitlines()) > 1 else output
+                    await ctx.reply(embed=discord.Embed(colour=0xff0000,
+                                                        timestamp=ctx.message.created_at,
+                                                        title="Your code failed ran successfully!",
+                                                        description=f"```{formatted_output}```"))
                 await ctx.message.add_reaction("<:yes:823202605123502100>")
             except Exception as error:
                 await ctx.message.add_reaction("<:no:823202604665929779>")
-                await senderror(ctx, error)
+                await ctx.reply(embed=discord.Embed(colour=0xff0000,
+                                                    timestamp=ctx.message.created_at,
+                                                    title="Your code failed to run!",
+                                                    description=f"```{error}```"))
         else:
             await ctx.message.add_reaction("🔐")
 
@@ -161,6 +190,15 @@ class Utility(Cog):
             await ctx.send("Messaged Fripe!")
             await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
 
+    @command(aliases=['remfripe'], help="Sends a reminder to fripe")
+    @commands.cooldown(1, 150, commands.BucketType.user)
+    async def remindfripe(self, ctx, *, arg):
+        if arg == "None":
+            await ctx.send("You have to specify a message!")
+        else:
+            await ctx.send("Reminded Fripe!")
+            await bot.get_channel(824022687759990845).send(f'{ctx.author.mention}\n- {arg}')
+
     # Command to get the bots ping
     @command(help="Displays the bots ping")
     async def ping(self, ctx, real=None):
@@ -198,19 +236,32 @@ class Utility(Cog):
         else:
             await ctx.send(embed=embed)
 
+    @command(aliases=['def'], help="Makes the bot say things")
+    async def define(self, ctx, word, lang="en_US"):
+        resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/{lang}/{word}')
+        resp = resp.json()
+
+        """
+        if resp["title"] == "No Definitions Found":
+            await ctx.reply(f"Couldnt find a definition for `{word}`")
+            return
+        """
+
+        resp = resp[0]["meanings"]
+        embed = discord.Embed(title=f"Defenition of the word {word}")
+
+        for i in resp:
+            for e in i["definitions"]:
+                try:
+                    embed.add_field(name=i["partOfSpeech"], value=f'**Defenition:** `{e["definition"]}`\n**Example:** `{e["example"]}`')
+                except KeyError:
+                    try:
+                        embed.add_field(name=i["partOfSpeech"], value=f'Defenition: `{e["definition"]}`')
+                    except KeyError:
+                        embed.add_field(name="e", value=f'Defenition: `{e["definition"]}`')
+
+        await ctx.reply(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
-
-
-
-"""@command(help="Shows this page")
-async def help(ctx, *, commandname = None):
-    embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title=f"Help",
-                          description=f"**{bot.user.name}**, a bot created by <@444800636681453568> when he was bored!")
-    embed.set_footer(text=f"Requested by {ctx.author}")
-    commandlist = ''
-    for command in self.bot.walk_commands():
-        commandlist += f'**{command}** - {command.help}\n'
-    embed.add_field(name="Commands", value=commandlist)
-    await ctx.reply(embed=embed)"""
