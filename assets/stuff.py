@@ -18,6 +18,7 @@ with open('assets/dynotags.json', 'r') as f:
 
 intents = discord.Intents.all()
 prefix = config["prefixes"]
+print(prefix)
 trusted = config["trusted"]
 ownerid = 444800636681453568
 
@@ -84,7 +85,7 @@ def getcogs(dir: str = None):
     dir = dir.replace("\\", "/")  # Replaces "\" with "/"
 
     if os.path.isfile(f"{dir}.py"):  # If the path provided is a file (aka not a directory)
-        return [dir]  # Replaces "\" and "/" with "." and returns the file
+        return [dir.replace("\\", ".").replace("/", ".")]  # Replaces "\" and "/" with "." and returns the file
 
     for path, subdirs, files in os.walk(dir):  # For evcerything in the "dir" directory
         for filename in files:  # For all files in that directory
@@ -93,7 +94,7 @@ def getcogs(dir: str = None):
                 COGS.append(
                     (os.path.join(path, filename)
                      # Replaces "\" and "/" with "."
-                     ).replace("\\", "/")[:-3])
+                     ).replace("\\", ".").replace("/", ".")[:-3])
 
     return COGS if COGS != [] else None
 

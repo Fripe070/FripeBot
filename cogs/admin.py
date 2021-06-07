@@ -40,7 +40,7 @@ class Admin(commands.Cog):
             await ctx.message.add_reaction("🔐")
 
     @command(help="Restarts the bot")  # Currently not working
-    async def reload(self, ctx, to_reload="cogs"):
+    async def reload(self, ctx, to_reload=None):
         if ctx.author.id in trusted:
             reloads = []
             reloadembed = []
