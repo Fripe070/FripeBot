@@ -18,7 +18,6 @@ with open('assets/dynotags.json', 'r') as f:
 
 intents = discord.Intents.all()
 prefix = config["prefixes"]
-print(prefix)
 trusted = config["trusted"]
 ownerid = 444800636681453568
 
