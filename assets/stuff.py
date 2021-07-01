@@ -3,18 +3,20 @@ import discord, json, os, random, aiohttp, requests
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
-from glob import glob
 from traceback import format_exception
-from assets.dynotags_formated import dynotags
+
 from assets.deathmessages import *
-from assets.en_us import en_us as mc_en_us
 from assets.bannedwords import bannedwords
+
 
 with open("config.json") as f:
     config = json.load(f)
 
 with open('assets/dynotags.json', 'r') as f:
     dtags = json.load(f)
+
+with open("assets/en_us.json", "r") as f:
+    mc_en_us = json.load(f)
 
 intents = discord.Intents.all()
 prefix = config["prefixes"]

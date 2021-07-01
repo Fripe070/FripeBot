@@ -29,10 +29,7 @@ async def on_message(message):
         # Detect if the bot is pinged in the message
         if f"<@{bot.user.id}>" in message.content or f"<@!{bot.user.id}>" in message.content:
             await message.add_reaction("<:ping_gun:823948139504861225>")
-
-        # If the message pings the MDSP account
-        if "<@812516048628613130>" in message.content or "<@!812516048628613130>" in message.content:
-            await message.reply("Brb, getting the nukes")
+            await message.reply("My prefix is `f!`")
 
         if isinstance(message.channel, discord.channel.DMChannel):  # If message was send in a dm
             print(f"{message.author} Send this in a DM: {message.content}")
