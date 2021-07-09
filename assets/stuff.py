@@ -4,6 +4,7 @@ from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
 from traceback import format_exception
+from datetime import date
 
 from assets.deathmessages import *
 from assets.bannedwords import bannedwords
@@ -64,8 +65,9 @@ def rembackslash(text):  # Thanks Discord_
 def getpfp(member):
 
     pfp = f"https://cdn.discordapp.com/"
-
-    pfp = str(member.avatar_url)[:-4] + "4096"
+    pfp = str(member.avatar_url)
+    if pfp.endswith("size=1024"):
+        pfp = pfp[:-4] + "4096"
     pfp = pfp.replace(".webp", ".png")
 
     return pfp

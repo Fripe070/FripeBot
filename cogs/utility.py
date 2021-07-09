@@ -43,10 +43,12 @@ class Utility(Cog):
 #            **Activity:** {afunctionthatfroopwants(member.activity.name)}
         await ctx.send(embed=embed)
 
+    """
     @command()
     async def allroles(self, ctx):
         embed = discord.Embed(colour=0x2c7bd2, title="e", description=f"")
         await ctx.send(embed=embed)
+    """
 
     @command()
     async def webget(self, ctx, site: str):
@@ -206,6 +208,38 @@ class Utility(Cog):
                         embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
 
         await ctx.reply(embed=embed)
+
+    @command()
+    async def allpfps(self, ctx):
+        if ctx.author.id in trusted:
+            print("Getting all pfps")
+
+            today = date.today()
+            made = False
+            trynr = 0
+
+            while made is False:
+                try:
+                    os.mkdir(f"E:\\Data\\Discord\\pfps\\{today} {trynr}")
+                    made = True
+                except FileExistsError:
+                    trynr += 1
+
+            for member in ctx.guild.members:
+                pfp = getpfp(member)
+
+                img_data = requests.get(pfp).content
+                try:
+                    with open(f"E:\\Data\\Discord\\pfps\\{today} {trynr}\\{member.name} {member.id}.png", 'wb') as f:
+                        f.write(img_data)
+                except Exception:
+                    await ctx.send(f"Failed to downlaod the pfp of {member.name} {member.id}")
+
+            await ctx.message.add_reaction("👍")
+            await ctx.reply("Downloaded pfps")
+
+        else:
+            await ctx.message.add_reaction("🔐")
 
 
 def setup(bot):
