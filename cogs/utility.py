@@ -160,27 +160,6 @@ class Utility(Cog):
                               color=color)
         await ctx.reply(embed=embed)
 
-    @command(help="Scrambles the text supplied")
-    async def scramble(self, ctx, *, arg):
-        await ctx.reply(''.join(random.sample(arg, len(arg))))
-
-    # Code stolen (with consent) from "! Thonk##2761" on discord
-    # Code is heavily modified by me
-    @command(aliases=['source'], help="Links my GitHub profile")
-    async def github(self, ctx, member: discord.Member = None):
-        embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
-                              color=0x00ffbf, timestamp=ctx.message.created_at)
-        embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
-                         icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
-        embed.set_thumbnail(url="https://avatars.githubusercontent.com/fripe070")
-        embed.add_field(name="This bot:", value="https://github.com/Fripe070/FripeBot")
-        embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
-        await ctx.message.delete()
-        if member != None:
-            await ctx.send(f'{member.mention} Please take a look to my github', embed=embed)
-        else:
-            await ctx.send(embed=embed)
-
     @command(aliases=['def', 'definition'], help="Gets the defenition for a word")
     async def define(self, ctx, word, lang="en_GB"):
         resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/{lang}/{word}')
