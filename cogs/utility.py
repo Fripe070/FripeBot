@@ -1,81 +1,9 @@
-import json
-
-import discord
-
 from assets.stuff import *
 
 
 class Utility(Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    # Command to get info about the minecraft discord dyno tags
-    @command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord. Syntax f!dt [tagname] {raw/d/dyno}")
-    async def dynotag(self, ctx, tagname=None, extra=None):
-        if tagname != None:
-            if extra != None:
-                if extra.lower() == "dyno" or extra.lower() == "d" or extra.lower() == "raw":
-                    await ctx.message.delete()
-                    await ctx.send(dynotags[tagname])
-            elif tagname in dynotags:
-                try:
-                    embed = discord.Embed(colour=0x00ffff, timestamp=ctx.message.created_at)
-                    embed.set_footer(text=f"Requested by {ctx.author}")
-                    embed.add_field(name="Tag content:", value=dynotags[tagname])
-                    embed.add_field(name="Raw tag data:", value=f"```{dynotags[tagname]}```")
-                    await ctx.reply(embed=embed)
-                except KeyError:
-                    await ctx.reply("That's not a valid tag!")
-            else:
-                await ctx.reply("That does not exist")
-        else:
-            embed = discord.Embed(colour=0x00ffff, title="Dyno tags", timestamp=ctx.message.created_at)
-            embed.set_footer(text=f"Requested by {ctx.author}")
-            embed.add_field(name="Tags:", value=", ".join(k for k in dynotags.keys()))
-            await ctx.reply(embed=embed)
-            # await ctx.send(dynotags.keys())
-
-    # Prints all the minecraft discord dyno tags
-    @command(help="Prints all tags (admin only)")
-    async def alltags(self, ctx, channel: discord.TextChannel):
-        if ctx.author.id in trusted or ctx.author.server_premission.administrator:
-            await ctx.message.add_reaction("<a:loading:848604953953435670>")
-            message = await ctx.reply(f"Deleting mesages in {channel.mention}")
-            await channel.purge(limit=200)
-            await message.edit(content=f"Sending all the tags in {channel.mention}")
-            print(
-                f'{bcolors.OKGREEN}Printing all tags in channel: {bcolors.OKCYAN}#{channel}{bcolors.OKGREEN} ID:"{bcolors.OKCYAN}{channel.id}{bcolors.OKGREEN}"{bcolors.ENDC}')
-            for key in dtags.keys():
-                embed = discord.Embed(colour=0x2c7bd2, title=key, description=dtags[key])
-                await channel.send(embed=embed)
-            await message.edit(content="Tag printing complete!")
-        else:
-            ctx.reply("You don't have the required permissions to perform this command! :pensive:")
-
-    @command(help="Gets all tags")
-    async def updatetags(self, ctx, channel: discord.TextChannel):
-        if ctx.author.id in trusted or ctx.author.server_premission.administrator:
-            await ctx.message.add_reaction("<a:loading:848604953953435670>")
-            message = await ctx.reply("Getting all the tags (this might take some time)")
-            channel = bot.get_channel(channel.id)
-            tags = {}
-            some_list = []
-
-            async for e in channel.history(limit=200):
-                some_list.append(e.content)
-            some_list.reverse()  # Reverses the list
-
-            await message.edit(content="Saving all the tags (this might take some time)")
-            for index in range(0, len(some_list), 2):
-                tags[some_list[index]] = some_list[index + 1]
-
-            with open('assets/dynotags.json', 'w') as f:
-                json.dump(tags, f, indent=4)
-            await ctx.message.remove_reaction("<a:loading:848604953953435670>", ctx.guild.me)
-            await message.edit(content="Updated all the tags!")
-            await ctx.message.add_reaction("<:yes:823202605123502100>")
-        else:
-            ctx.reply("You don't have the required permissions to perform this command! :pensive:")
 
     @command(aliases=["pfpget", "gpfp", "pfp"], help="Gets a users profile picture at a high resolution")
     async def getpfp(self, ctx, member: discord.Member = None):
@@ -115,10 +43,27 @@ class Utility(Cog):
 #            **Activity:** {afunctionthatfroopwants(member.activity.name)}
         await ctx.send(embed=embed)
 
+    """
     @command()
     async def allroles(self, ctx):
         embed = discord.Embed(colour=0x2c7bd2, title="e", description=f"")
         await ctx.send(embed=embed)
+    """
+
+    @command()
+    async def webget(self, ctx, site: str):
+        if ctx.author.id in trusted:
+            if not site.startswith("http"):
+                site = "https://" + site
+            output = requests.get(site).text
+            num_of_fields = len(output) // 1024 + 1
+            for i in range(num_of_fields):
+                embed = discord.Embed(timestamp=ctx.message.created_at,
+                                      title=f"Test",
+                                      description=output[i * 1024:i + 1 * 1024])
+                await ctx.reply(embed=embed)
+        else:
+            await ctx.message.add_reaction("🔐")
 
     @command(aliases=['Exec'], help="Executes code")
     async def execute(self, ctx, *, code):
@@ -215,52 +160,65 @@ class Utility(Cog):
                               color=color)
         await ctx.reply(embed=embed)
 
-    @command(help="Scrambles the text supplied")
-    async def scramble(self, ctx, *, arg):
-        await ctx.reply(''.join(random.sample(arg, len(arg))))
-
-    # Code stolen (with consent) from "! Thonk##2761" on discord
-    # Code is heavily modified by me
-    @command(aliases=['source'], help="Links my GitHub profile")
-    async def github(self, ctx, member: discord.Member = None):
-        embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
-                              color=0x00ffbf, timestamp=ctx.message.created_at)
-        embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
-                         icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
-        embed.set_thumbnail(url="https://avatars.githubusercontent.com/fripe070")
-        embed.add_field(name="This bot:", value="https://github.com/Fripe070/FripeBot")
-        embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
-        await ctx.message.delete()
-        if member != None:
-            await ctx.send(f'{member.mention} Please take a look to my github', embed=embed)
-        else:
-            await ctx.send(embed=embed)
-
-    @command(aliases=['def'], help="Makes the bot say things")
-    async def define(self, ctx, word, lang="en_US"):
+    @command(aliases=['def', 'definition'], help="Gets the defenition for a word")
+    async def define(self, ctx, word, lang="en_GB"):
         resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/{lang}/{word}')
         resp = resp.json()
 
-        """
-        if resp["title"] == "No Definitions Found":
-            await ctx.reply(f"Couldnt find a definition for `{word}`")
+        try:
+            resp = resp[0]["meanings"]
+        except KeyError:
+            embed = discord.Embed(title="Could not find a defenition for that word!",
+                                  colour=ctx.author.colour,
+                                  timestamp=ctx.message.created_at
+                                  )
+            await ctx.reply(embed=embed)
             return
-        """
-
-        resp = resp[0]["meanings"]
         embed = discord.Embed(title=f"Defenition of the word {word}")
 
         for i in resp:
             for e in i["definitions"]:
                 try:
-                    embed.add_field(name=i["partOfSpeech"], value=f'**Defenition:** `{e["definition"]}`\n**Example:** `{e["example"]}`')
+                    embed.add_field(name=i["partOfSpeech"], value=f'**Defenition:** ```{e["definition"]}```\n**Example:** ```{e["example"]}```')
                 except KeyError:
                     try:
-                        embed.add_field(name=i["partOfSpeech"], value=f'Defenition: `{e["definition"]}`')
+                        embed.add_field(name=i["partOfSpeech"], value=f'Defenition: ```{e["definition"]}```')
                     except KeyError:
-                        embed.add_field(name="e", value=f'Defenition: `{e["definition"]}`')
+                        embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
 
         await ctx.reply(embed=embed)
+
+    @command()
+    async def allpfps(self, ctx):
+        if ctx.author.id in trusted:
+            print("Getting all pfps")
+
+            today = date.today()
+            made = False
+            trynr = 0
+
+            while made is False:
+                try:
+                    os.mkdir(f"E:\\Data\\Discord\\pfps\\{today} {trynr}")
+                    made = True
+                except FileExistsError:
+                    trynr += 1
+
+            for member in ctx.guild.members:
+                pfp = getpfp(member)
+
+                img_data = requests.get(pfp).content
+                try:
+                    with open(f"E:\\Data\\Discord\\pfps\\{today} {trynr}\\{member.name} {member.id}.png", 'wb') as f:
+                        f.write(img_data)
+                except Exception:
+                    await ctx.send(f"Failed to downlaod the pfp of {member.name} {member.id}")
+
+            await ctx.message.add_reaction("👍")
+            await ctx.reply("Downloaded pfps")
+
+        else:
+            await ctx.message.add_reaction("🔐")
 
 
 def setup(bot):

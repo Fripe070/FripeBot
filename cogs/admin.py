@@ -39,8 +39,72 @@ class Admin(commands.Cog):
             print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}{activity} {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
             await ctx.message.add_reaction("🔐")
 
+    @command()
+    async def load(self, ctx, to_load=None):
+        if ctx.author.id in trusted:
+            loads = []
+            loadembed = []
+            embedcolor = 0x34eb40
+            if getcogs(to_load) is None:
+                await ctx.reply("Thats not valid.")
+                return
+            else:
+                print(f"{bcolors.OKBLUE}Loading cog(s)!{bcolors.ENDC}")
+            for cog in getcogs(to_load):
+                try:
+                    bot.load_extension(f"{cog}")
+                    loads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
+                    loadembed.append(f"<:Check:829656697835749377> {cog}")
+                except Exception as error:
+                    loads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
+                    loadembed.append(f"<:warning:829656327797604372> {error}")
+                    embedcolor = 0xeb4034
+
+            print("\n".join(loads))
+
+            embed = discord.Embed(title=f"Loaded cogs!", color=embedcolor,
+                                  description="‍" + "\n".join(loadembed))
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            await ctx.send(embed=embed)
+
+            await ctx.message.add_reaction("👍")
+        else:
+            await ctx.message.add_reaction("🔐")
+
+    @command()
+    async def unload(self, ctx, to_unload=None):
+        if ctx.author.id in trusted:
+            unloads = []
+            unloadembed = []
+            embedcolor = 0x34eb40
+            if getcogs(to_unload) is None:
+                await ctx.reply("Thats not valid.")
+                return
+            else:
+                print(f"{bcolors.OKBLUE}Unloading cog(s)!{bcolors.ENDC}")
+            for cog in getcogs(to_unload):
+                try:
+                    bot.unload_extension(f"{cog}")
+                    unloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
+                    unloadembed.append(f"<:Check:829656697835749377> {cog}")
+                except Exception as error:
+                    unloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
+                    unloadembed.append(f"<:warning:829656327797604372> {error}")
+                    embedcolor = 0xeb4034
+
+            print("\n".join(unloads))
+
+            embed = discord.Embed(title=f"Unloaded cogs!", color=embedcolor,
+                                  description="‍" + "\n".join(unloadembed))
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            await ctx.send(embed=embed)
+
+            await ctx.message.add_reaction("👍")
+        else:
+            await ctx.message.add_reaction("🔐")
+
     @command(help="Restarts the bot")  # Currently not working
-    async def reload(self, ctx, to_reload="cogs"):
+    async def reload(self, ctx, to_reload=None):
         if ctx.author.id in trusted:
             reloads = []
             reloadembed = []

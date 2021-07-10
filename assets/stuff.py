@@ -3,18 +3,21 @@ import discord, json, os, random, aiohttp, requests
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
-from glob import glob
 from traceback import format_exception
-from assets.dynotags_formated import dynotags
+from datetime import date
+
 from assets.deathmessages import *
-from assets.en_us import en_us as mc_en_us
 from assets.bannedwords import bannedwords
+
 
 with open("config.json") as f:
     config = json.load(f)
 
 with open('assets/dynotags.json', 'r') as f:
     dtags = json.load(f)
+
+with open("assets/en_us.json", "r") as f:
+    mc_en_us = json.load(f)
 
 intents = discord.Intents.all()
 prefix = config["prefixes"]
@@ -62,8 +65,9 @@ def rembackslash(text):  # Thanks Discord_
 def getpfp(member):
 
     pfp = f"https://cdn.discordapp.com/"
-
-    pfp = str(member.avatar_url)[:-4] + "4096"
+    pfp = str(member.avatar_url)
+    if pfp.endswith("size=1024"):
+        pfp = pfp[:-4] + "4096"
     pfp = pfp.replace(".webp", ".png")
 
     return pfp
@@ -84,7 +88,7 @@ def getcogs(dir: str = None):
     dir = dir.replace("\\", "/")  # Replaces "\" with "/"
 
     if os.path.isfile(f"{dir}.py"):  # If the path provided is a file (aka not a directory)
-        return [dir]  # Replaces "\" and "/" with "." and returns the file
+        return [dir.replace("\\", ".").replace("/", ".")]  # Replaces "\" and "/" with "." and returns the file
 
     for path, subdirs, files in os.walk(dir):  # For evcerything in the "dir" directory
         for filename in files:  # For all files in that directory
@@ -93,7 +97,7 @@ def getcogs(dir: str = None):
                 COGS.append(
                     (os.path.join(path, filename)
                      # Replaces "\" and "/" with "."
-                     ).replace("\\", "/")[:-3])
+                     ).replace("\\", ".").replace("/", ".")[:-3])
 
     return COGS if COGS != [] else None
 
