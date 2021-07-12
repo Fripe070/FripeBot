@@ -43,14 +43,21 @@ class Fun(commands.Cog):
         else:
             await ctx.send(embed=embed)
 
-    @command()
-    async def jumbo(self, ctx, jumbo):
-        if jumbo.startswith("<a:"):
-            temp = "gif"
+    @command(aliases=["jumbo"])
+    async def emoji(self, ctx, emoji: str):
+        if emoji.startswith("<a:"):
+            file = "gif"
         else:
-            temp = "png"
-        print(jumbo)
-        await ctx.reply(f"https://cdn.discordapp.com/emojis/{jumbo.split(':')[2][:-1]}.{temp}")
+            file = "png"
+        embed = discord.Embed(timestamp=ctx.message.created_at,
+                              title=f"Emoji Info",
+                              description=f"""Emoji name: `{emoji.split(':')[1]}`
+                              Emoji ID: `{emoji.split(':')[2][:-1]}`
+                              Animated: {emoji.startswith('<a:')}""")
+
+        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji.split(':')[2][:-1]}.{file}")
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.reply(embed=embed)
 
     @command(help="Kill someone with a randomized Minecraft death message")
     async def kill(self, ctx, person1 = None):

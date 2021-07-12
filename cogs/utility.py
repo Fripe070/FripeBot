@@ -1,3 +1,5 @@
+import subprocess
+
 from assets.stuff import *
 
 
@@ -53,15 +55,14 @@ class Utility(Cog):
     @command()
     async def webget(self, ctx, site: str):
         if ctx.author.id in trusted:
-            if not site.startswith("http"):
+            if not site.startswith("http://") and not site.startswith("https://"):
                 site = "https://" + site
-            output = requests.get(site).text
-            num_of_fields = len(output) // 1024 + 1
-            for i in range(num_of_fields):
+            out = requests.get(site).text
+            for part in splitmessage(out):
                 embed = discord.Embed(timestamp=ctx.message.created_at,
-                                      title=f"Test",
-                                      description=output[i * 1024:i + 1 * 1024])
-                await ctx.reply(embed=embed)
+                                      title=f"Output:",
+                                      description=f"```\n{part}```")
+                await ctx.send(embed=embed)
         else:
             await ctx.message.add_reaction("🔐")
 

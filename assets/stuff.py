@@ -63,14 +63,7 @@ def rembackslash(text):  # Thanks Discord_
 
 
 def getpfp(member):
-
-    pfp = f"https://cdn.discordapp.com/"
-    pfp = str(member.avatar_url)
-    if pfp.endswith("size=1024"):
-        pfp = pfp[:-4] + "4096"
-    pfp = pfp.replace(".webp", ".png")
-
-    return pfp
+    return str(member.avatar_url_as(static_format="png", size=4096))
 
 
 # COGS  -----------------------------------------------------------------------------------
@@ -113,3 +106,7 @@ async def senderror(ctx, error):
     finally:  # Print error to console
         formatederror = "".join(format_exception(type(error), error, error.__traceback__)).rstrip()
         print(f"{bcolors.FAIL}{bcolors.ENDC + bcolors.FAIL}{formatederror}{bcolors.ENDC}")
+
+
+def splitmessage(message, length=2000):
+    return [message[i:i+length] for i in range(0, len(message), length)]
