@@ -5,8 +5,9 @@ class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(help="Sets the bots status")
+    @command()
     async def setstatus(self, ctx, activity, *, new_status):
+        """Sets the bots status"""
         if ctx.author.id in trusted:
             status = new_status
             if activity == "watching":
@@ -41,6 +42,7 @@ class Admin(commands.Cog):
 
     @command()
     async def load(self, ctx, to_load=None):
+        """Loads a specified cog"""
         if ctx.author.id in trusted:
             loads = []
             loadembed = []
@@ -73,6 +75,7 @@ class Admin(commands.Cog):
 
     @command()
     async def unload(self, ctx, to_unload=None):
+        """Unloads a specified cog"""
         if ctx.author.id in trusted:
             unloads = []
             unloadembed = []
@@ -103,8 +106,9 @@ class Admin(commands.Cog):
         else:
             await ctx.message.add_reaction("🔐")
 
-    @command(help="Restarts the bot")  # Currently not working
+    @command()  # Currently not working
     async def reload(self, ctx, to_reload=None):
+        """Restarts the bot"""
         if ctx.author.id in trusted:
             reloads = []
             reloadembed = []

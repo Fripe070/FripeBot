@@ -56,6 +56,19 @@ async def on_command_error(ctx, error):  # TODO Maybe use a dict for error handl
         await ctx.send("Did you delete your message? ")
     elif isinstance(error, MissingPermissions):
         await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
+    elif isinstance(error, NotOwner):
+        await ctx.message.add_reaction("🔐")
+
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) == '🔑'
+
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+        except TimeoutError:
+            print("E")
+            pass
+        else:
+            await bot.invoke(ctx)
     else:  # If its a actual error
         await senderror(ctx, error)
 
@@ -95,6 +108,23 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
 
 bot.help_command = Help()
+
+"""
+@bot.command()
+async def reactiontest(ctx):
+    await ctx.send('Send me that 👍 reaction, mate')
+
+    def check(reaction, user):
+        return user == ctx.message.author and str(reaction.emoji) == '👍'
+
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+    except TimeoutError:
+        print("E")
+        pass
+    else:
+        await bot.invoke(help)
+"""
 
 # RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()

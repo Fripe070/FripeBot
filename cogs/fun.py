@@ -14,7 +14,7 @@ class Fun(commands.Cog):
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
 
     @command(help="Rolls a dice!")
-    async def dice(self, ctx, sides = 6):
+    async def dice(self, ctx, sides=6):
         await ctx.reply(f"You rolled a {random.randint(1, sides)}! :game_die:")
 
     @command(aliases=['8ball'], help="A magic eightball")
@@ -44,23 +44,24 @@ class Fun(commands.Cog):
             await ctx.send(embed=embed)
 
     @command(aliases=["jumbo"])
-    async def emoji(self, ctx, emoji: str):
-        if emoji.startswith("<a:"):
-            file = "gif"
+    async def emoji(self, ctx, emoji: discord.Emoji):
+        if str(emoji).startswith("<a:"):
+            animated = True
         else:
-            file = "png"
+            animated = False
         embed = discord.Embed(timestamp=ctx.message.created_at,
                               title=f"Emoji Info",
-                              description=f"""Emoji name: `{emoji.split(':')[1]}`
-                              Emoji ID: `{emoji.split(':')[2][:-1]}`
-                              Animated: {emoji.startswith('<a:')}""")
+                              description=f"""Emoji name: `{emoji.name}`
+                              Emoji ID: `{emoji.id}`
+                              Animated: {animated}""")
 
-        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji.split(':')[2][:-1]}.{file}")
+        embed.set_image(url=emoji.url)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
 
-    @command(help="Kill someone with a randomized Minecraft death message")
-    async def kill(self, ctx, person1 = None):
+    @command()
+    async def kill(self, ctx, person1=None):
+        """Kill someone with a randomized Minecraft death message"""
         if person1 is None:
             person1 = random.choice(list(entites.values()))
         if "panda" in person1:
@@ -73,8 +74,9 @@ class Fun(commands.Cog):
             await ctx.message.delete()
             await ctx.send(temp_message)
 
-    @command(aliases=["ikill"], help="Kill someone with a randomized Minecraft death message")
-    async def itemkill(self, ctx, person1 = None):
+    @command(aliases=["ikill"])
+    async def itemkill(self, ctx, person1=None):
+        """Kill someone with a randomized Minecraft death message"""
         if person1 is None:
             person1 = random.choice(list(entites.values()))
         if "panda" in person1:
@@ -87,8 +89,9 @@ class Fun(commands.Cog):
             await ctx.message.delete()
             await ctx.send(temp_message)
 
-    @command(aliases=['Say'], help="Makes the bot say things")
+    @command(aliases=['Say'])
     async def echo(self, ctx, *, tell):
+        """Makes the bot say things"""
         if ctx.author.id in trusted:
             if isinstance(ctx.channel, discord.channel.DMChannel):
                 await ctx.send("That command isn't available in dms")
@@ -98,8 +101,9 @@ class Fun(commands.Cog):
         else:
             await ctx.message.add_reaction("🔐")
 
-    @command(aliases=['esay'], help="Makes the bot say things")
+    @command(aliases=['esay', 'embedsay'])
     async def embedecho(self, ctx, *, tell):
+        """Makes the bot say things"""
         if ctx.author.id in trusted:
             if isinstance(ctx.channel, discord.channel.DMChannel):
                 await ctx.send("That command isn't available in dms")

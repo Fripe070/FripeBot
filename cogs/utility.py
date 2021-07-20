@@ -7,8 +7,9 @@ class Utility(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(aliases=["pfpget", "gpfp", "pfp"], help="Gets a users profile picture at a high resolution")
+    @command(aliases=["pfpget", "gpfp", "pfp"])
     async def getpfp(self, ctx, member: discord.Member = None):
+        """Gets a users profile picture at a high resolution"""
         if not member:
             member = ctx.message.author
 
@@ -19,8 +20,9 @@ class Utility(Cog):
         await ctx.send(embed=embed)
 
     # Command to get info about a account
-    @command(help="Displays information about a discord user")
+    @command()
     async def whois(self, ctx, member: discord.Member = None):
+        """Displays information about a discord user"""
         if not member:
             member = ctx.message.author
         roles = [role.mention for role in member.roles[1:]]
@@ -54,6 +56,7 @@ class Utility(Cog):
 
     @command()
     async def webget(self, ctx, site: str):
+        """Gets the content from a website"""
         if ctx.author.id in trusted:
             if not site.startswith("http://") and not site.startswith("https://"):
                 site = "https://" + site
@@ -66,39 +69,49 @@ class Utility(Cog):
         else:
             await ctx.message.add_reaction("🔐")
 
-    @command(aliases=['Exec'], help="Executes code")
+    @command()
+    @commands.is_owner()
+    async def bash(self, ctx, *, args):
+        """Runs bash comamnds on the host pc"""
+        process = subprocess.run(args, capture_output=True)
+        stdout = process.stdout.decode("utf8")
+        stderr = process.stderr.decode("utf8")
+        print(stdout)
+        for part in splitmessage(stdout, 1993):
+            await ctx.send(f"```\n{part}```")
+
+    @command(aliases=['Exec'])
+    @commands.is_owner()
     async def execute(self, ctx, *, code):
-        #    if ctx.author.id in trusted:
-        if ctx.author.id == ownerid:  # Checking if the person is the owner
-            if code is None:
-                await ctx.reply("I cant execute nothing")
-                return
-            code = code.replace('```py', '').replace('```', '').strip()
-            code = '\n'.join([f'\t{line}' for line in code.splitlines()])
-            function_code = (
-                'async def exec_code(self, ctx):\n'
-                f'  {code}')
-            try:
-                exec(function_code)
-                output = await locals()['exec_code'](self, ctx)
-                if output:
-                    formatted_output = '\n'.join(output) if len(code.splitlines()) > 1 else output
-                    await ctx.reply(embed=discord.Embed(colour=0xff0000,
-                                                        timestamp=ctx.message.created_at,
-                                                        title="Your code failed ran successfully!",
-                                                        description=f"```{formatted_output}```"))
-                await ctx.message.add_reaction("<:yes:823202605123502100>")
-            except Exception as error:
-                await ctx.message.add_reaction("<:no:823202604665929779>")
+        """Executes python code"""
+        if code is None:
+            await ctx.reply("I cant execute nothing")
+            return
+        code = code.replace('```py', '').replace('```', '').strip()
+        code = '\n'.join([f'\t{line}' for line in code.splitlines()])
+        function_code = (
+            'async def exec_code(self, ctx):\n'
+            f'  {code}')
+        try:
+            exec(function_code)
+            output = await locals()['exec_code'](self, ctx)
+            if output:
+                formatted_output = '\n'.join(output) if len(code.splitlines()) > 1 else output
                 await ctx.reply(embed=discord.Embed(colour=0xff0000,
                                                     timestamp=ctx.message.created_at,
-                                                    title="Your code failed to run!",
-                                                    description=f"```{error}```"))
-        else:
-            await ctx.message.add_reaction("🔐")
+                                                    title="Your code failed ran successfully!",
+                                                    description=f"```{formatted_output}```"))
+            await ctx.message.add_reaction("<:yes:823202605123502100>")
+        except Exception as error:
+            await ctx.message.add_reaction("<:no:823202604665929779>")
+            await ctx.reply(embed=discord.Embed(colour=0xff0000,
+                                                timestamp=ctx.message.created_at,
+                                                title="Your code failed to run!",
+                                                description=f"```{error}```"))
 
-    @command(aliases=['Eval'], help="Evaluates things")
+    @command(aliases=['Eval'])
     async def evaluate(self, ctx, *, arg=None):
+        """Evaluates stuff"""
         if arg is None:
             await ctx.reply("I cant evaluate nothing")
             return
@@ -117,8 +130,9 @@ class Utility(Cog):
         else:
             await ctx.message.add_reaction("🔐")
 
-    @command(help="Counts the amount of people in the server (can have bots/all specified at the end)")
+    @command()
     async def members(self, ctx):
+        """Counts the amount of people in the server"""
         embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
         embed.set_footer(text=f"Requested by {ctx.author.display_name}")
         embed.add_field(name=f"Users:", value=f"{len([member for member in ctx.guild.members if not member.bot])}")
@@ -126,28 +140,10 @@ class Utility(Cog):
         embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")
         await ctx.reply(embed=embed)
 
-    @command(aliases=['fripemail'], help="Sends a message to fripe")
-    @commands.cooldown(1, 150, commands.BucketType.user)
-    async def mailfripe(self, ctx, *, arg):
-        if arg == "None":
-            await ctx.send("You have to specify a message!")
-        else:
-            await ctx.message.delete()
-            await ctx.send("Messaged Fripe!")
-            await bot.get_channel(823989070845444106).send(f'{ctx.author.mention}\n- {arg}')
-
-    @command(aliases=['remfripe'], help="Sends a reminder to fripe")
-    @commands.cooldown(1, 150, commands.BucketType.user)
-    async def remindfripe(self, ctx, *, arg):
-        if arg == "None":
-            await ctx.send("You have to specify a message!")
-        else:
-            await ctx.send("Reminded Fripe!")
-            await bot.get_channel(824022687759990845).send(f'{ctx.author.mention}\n- {arg}')
-
     # Command to get the bots ping
-    @command(help="Displays the bots ping")
-    async def ping(self, ctx, real=None):
+    @command()
+    async def ping(self, ctx):
+        """Displays the bots ping"""
         await ctx.message.add_reaction("🏓")
         bot_ping = round(bot.latency * 1000)
         if bot_ping < 130:
@@ -161,8 +157,9 @@ class Utility(Cog):
                               color=color)
         await ctx.reply(embed=embed)
 
-    @command(aliases=['def', 'definition'], help="Gets the defenition for a word")
+    @command(aliases=['def', 'definition'])
     async def define(self, ctx, word, lang="en_GB"):
+        """Gets the defenition for a word"""
         resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/{lang}/{word}')
         resp = resp.json()
 
@@ -188,38 +185,6 @@ class Utility(Cog):
                         embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
 
         await ctx.reply(embed=embed)
-
-    @command()
-    async def allpfps(self, ctx):
-        if ctx.author.id in trusted:
-            print("Getting all pfps")
-
-            today = date.today()
-            made = False
-            trynr = 0
-
-            while made is False:
-                try:
-                    os.mkdir(f"E:\\Data\\Discord\\pfps\\{today} {trynr}")
-                    made = True
-                except FileExistsError:
-                    trynr += 1
-
-            for member in ctx.guild.members:
-                pfp = getpfp(member)
-
-                img_data = requests.get(pfp).content
-                try:
-                    with open(f"E:\\Data\\Discord\\pfps\\{today} {trynr}\\{member.name} {member.id}.png", 'wb') as f:
-                        f.write(img_data)
-                except Exception:
-                    await ctx.send(f"Failed to downlaod the pfp of {member.name} {member.id}")
-
-            await ctx.message.add_reaction("👍")
-            await ctx.reply("Downloaded pfps")
-
-        else:
-            await ctx.message.add_reaction("🔐")
 
 
 def setup(bot):

@@ -6,8 +6,9 @@ class Dynotags(Cog):
         self.bot = bot
 
     # Command to get info about the minecraft discord dyno tags
-    @command(aliases=['dynotags', 'dt'], help="Tags for dyno in maincord. Syntax f!dt [tagname] {raw/d/dyno}")
+    @command(aliases=['dynotags', 'dt'])
     async def dynotag(self, ctx, tagname=None, raw=None):
+        """Tags for dyno in maincord"""
         if tagname is not None:
             if raw is not None:
                 if raw.lower() in ["dyno", "d", "raw"]:
@@ -32,8 +33,9 @@ class Dynotags(Cog):
             # await ctx.send(dynotags.keys())
 
     # Prints all the minecraft discord dyno tags
-    @command(help="Prints all tags (admin only)")
+    @command()
     async def alltags(self, ctx, channel: discord.TextChannel):
+        """Prints all tags (admin only)"""
         if ctx.author.id in trusted or ctx.author.server_premission.administrator:
             await ctx.message.add_reaction("<a:loading:848604953953435670>")
             message = await ctx.reply(f"Deleting mesages in {channel.mention}")
@@ -50,8 +52,9 @@ class Dynotags(Cog):
         else:
             ctx.reply("You don't have the required permissions to perform this command! :pensive:")
 
-    @command(help="Gets all tags")
+    @command()
     async def updatetags(self, ctx, channel: discord.TextChannel):
+        """Gets all tags"""
         if ctx.author.id in trusted or ctx.author.server_premission.administrator:
             await ctx.message.add_reaction("<a:loading:848604953953435670>")
             message = await ctx.reply("Getting all the tags (this might take some time)")

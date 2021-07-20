@@ -22,14 +22,12 @@ with open("assets/en_us.json", "r") as f:
 intents = discord.Intents.all()
 prefix = config["prefixes"]
 trusted = config["trusted"]
-ownerid = 444800636681453568
 
 
 bot = commands.Bot(
     command_prefix=prefix,
     case_insensitive=True,
-    intents=intents,
-    owner_id=ownerid
+    intents=intents
 )
 
 
