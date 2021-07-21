@@ -103,32 +103,25 @@ class Utility(Cog):
                                                     description=f"```{formatted_output}```"))
             await ctx.message.add_reaction("<:yes:823202605123502100>")
         except Exception as error:
-            await ctx.message.add_reaction("<:no:823202604665929779>")
-            await ctx.reply(embed=discord.Embed(colour=0xff0000,
-                                                timestamp=ctx.message.created_at,
-                                                title="Your code failed to run!",
-                                                description=f"```{error}```"))
+            await senderror(ctx, error)
 
     @command(aliases=['Eval'])
+    @is_owner()
     async def evaluate(self, ctx, *, arg=None):
         """Evaluates stuff"""
         if arg is None:
             await ctx.reply("I cant evaluate nothing")
             return
-        if ctx.author.id in trusted:  # Checks if the user is trusted
-            # Checks if the bots token is in the output
-            if os.getenv('TOKEN') in str(eval(arg)):
-                # Sends a randomly generated string that looks like a token
-                await ctx.reply(''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_", k=59)))
-            else:
-                try:
-                    await ctx.reply(eval(arg))  # Actually Evaluates
-                    await ctx.message.add_reaction("<:yes:823202605123502100>")
-                except Exception as error:
-                    await ctx.message.add_reaction("<:no:823202604665929779>")
-                    await senderror(ctx, Exception)
+        # Checks if the bots token is in the output
+        if os.getenv('TOKEN') in str(eval(arg)):
+            # Sends a randomly generated string that looks like a token
+            await ctx.reply(''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_", k=59)))
         else:
-            await ctx.message.add_reaction("🔐")
+            try:
+                await ctx.reply(eval(arg))  # Actually Evaluates
+                await ctx.message.add_reaction("<:yes:823202605123502100>")
+            except Exception as error:
+                await senderror(ctx, error)
 
     @command()
     async def members(self, ctx):
