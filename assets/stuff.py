@@ -61,7 +61,7 @@ def rembackslash(text):  # Thanks Discord_
 
 
 def getpfp(member):
-    return str(member.avatar_url_as(static_format="png", size=4096))
+    return str(member.avatar_url_as(size=4096))
 
 
 # COGS  -----------------------------------------------------------------------------------

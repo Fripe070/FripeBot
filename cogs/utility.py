@@ -84,23 +84,23 @@ class Utility(Cog):
     @commands.is_owner()
     async def execute(self, ctx, *, code):
         """Executes python code"""
-        if code is None:
+        if len(code) == 0:
             await ctx.reply("I cant execute nothing")
             return
         code = code.replace('```py', '').replace('```', '').strip()
         code = '\n'.join([f'\t{line}' for line in code.splitlines()])
         function_code = (
-            'async def exec_code(self, ctx):\n'
-            f'  {code}')
+            'async def __exec_code(self, ctx):\n'
+            f'{code}')
         try:
             exec(function_code)
-            output = await locals()['exec_code'](self, ctx)
+            output = await locals()['__exec_code'](self, ctx)
             if output:
-                formatted_output = '\n'.join(output) if len(code.splitlines()) > 1 else output
+                formatted_output = '\n    '.join(output) if len(code.splitlines()) > 1 else output
                 await ctx.reply(embed=discord.Embed(colour=0xff0000,
                                                     timestamp=ctx.message.created_at,
-                                                    title="Your code failed ran successfully!",
-                                                    description=f"```{formatted_output}```"))
+                                                    title="Your code ran successfully!",
+                                                    description=f"```\n{formatted_output}\n```"))
             await ctx.message.add_reaction("<:yes:823202605123502100>")
         except Exception as error:
             await senderror(ctx, error)
