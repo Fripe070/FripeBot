@@ -1,5 +1,5 @@
 # Imports
-import discord, json, os, random, aiohttp, requests
+import discord, json, os, random, aiohttp, requests, asyncio
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
@@ -61,7 +61,7 @@ def rembackslash(text):  # Thanks Discord_
 
 
 def getpfp(member):
-    return str(member.avatar_url_as(size=4096))
+    return str(member.avatar.url(size=4096))
 
 
 # COGS  -----------------------------------------------------------------------------------

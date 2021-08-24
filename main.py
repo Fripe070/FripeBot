@@ -56,6 +56,8 @@ async def on_command_error(ctx, error):  # TODO Maybe use a dict for error handl
         await ctx.send("Did you delete your message? ")
     elif isinstance(error, MissingPermissions):
         await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
+    elif TimeoutError:
+        pass
     elif isinstance(error, NotOwner):
         await ctx.message.add_reaction("🔐")
 
@@ -86,7 +88,10 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
     async def send_command_help(self, command):
         embed = discord.Embed(title=f"Info about: {self.get_command_signature(command)}")
-        embed.add_field(name="Command info", value=command.help)
+        if command.help is not None:
+            embed.description(value=command.help)
+        else:
+            embed.description(value="This command doesnt have any further info.")
         alias = command.aliases
         if alias:
             embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
