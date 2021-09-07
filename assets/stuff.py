@@ -1,5 +1,5 @@
 # Imports
-import discord, json, os, random, aiohttp, requests
+import discord, json, os, random, aiohttp, requests, asyncio
 from discord.ext import commands
 from discord.ext.commands import *
 from dotenv import load_dotenv
@@ -22,14 +22,12 @@ with open("assets/en_us.json", "r") as f:
 intents = discord.Intents.all()
 prefix = config["prefixes"]
 trusted = config["trusted"]
-ownerid = 444800636681453568
 
 
 bot = commands.Bot(
     command_prefix=prefix,
     case_insensitive=True,
-    intents=intents,
-    owner_id=ownerid
+    intents=intents
 )
 
 
@@ -63,14 +61,7 @@ def rembackslash(text):  # Thanks Discord_
 
 
 def getpfp(member):
-
-    pfp = f"https://cdn.discordapp.com/"
-    pfp = str(member.avatar_url)
-    if pfp.endswith("size=1024"):
-        pfp = pfp[:-4] + "4096"
-    pfp = pfp.replace(".webp", ".png")
-
-    return pfp
+    return str(member.avatar.url(size=4096))
 
 
 # COGS  -----------------------------------------------------------------------------------
@@ -113,3 +104,7 @@ async def senderror(ctx, error):
     finally:  # Print error to console
         formatederror = "".join(format_exception(type(error), error, error.__traceback__)).rstrip()
         print(f"{bcolors.FAIL}{bcolors.ENDC + bcolors.FAIL}{formatederror}{bcolors.ENDC}")
+
+
+def splitmessage(message, length=2000):
+    return [message[i:i+length] for i in range(0, len(message), length)]

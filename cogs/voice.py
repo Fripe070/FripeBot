@@ -1,5 +1,5 @@
 from assets.stuff import *
-
+from gtts import gTTS
 
 class Voice(commands.Cog):
     def __init__(self, bot):
@@ -24,6 +24,24 @@ class Voice(commands.Cog):
         else:
             server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
             await server.disconnect()  # Leave the VC
+
+    @command()
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    async def tts(self, ctx, *, message):
+        tts = gTTS(message)
+        with open('assets/img/tts.mp3', 'wb') as f:
+            tts.write_to_fp(f)
+        if ctx.author.voice is None:
+            return await ctx.send('You need to be in a voice channel to use this command!')
+        else:
+            channel = ctx.author.voice.channel  # Get the sender's voice channel
+            voice = await channel.connect()
+
+        server = ctx.message.guild.voice_client
+        voice.play(discord.FFmpegPCMAudio('assets/img/tts.mp3'))
+        while voice.is_playing():
+            await asyncio.sleep(1)
+        await voice.disconnect()
 
 
 def setup(bot):

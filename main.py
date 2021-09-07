@@ -34,13 +34,8 @@ async def on_message(message):
         if isinstance(message.channel, discord.channel.DMChannel):  # If message was send in a dm
             print(f"{message.author} Send this in a DM: {message.content}")
 
-        # BANNED WORDS
-        for word in bannedwords:
-            if word in message.content:
-                await message.delete()
-                print(f"{message.author.display_name} Said a bad thing")
-                await message.channel.send(f"Don't say that :( {message.author.mention}", delete_after=10)
-
+        if message.content == "🤡":
+            await message.reply("https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4")
     await bot.process_commands(message)  # Processes the commands
 
 
@@ -61,6 +56,21 @@ async def on_command_error(ctx, error):  # TODO Maybe use a dict for error handl
         await ctx.send("Did you delete your message? ")
     elif isinstance(error, MissingPermissions):
         await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
+    elif TimeoutError:
+        pass
+    elif isinstance(error, NotOwner):
+        await ctx.message.add_reaction("🔐")
+
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) == '🔑'
+
+        try:
+            reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+        except TimeoutError:
+            print("E")
+            pass
+        else:
+            await bot.invoke(ctx)
     else:  # If its a actual error
         await senderror(ctx, error)
 
@@ -78,7 +88,10 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
     async def send_command_help(self, command):
         embed = discord.Embed(title=f"Info about: {self.get_command_signature(command)}")
-        embed.add_field(name="Command info", value=command.help)
+        if command.help is not None:
+            embed.description(value=command.help)
+        else:
+            embed.description(value="This command doesnt have any further info.")
         alias = command.aliases
         if alias:
             embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
@@ -101,43 +114,21 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
 bot.help_command = Help()
 
-# This is pain, it wont work, therefore its comented out. Dont use this
 """
 @bot.command()
-async def test(ctx):  
+async def reactiontest(ctx):
+    await ctx.send('Send me that 👍 reaction, mate')
 
-    headers = {
-        "Authorization": f"Bot {os.getenv('TOKEN')}",
-        "Content-Type": "application/json"
-    }
+    def check(reaction, user):
+        return user == ctx.message.author and str(reaction.emoji) == '👍'
 
-    data = {
-        "components": [{
-            "type": 1,
-            "components": [
-                {
-                    "type": 2,
-                    "label": "Test",
-                    "style": 3
-                },
-                {
-                    "type": 2,
-                    "label": "Pog",
-                    "style": 5,
-                    "url": "https://www.google.com/"
-                }
-            ]
-        }]
-    }
-
-    session = aiohttp.ClientSession()
-    r = await session.post(
-        f"https://discord.com/api/v9/channels/{ctx.channel.id}/messages",
-        headers=headers,
-        data=data
-    )
-    await session.close()
-    await ctx.send(r)
+    try:
+        reaction, user = await bot.wait_for('reaction_add', timeout=60.0, check=check)
+    except TimeoutError:
+        print("E")
+        pass
+    else:
+        await bot.invoke(help)
 """
 
 # RUN THE BOT -----------------------------------------------------------------------------------
