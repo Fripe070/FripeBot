@@ -1,3 +1,5 @@
+# This project is basically abandoned, I will still be accepting pull requests but probably not write my own code for it.
+
 # FripeBot
 The code for my terrible™ Discord bot.
 
