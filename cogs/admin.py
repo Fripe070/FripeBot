@@ -1,154 +1,144 @@
-from assets.stuff import *
+import discord
+
+from discord.ext import commands
+from assets.stuff import col, getcogs
 
 
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command()
+    @commands.command()
     async def setstatus(self, ctx, activity, *, new_status):
         """Sets the bots status"""
-        if ctx.author.id in trusted:
-            status = new_status
-            if activity == "watching":
-                print(f'{bcolors.BOLDOKBLUE}Status set to "{bcolors.OKCYAN}{activity} {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-                await bot.change_presence(
-                    activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-                await ctx.reply(f'Status set to "{activity} {status}"')
+        status = new_status
+        if activity == "watching":
+            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} {status}{col.BLUE}"{col.ENDC}')
+            await self.bot.change_presence(
+                activity=discord.Activity(name=status, type=discord.ActivityType.watching))
+            await ctx.reply(f'Status set to "{activity} {status}"')
 
-            elif activity == "playing":
-                print(f'{bcolors.BOLDOKBLUE}Status set to "{bcolors.OKCYAN}{activity} {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-                await bot.change_presence(
-                    activity=discord.Activity(name=status, type=discord.ActivityType.playing))
-                await ctx.reply(f'Status set to "{activity} {status}"')
+        elif activity == "playing":
+            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} {status}{col.BLUE}"{col.ENDC}')
+            await self.bot.change_presence(
+                activity=discord.Activity(name=status, type=discord.ActivityType.playing))
+            await ctx.reply(f'Status set to "{activity} {status}"')
 
-            elif activity == "listening":
-                print(f'{bcolors.BOLDOKBLUE}Status set to "{bcolors.OKCYAN}{activity} {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-                await bot.change_presence(
-                    activity=discord.Activity(name=status, type=discord.ActivityType.listening))
-                await ctx.reply(f'Status set to "{activity} to {status}"')
+        elif activity == "listening":
+            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} {status}{col.BLUE}"{col.ENDC}')
+            await self.bot.change_presence(
+                activity=discord.Activity(name=status, type=discord.ActivityType.listening))
+            await ctx.reply(f'Status set to "{activity} to {status}"')
 
-            elif activity == "competing":
-                print(f'{bcolors.BOLDOKBLUE}Status set to "{bcolors.OKCYAN}{activity} in {status}{bcolors.OKBLUE}"{bcolors.ENDC}')
-                await bot.change_presence(
-                    activity=discord.Activity(name=status, type=discord.ActivityType.competing))
-                await ctx.reply(f'Status set to "{activity} in {status}"')
-            else:
-                await ctx.reply(f"That's not a valid activity!")
-
+        elif activity == "competing":
+            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} in {status}{col.BLUE}"{col.ENDC}')
+            await self.bot.change_presence(
+                activity=discord.Activity(name=status, type=discord.ActivityType.competing))
+            await ctx.reply(f'Status set to "{activity} in {status}"')
         else:
-            print(f'{bcolors.FAIL}{ctx.author.name}{bcolors.WARNING} Tried to change the status to "{bcolors.FAIL}{activity} {new_status}{bcolors.WARNING}"{bcolors.ENDC}')
-            await ctx.message.add_reaction("🔐")
+            await ctx.reply(f"That's not a valid activity!")
 
-    @command()
+    @commands.command()
+    @commands.is_owner()
     async def load(self, ctx, to_load=None):
         """Loads a specified cog"""
-        if ctx.author.id in trusted:
-            loads = []
-            loadembed = []
-            embedcolor = 0x34eb40
-            if getcogs(to_load) is None:
-                await ctx.reply("Thats not valid.")
-                return
-            else:
-                print(f"{bcolors.OKBLUE}Loading cog(s)!{bcolors.ENDC}")
-            for cog in getcogs(to_load):
-                try:
-                    bot.load_extension(f"{cog}")
-                    loads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
-                    loadembed.append(f"<:Check:829656697835749377> {cog}")
-                except Exception as error:
-                    loads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
-                    loadembed.append(f"<:warning:829656327797604372> {error}")
-                    embedcolor = 0xeb4034
-
-            print("\n".join(loads))
-
-            embed = discord.Embed(title=f"Loaded cogs!", color=embedcolor,
-                                  description="‍" + "\n".join(loadembed))
-            embed.set_footer(text=f"Requested by {ctx.author}")
-            await ctx.send(embed=embed)
-
-            await ctx.message.add_reaction("👍")
+        loads = []
+        loadembed = []
+        embedcolor = 0x34eb40
+        if to_load is None:
+            await ctx.reply("Thats not valid.")
+            return
         else:
-            await ctx.message.add_reaction("🔐")
+            print(f"{col.BLUE}Loading cog(s)!{col.ENDC}")
+        for cog in getcogs(to_load):
+            try:
+                self.bot.load_extension(f"{cog}")
+                loads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
+                loadembed.append(f"<:Check:829656697835749377> {cog}")
+            except Exception as error:
+                loads.append(f"{col.FAIL}│ {col.WARN}{error}")
+                loadembed.append(f"<:warning:829656327797604372> {error}")
+                embedcolor = 0xeb4034
 
-    @command()
+        print("\n".join(loads))
+
+        embed = discord.Embed(title=f"Loaded cogs!", color=embedcolor,
+                              description="‍" + "\n".join(loadembed))
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.send(embed=embed)
+
+        await ctx.message.add_reaction("👍")
+
+    @commands.command()
+    @commands.is_owner()
     async def unload(self, ctx, to_unload=None):
         """Unloads a specified cog"""
-        if ctx.author.id in trusted:
-            unloads = []
-            unloadembed = []
-            embedcolor = 0x34eb40
-            if getcogs(to_unload) is None:
-                await ctx.reply("Thats not valid.")
-                return
-            else:
-                print(f"{bcolors.OKBLUE}Unloading cog(s)!{bcolors.ENDC}")
-            for cog in getcogs(to_unload):
-                try:
-                    bot.unload_extension(f"{cog}")
-                    unloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
-                    unloadembed.append(f"<:Check:829656697835749377> {cog}")
-                except Exception as error:
-                    unloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
-                    unloadembed.append(f"<:warning:829656327797604372> {error}")
-                    embedcolor = 0xeb4034
-
-            print("\n".join(unloads))
-
-            embed = discord.Embed(title=f"Unloaded cogs!", color=embedcolor,
-                                  description="‍" + "\n".join(unloadembed))
-            embed.set_footer(text=f"Requested by {ctx.author}")
-            await ctx.send(embed=embed)
-
-            await ctx.message.add_reaction("👍")
+        unloads = []
+        unloadembed = []
+        embedcolor = 0x34eb40
+        if to_unload is None:
+            await ctx.reply("Thats not valid.")
+            return
         else:
-            await ctx.message.add_reaction("🔐")
+            print(f"{col.BLUE}Unloading cog(s)!{col.ENDC}")
+        for cog in getcogs(to_unload):
+            try:
+                self.bot.unload_extension(f"{cog}")
+                unloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
+                unloadembed.append(f"<:Check:829656697835749377> {cog}")
+            except Exception as error:
+                unloads.append(f"{col.FAIL}│ {col.WARN}{error}")
+                unloadembed.append(f"<:warning:829656327797604372> {error}")
+                embedcolor = 0xeb4034
 
-    @command()  # Currently not working
+        print("\n".join(unloads))
+
+        embed = discord.Embed(title=f"Unloaded cogs!", color=embedcolor,
+                              description="‍" + "\n".join(unloadembed))
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.send(embed=embed)
+
+        await ctx.message.add_reaction("👍")
+
+    @commands.command()  # Currently not working
+    @commands.is_owner()
     async def reload(self, ctx, to_reload=None):
         """Restarts the bot"""
-        if ctx.author.id in trusted:
-            reloads = []
-            reloadembed = []
-            embedcolor = 0x34eb40
-            if getcogs(to_reload) is None:
-                await ctx.reply("Thats not valid.")
-                return
-            else:
-                print(f"{bcolors.OKBLUE}Reloading cog(s)!{bcolors.ENDC}")
-            for cog in getcogs(to_reload):
-                try:
-                    bot.reload_extension(f"{cog}")
-                    reloads.append(f"{bcolors.OKBLUE}│ {bcolors.OKGREEN}{cog}")
-                    reloadembed.append(f"<:Check:829656697835749377> {cog}")
-                except Exception as error:
-                    reloads.append(f"{bcolors.FAIL}│ {bcolors.WARNING}{error}")
-                    reloadembed.append(f"<:warning:829656327797604372> {error}")
-                    embedcolor = 0xeb4034
-
-            print("\n".join(reloads))
-
-            embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
-                                  description="‍" + "\n".join(reloadembed))
-            embed.set_footer(text=f"Requested by {ctx.author}")
-            await ctx.send(embed=embed)
-
-            await ctx.message.add_reaction("👍")
+        reloads = []
+        reloadembed = []
+        embedcolor = 0x34eb40
+        if getcogs(to_reload) is None:
+            await ctx.reply("Thats not valid.")
+            return
         else:
-            await ctx.message.add_reaction("🔐")
+            print(f"{col.BLUE}Reloading cog(s)!{col.ENDC}")
+        for cog in getcogs(to_reload):
+            try:
+                self.bot.reload_extension(f"{cog}")
+                reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
+                reloadembed.append(f"<:Check:829656697835749377> {cog}")
+            except Exception as error:
+                reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
+                reloadembed.append(f"<:warning:829656327797604372> {error}")
+                embedcolor = 0xeb4034
 
-    @command(aliases=['die'], help="Stops the bot")
+        print("\n".join(reloads))
+
+        embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
+                              description="‍" + "\n".join(reloadembed))
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.send(embed=embed)
+
+        await ctx.message.add_reaction("👍")
+
+    @commands.command(aliases=['die', 'shutdown'])
+    @commands.is_owner()
     async def stop(self, ctx):
-        if ctx.author.id in trusted:
-            await ctx.message.add_reaction("👍")
-            await ctx.reply("Ok. :(")
-            print(f"{bcolors.BOLDFAIL}{ctx.author.name} Told me to stop{bcolors.ENDC}")
-            await bot.logout()
-            await bot.close()
-        else:
-            await ctx.message.add_reaction("🔐")
+        """Stops the bot"""
+        await ctx.message.add_reaction("👍")
+        await ctx.reply("Ok. :(\nshutting down...")
+        print(f"{col.FAIL}{col.BOLD}{ctx.author.name} Told me to stop{col.ENDC}")
+        await self.bot.close()
 
 
 def setup(bot):

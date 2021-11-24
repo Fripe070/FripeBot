@@ -1,49 +1,52 @@
-from assets.stuff import *
+import discord
+import random
+
+from discord.ext import commands
 
 
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(help="Gives soup")
+    @commands.command(help="Gives soup")
     async def soup(self, ctx):
         await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-    @command(aliases=['flip'], help="Flips a coin!")
+    @commands.command(aliases=['flip'], help="Flips a coin!")
     async def coinflip(self, ctx):
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
 
-    @command(help="Rolls a dice!")
+    @commands.command(help="Rolls a dice!")
     async def dice(self, ctx, sides=6):
         await ctx.reply(f"You rolled a {random.randint(1, sides)}! :game_die:")
 
-    @command(aliases=['8ball'], help="A magic eightball")
+    @commands.command(aliases=['8ball'], help="A magic eightball")
     async def eightball(self, ctx):
         await ctx.reply(
             random.choice(["Yes", "No", "<:perhaps:819028239275655169>", "Surely", "Maybe tomorrow", "Not yet"]))
 
-    @command(help="Scrambles the text supplied")
+    @commands.command(help="Scrambles the text supplied")
     async def scramble(self, ctx, *, arg):
         await ctx.reply(''.join(random.sample(arg, len(arg))))
 
     # Code stolen (with consent) from "! Thonk##2761" on discord
     # Code is heavily modified by me
-    @command(aliases=['source'], help="Links my GitHub profile")
+    @commands.command(aliases=['source', 'git'], help="Links my GitHub profile")
     async def github(self, ctx, member: discord.Member = None):
+        await ctx.message.delete()
         embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
                               color=0x00ffbf, timestamp=ctx.message.created_at)
         embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
                          icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
         embed.set_thumbnail(url="https://avatars.githubusercontent.com/fripe070")
         embed.add_field(name="This bot:", value="https://github.com/Fripe070/FripeBot")
-        embed.set_footer(text="Requested by: " + ctx.author.name, icon_url=ctx.author.avatar_url)
-        await ctx.message.delete()
-        if member != None:
-            await ctx.send(f'{member.mention} Please take a look to my github', embed=embed)
-        else:
+        embed.set_footer(text=f"Requested by: {ctx.author.name}", icon_url=ctx.author.avatar)
+        if member is None:
             await ctx.send(embed=embed)
+        else:
+            await ctx.send(f'{member.mention} Please take a look at my github', embed=embed)
 
-    @command(aliases=["jumbo"])
+    @commands.command(aliases=["jumbo"])
     async def emoji(self, ctx, emoji: discord.Emoji):
         if str(emoji).startswith("<a:"):
             animated = True
@@ -58,63 +61,59 @@ class Fun(commands.Cog):
         embed.set_image(url=emoji.url)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
+    #
+    # @commands.command()
+    # async def kill(self, ctx, person1=None):
+    #     """Kill someone with a randomized Minecraft death message"""
+    #     if person1 is None:
+    #         person1 = random.choice(list(entites.values()))
+    #     if "panda" in person1:
+    #         await ctx.reply("How dare you try to kill a panda >:(")
+    #     else:
+    #         temp_message = random.choice(list(death_messages.values()))
+    #         temp_message = temp_message.replace("%1$s", str(person1))
+    #         temp_message = temp_message.replace("%2$s", str(ctx.author.mention))
+    #         temp_message = temp_message.replace("%3$s", random.choice(list(mcitems.values())))
+    #         await ctx.message.delete()
+    #         await ctx.send(temp_message)
+    #
+    # @commands.command(aliases=["ikill"])
+    # async def itemkill(self, ctx, person1=None):
+    #     """Kill someone with a randomized Minecraft death message"""
+    #     if person1 is None:
+    #         person1 = random.choice(list(entites.values()))
+    #     if "panda" in person1:
+    #         await ctx.reply("How dare you try to kill a panda >:(")
+    #     else:
+    #         temp_message = random.choice(list(item_deaths.values()))
+    #         temp_message = temp_message.replace("%1$s", str(person1))
+    #         temp_message = temp_message.replace("%2$s", str(ctx.author.mention))
+    #         temp_message = temp_message.replace("%3$s", random.choice(list(mcitems.values())))
+    #         await ctx.message.delete()
+    #         await ctx.send(temp_message)
 
-    @command()
-    async def kill(self, ctx, person1=None):
-        """Kill someone with a randomized Minecraft death message"""
-        if person1 is None:
-            person1 = random.choice(list(entites.values()))
-        if "panda" in person1:
-            await ctx.reply("How dare you try to kill a panda >:(")
-        else:
-            temp_message = random.choice(list(death_messages.values()))
-            temp_message = temp_message.replace("%1$s", str(person1))
-            temp_message = temp_message.replace("%2$s", str(ctx.author.mention))
-            temp_message = temp_message.replace("%3$s", random.choice(list(mcitems.values())))
-            await ctx.message.delete()
-            await ctx.send(temp_message)
-
-    @command(aliases=["ikill"])
-    async def itemkill(self, ctx, person1=None):
-        """Kill someone with a randomized Minecraft death message"""
-        if person1 is None:
-            person1 = random.choice(list(entites.values()))
-        if "panda" in person1:
-            await ctx.reply("How dare you try to kill a panda >:(")
-        else:
-            temp_message = random.choice(list(item_deaths.values()))
-            temp_message = temp_message.replace("%1$s", str(person1))
-            temp_message = temp_message.replace("%2$s", str(ctx.author.mention))
-            temp_message = temp_message.replace("%3$s", random.choice(list(mcitems.values())))
-            await ctx.message.delete()
-            await ctx.send(temp_message)
-
-    @command(aliases=['Say'])
+    @commands.command(aliases=['Say'])
+    @commands.is_owner()
     async def echo(self, ctx, *, tell):
         """Makes the bot say things"""
-        if ctx.author.id in trusted:
-            if isinstance(ctx.channel, discord.channel.DMChannel):
-                await ctx.send("That command isn't available in dms")
-            else:
-                await ctx.message.delete()
-                await ctx.send(tell)
+        if isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.send("That command isn't available in dms")
         else:
-            await ctx.message.add_reaction("🔐")
+            await ctx.message.delete()
+            await ctx.send(tell)
 
-    @command(aliases=['esay', 'embedsay'])
+    @commands.command(aliases=['esay', 'embedsay'])
+    @commands.is_owner()
     async def embedecho(self, ctx, *, tell):
         """Makes the bot say things"""
-        if ctx.author.id in trusted:
-            if isinstance(ctx.channel, discord.channel.DMChannel):
-                await ctx.send("That command isn't available in dms")
-            else:
-                await ctx.message.delete()
-                embed = discord.Embed(title="This is a embed! :o",
-                                      description=tell)
-                embed.set_footer(text=f"Requested by {ctx.author}")
-                await ctx.send(embed=embed)
+        if isinstance(ctx.channel, discord.channel.DMChannel):
+            await ctx.send("That command isn't available in dms")
         else:
-            await ctx.message.add_reaction("🔐")
+            await ctx.message.delete()
+            embed = discord.Embed(title="This is a embed! :o",
+                                  description=tell)
+            embed.set_footer(text=f"Requested by {ctx.author}")
+            await ctx.send(embed=embed)
 
 
 def setup(bot):
