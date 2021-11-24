@@ -1,13 +1,21 @@
+import json
+
+import discord
 import subprocess
+import requests
+import os
+import asyncio
+import random
 
-from assets.stuff import *
+from discord.ext import commands
+from assets.stuff import securestring, splitstring, getpfp, senderror
 
 
-class Utility(Cog):
+class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(aliases=["pfpget", "gpfp", "pfp"])
+    @commands.command(aliases=["pfpget", "gpfp", "pfp"])
     async def getpfp(self, ctx, member: discord.Member = None):
         """Gets a users profile picture at a high resolution"""
         if not member:
@@ -20,22 +28,24 @@ class Utility(Cog):
         await ctx.send(embed=embed)
 
     # Command to get info about a account
-    @command()
+    @commands.command()
     async def whois(self, ctx, member: discord.Member = None):
         """Displays information about a discord user"""
         if not member:
             member = ctx.message.author
+
         roles = [role.mention for role in member.roles[1:]]
         roles.reverse()
-        pfp = str(member.avatar_url)[:-4] + "4096"
 
         embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
                               title=f"User Info - {member}")
-        embed.set_thumbnail(url=pfp)
+
+        embed.set_thumbnail(url=getpfp(member))
+
         embed.set_footer(text=f"Requested by {ctx.author}")
 
-        embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {rembackslash(member.name)}
-        **Nickname:** {rembackslash(member.display_name)}
+        embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {securestring(member.name)}
+        **Nickname:** {securestring(member.display_name)}
         **Mention:** {member.mention}
         **ID:** {member.id}
         **Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
@@ -47,40 +57,34 @@ class Utility(Cog):
 #            **Activity:** {afunctionthatfroopwants(member.activity.name)}
         await ctx.send(embed=embed)
 
-    """
-    @command()
-    async def allroles(self, ctx):
-        embed = discord.Embed(colour=0x2c7bd2, title="e", description=f"")
-        await ctx.send(embed=embed)
-    """
-
-    @command()
+    @commands.command()
+    @commands.is_owner()
     async def webget(self, ctx, site: str):
-        """Gets the content from a website"""
-        if ctx.author.id in trusted:
-            if not site.startswith("http://") and not site.startswith("https://"):
-                site = "https://" + site
-            out = requests.get(site).text
-            for part in splitmessage(out):
-                embed = discord.Embed(timestamp=ctx.message.created_at,
-                                      title=f"Output:",
-                                      description=f"```\n{part}```")
-                await ctx.send(embed=embed)
-        else:
-            await ctx.message.add_reaction("🔐")
+        if not site.startswith("http://") and not site.startswith("https://"):
+            site = f"https://{site}"
+        out = requests.get(site).text
+        for part in splitstring(out):
+            embed = discord.Embed(timestamp=ctx.message.created_at,
+                                  title=f"Output:",
+                                  description=f"```\n{securestring(part)}```")
+            await ctx.send(embed=embed)
 
-    @command()
+    @commands.command()
     @commands.is_owner()
     async def bash(self, ctx, *, args):
-        """Runs bash comamnds on the host pc"""
-        process = subprocess.run(args, capture_output=True)
-        stdout = process.stdout.decode("utf8")
-        stderr = process.stderr.decode("utf8")
+        proc = await asyncio.create_subprocess_shell(f"/bin/bash -c '{args}'", stdout=asyncio.subprocess.PIPE,
+                                                     stderr=asyncio.subprocess.PIPE)
+        stdout, stderr = await proc.communicate()
+
+        stdout = stdout.decode('utf-8')
+        stderr = stderr.decode('utf-8')
+
         print(stdout)
-        for part in splitmessage(stdout, 1993):
+        print(stderr)
+        for part in splitstring(stdout, 1993):
             await ctx.send(f"```\n{part}```")
 
-    @command(aliases=['Exec'])
+    @commands.command(aliases=['Exec'])
     @commands.is_owner()
     async def execute(self, ctx, *, code):
         """Executes python code"""
@@ -105,8 +109,8 @@ class Utility(Cog):
         except Exception as error:
             await senderror(ctx, error)
 
-    @command(aliases=['Eval'])
-    @is_owner()
+    @commands.command(aliases=['Eval'])
+    @commands.is_owner()
     async def evaluate(self, ctx, *, arg=None):
         """Evaluates stuff"""
         if arg is None:
@@ -123,7 +127,7 @@ class Utility(Cog):
             except Exception as error:
                 await senderror(ctx, error)
 
-    @command()
+    @commands.command()
     async def members(self, ctx):
         """Counts the amount of people in the server"""
         embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
@@ -134,11 +138,11 @@ class Utility(Cog):
         await ctx.reply(embed=embed)
 
     # Command to get the bots ping
-    @command()
+    @commands.command()
     async def ping(self, ctx):
         """Displays the bots ping"""
         await ctx.message.add_reaction("🏓")
-        bot_ping = round(bot.latency * 1000)
+        bot_ping = round(self.bot.latency * 1000)
         if bot_ping < 130:
             color = 0x44ff44
         elif bot_ping > 130 and bot_ping < 180:
@@ -150,34 +154,66 @@ class Utility(Cog):
                               color=color)
         await ctx.reply(embed=embed)
 
-    @command(aliases=['def', 'definition'])
-    async def define(self, ctx, word, lang="en_GB"):
+    @commands.command(aliases=['def', 'definition'])
+    async def define(self, ctx, *, word):
         """Gets the defenition for a word"""
-        resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/{lang}/{word}')
-        resp = resp.json()
+        embed = discord.Embed(title=f"Defenition of the word: {word}")
 
         try:
+            resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/en_GB/{word}')
+            resp = resp.json()
             resp = resp[0]["meanings"]
+            for i in resp:
+                for e in i["definitions"][:2]:
+                    try:
+                        embed.add_field(name=i["partOfSpeech"],
+                                        value=f'**Defenition:** ```{e["definition"]}```\n**Example:** ```{e["example"]}```')
+                    except KeyError:
+                        try:
+                            embed.add_field(name=i["partOfSpeech"], value=f'Defenition: ```{e["definition"]}```')
+                        except KeyError:
+                            embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
+            await ctx.reply(embed=embed)
         except KeyError:
             embed = discord.Embed(title="Could not find a defenition for that word!",
+                                  description="Do you want to use urban dictionary instead? (Results are not filtered and can be inappropriate)",
                                   colour=ctx.author.colour,
                                   timestamp=ctx.message.created_at
                                   )
-            await ctx.reply(embed=embed)
-            return
-        embed = discord.Embed(title=f"Defenition of the word {word}")
+            askmessage = await ctx.reply(embed=embed)
 
-        for i in resp:
-            for e in i["definitions"]:
-                try:
-                    embed.add_field(name=i["partOfSpeech"], value=f'**Defenition:** ```{e["definition"]}```\n**Example:** ```{e["example"]}```')
-                except KeyError:
-                    try:
-                        embed.add_field(name=i["partOfSpeech"], value=f'Defenition: ```{e["definition"]}```')
-                    except KeyError:
-                        embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
+            yesemoji = "<:yes:823202605123502100>"
 
-        await ctx.reply(embed=embed)
+            def check(reaction, user):
+                return user == ctx.message.author and str(reaction.emoji) == yesemoji
+
+            await askmessage.add_reaction(yesemoji)
+            try:
+                reaction, user = await self.bot.wait_for('reaction_add', timeout=20.0, check=check)
+            except TimeoutError:
+                pass
+            else:
+                resp = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
+
+                resp = resp.json()
+
+                resp = resp["list"][0]
+
+                embed = discord.Embed(
+                    title=f"Defenition of the word: {word}",
+                    description=f"""[**Permalink**]({resp['permalink']})
+Likes/Dislikes: {resp['thumbs_up']}/{resp['thumbs_down']}
+
+**Definition:**
+{resp['definition'].replace('[', '').replace(']', '')}
+
+**Example:**
+{resp['example'].replace('[', '').replace(']', '')}"""
+                )
+
+                embed.set_footer(text=f"Writen by: {resp['author']}")
+                print(resp)
+                await ctx.send(embed=embed)
 
 
 def setup(bot):

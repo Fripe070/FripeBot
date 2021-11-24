@@ -1,12 +1,16 @@
-from assets.stuff import *
+import discord
+import asyncio
 from gtts import gTTS
+
+from discord.ext import commands 
+
 
 class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     # Joining a VC:
-    @command(name="VCjoin", help="Joins the user's VC")
+    @commands.command(name="VCjoin", help="Joins the user's VC")
     async def vcjoin(self, ctx):
         if ctx.author.voice is None:
             # Exiting if the user is not in a voice channel
@@ -16,7 +20,7 @@ class Voice(commands.Cog):
             await channel.connect()  # Join the channel
 
     # Leaving a VC:
-    @command(name="VCleave", help="Leaves the VC", pass_context=True)
+    @commands.command(name="VCleave", help="Leaves the VC", pass_context=True)
     async def vcleave(self, ctx):
         if ctx.author.voice is None:
             # Exiting if the user is not in a voice channel
@@ -25,7 +29,7 @@ class Voice(commands.Cog):
             server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
             await server.disconnect()  # Leave the VC
 
-    @command()
+    @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def tts(self, ctx, *, message):
         tts = gTTS(message)
