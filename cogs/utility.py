@@ -72,8 +72,11 @@ class Utility(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def bash(self, ctx, *, args):
-        proc = await asyncio.create_subprocess_shell(f"/bin/bash -c '{args}'", stdout=asyncio.subprocess.PIPE,
-                                                     stderr=asyncio.subprocess.PIPE)
+        proc = await asyncio.create_subprocess_shell(
+            f"/bin/bash -c '{args}'",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
         stdout, stderr = await proc.communicate()
 
         stdout = stdout.decode('utf-8')
