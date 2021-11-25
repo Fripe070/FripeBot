@@ -2,7 +2,6 @@ import discord
 import os
 
 from discord.ext import commands
-from discord.ext.commands.errors import *
 from dotenv import load_dotenv
 from assets.stuff import config, col, getcogs, senderror
 
@@ -39,22 +38,22 @@ Cogs:
 @bot.event
 async def on_command_error(ctx, error):
     # If the command does not exist/is not found.
-    if isinstance(error, CommandNotFound):
+    if isinstance(error, commands.CommandNotFound):
         await ctx.message.add_reaction("❓")
     # If the command is on cooldown.
     elif isinstance(error, commands.CommandOnCooldown):
         await ctx.send(embed=discord.Embed(title=f"Slow down!",
                                            description=f"Try again in {error.retry_after:.2f}s.",
                                            color=0xeb4034))
-    elif isinstance(error, MemberNotFound):
+    elif isinstance(error, commands.MemberNotFound):
         await ctx.reply("That's not a valid member!")
-    elif isinstance(error, MessageNotFound):
+    elif isinstance(error, commands.MessageNotFound):
         await ctx.send("Did you delete your message? ")
-    elif isinstance(error, MissingPermissions):
+    elif isinstance(error, commands.MissingPermissions):
         await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
     elif TimeoutError:
         pass
-    elif isinstance(error, NotOwner):
+    elif isinstance(error, commands.NotOwner):
         await ctx.message.add_reaction("🔐")
     else:
         await senderror(ctx, error)
