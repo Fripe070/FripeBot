@@ -1,4 +1,8 @@
 import discord
+import subprocess
+import sys
+import os
+import asyncio
 
 from discord.ext import commands
 from assets.stuff import col, getcogs
@@ -139,6 +143,25 @@ class Admin(commands.Cog):
         await ctx.reply("Ok. :(\nshutting down...")
         print(f"{col.FAIL}{col.BOLD}{ctx.author.name} Told me to stop{col.ENDC}")
         await self.bot.close()
+
+    @commands.command()
+    @commands.is_owner()
+    async def update(self, ctx):
+        """Updates the bot"""
+        await ctx.message.add_reaction("👍")
+        await ctx.reply("Updating...")
+        print(f"{col.FAIL}{col.BOLD}{ctx.author.name} Told me to update{col.ENDC}")
+        shellscript = subprocess.Popen(
+            ["update.sh"],
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout, stderr = shellscript.communicate()
+        respnse = "Done!"
+        if stdout is not None:
+            respnse += f"```bash\n{stdout.decode('utf-8')}```"
+        await ctx.reply(respnse)
+        os.execv(sys.executable, ['python'] + sys.argv)
 
 
 def setup(bot):
