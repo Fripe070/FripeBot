@@ -160,6 +160,8 @@ class Admin(commands.Cog):
         respnse = "Done!"
         if stdout is not None:
             respnse += f"```bash\n{stdout.decode('utf-8')}```"
+        if stderr is not None:
+            respnse += f"```bash\n{stderr.decode('utf-8')}```"
         await ctx.reply(respnse)
         os.execv(sys.executable, ['python'] + sys.argv)
 
