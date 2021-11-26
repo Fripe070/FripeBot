@@ -163,7 +163,7 @@ class Admin(commands.Cog):
         if stderr is not None:
             respnse += f"```bash\n{stderr.decode('utf-8')}```"
         await ctx.reply(respnse)
-        os.execv(sys.executable, ['python'] + sys.argv)
+        os.execv(sys.executable, ['python3'] + sys.argv)
 
 
 def setup(bot):
