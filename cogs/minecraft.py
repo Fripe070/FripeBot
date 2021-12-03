@@ -70,6 +70,7 @@ class Minecraft(commands.Cog):
                 uuid = player
             else:
                 await ctx.reply("That username is not taken.")
+                await msg.delete()
                 return
 
         await msg.edit(content="Fetching player names... (this might take a while)")
@@ -77,19 +78,26 @@ class Minecraft(commands.Cog):
         tmprequest = requests.get(url).json()
         pastnames = []
         for name in tmprequest:
-            try:
+            if 'changedToAt' in name:
                 pastnames.append(f"{name['name']} (<t:{int(int(name['changedToAt']) / 1000)}:R>)")
-            except Exception:
-                try:
-                    pastnames.append(f"{name['name']} (original)")
-                except Exception:
-                    pass
+            else:
+                pastnames.append(name['name'])
 
+        oldestname = pastnames[0]
         pastnames.reverse()
-        pastnames = ", \n".join(pastnames)
+        pastnamesstring = ""
 
-        if len(pastnames) > 1020:
-            pastnames = pastnames[:1020] + "..."
+        i = 0
+        for name in pastnames:
+            i += 1
+            if name != oldestname:
+                if len(f"{pastnamesstring}{name}\n{oldestname} and {len(pastnames[i:])} more\n\n**Original:**\n{oldestname}") < 1020:
+                    pastnamesstring += f"{name}\n"
+                else:
+                    pastnamesstring += f"and {len(pastnames[i:])} more\n"
+                    break
+
+        pastnamesstring += f"\n**Original name:**\n{oldestname}"
 
         await msg.edit(content="Fetching player model info... (this might take a while)")
 
@@ -171,7 +179,7 @@ class Minecraft(commands.Cog):
         except KeyError:
             pass
 
-        embed.add_field(name="Name history:", value=pastnames)
+        embed.add_field(name="Name history:", value=pastnamesstring)
 
         await msg.edit(content="Fetching player info from the hypixel API... (this might take a while)")
         try:

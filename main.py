@@ -55,8 +55,7 @@ async def on_command_error(ctx, error):
         pass
     elif isinstance(error, commands.NotOwner):
         await ctx.message.add_reaction("🔐")
-    else:
-        await senderror(ctx, error)
+
 
 # COMMANDS -----------------------------------------------------------------------------------
 class Help(commands.HelpCommand):  # TODO Put this in a cog
