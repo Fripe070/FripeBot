@@ -6,7 +6,7 @@ import base64
 from discord.ext import commands
 
 
-class minecraft(commands.Cog):
+class Minecraft(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -290,4 +290,4 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 
 
 def setup(bot):
-    bot.add_cog(minecraft(bot))
+    bot.add_cog(Minecraft(bot))
