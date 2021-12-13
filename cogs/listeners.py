@@ -16,8 +16,16 @@ class Listeners(commands.Cog):
                 await message.add_reaction("<:ping_gun:823948139504861225>")
                 await message.reply("My prefix is `f!`", delete_after=5)
 
-            if isinstance(message.channel, discord.channel.DMChannel):  # If message was send in a dm
-                print(f"{message.author} Send this in a DM: {message.content}")
+            if message.channel.type == discord.ChannelType.private:
+                print(f"{col.CYAN}{message.author}:{col.ENDC} {message.content}")
+                channel = self.bot.get_channel(920014770206294129)
+                if message.attachments:
+                    files = []
+                    for file in message.attachments:
+                        files.append(await file.to_file())
+                else:
+                    files = None
+                await channel.send(f"{message.content}", files=files)
 
             if message.content == "🤡":
                 await message.reply("https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4")
