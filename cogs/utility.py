@@ -1,6 +1,5 @@
-import json
-
 import discord
+import json
 import subprocess
 import requests
 import os
@@ -8,7 +7,7 @@ import asyncio
 import random
 
 from discord.ext import commands
-from assets.stuff import securestring, splitstring, getpfp, senderror
+from assets.stuff import securestring, splitstring, getpfp
 
 
 class Utility(commands.Cog):
@@ -99,18 +98,16 @@ class Utility(commands.Cog):
         function_code = (
             'async def __exec_code(self, ctx):\n'
             f'{code}')
-        try:
-            exec(function_code)
-            output = await locals()['__exec_code'](self, ctx)
-            if output:
-                formatted_output = '\n    '.join(output) if len(code.splitlines()) > 1 else output
-                await ctx.reply(embed=discord.Embed(colour=0xff0000,
-                                                    timestamp=ctx.message.created_at,
-                                                    title="Your code ran successfully!",
-                                                    description=f"```\n{formatted_output}\n```"))
-            await ctx.message.add_reaction("<:yes:823202605123502100>")
-        except Exception as error:
-            await senderror(ctx, error)
+
+        exec(function_code)
+        output = await locals()['__exec_code'](self, ctx)
+        if output:
+            formatted_output = '\n    '.join(output) if len(code.splitlines()) > 1 else output
+            await ctx.reply(embed=discord.Embed(colour=0xff0000,
+                                                timestamp=ctx.message.created_at,
+                                                title="Your code ran successfully!",
+                                                description=f"```\n{formatted_output}\n```"))
+        await ctx.message.add_reaction("<:yes:823202605123502100>")
 
     @commands.command(aliases=['Eval'])
     @commands.is_owner()
@@ -124,11 +121,8 @@ class Utility(commands.Cog):
             # Sends a randomly generated string that looks like a token
             await ctx.reply(''.join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_", k=59)))
         else:
-            try:
-                await ctx.reply(eval(arg))  # Actually Evaluates
-                await ctx.message.add_reaction("<:yes:823202605123502100>")
-            except Exception as error:
-                await senderror(ctx, error)
+            await ctx.reply(eval(arg))  # Actually Evaluates
+            await ctx.message.add_reaction("<:yes:823202605123502100>")
 
     @commands.command()
     async def members(self, ctx):
@@ -178,11 +172,12 @@ class Utility(commands.Cog):
                             embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
             await ctx.reply(embed=embed)
         except KeyError:
-            embed = discord.Embed(title="Could not find a defenition for that word!",
-                                  description="Do you want to use urban dictionary instead? (Results are not filtered and can be inappropriate)",
-                                  colour=ctx.author.colour,
-                                  timestamp=ctx.message.created_at
-                                  )
+            embed = discord.Embed(
+                title="Could not find a defenition for that word!",
+                description="Do you want to use urban dictionary instead? (Results are not filtered and can be inappropriate)",
+                colour=ctx.author.colour,
+                timestamp=ctx.message.created_at
+            )
             askmessage = await ctx.reply(embed=embed)
 
             yesemoji = "<:yes:823202605123502100>"

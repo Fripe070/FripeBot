@@ -48,17 +48,6 @@ def getcogs(dir: str = None):
     return COGS if COGS != [] else None
 
 
-async def senderror(ctx, error):
-    try:
-        embed = discord.Embed(colour=0xff0000, timestamp=ctx.message.created_at,
-                              title="An error occurred! Please notify Fripe if necessary.",
-                              description=f"```{error}```")
-        embed.set_footer(text=f"Caused by {ctx.author}")
-        await ctx.send(embed=embed)
-    except Exception:
-        print(f"{col.WARN + col.BOLD}Failed to send chat message{col.ENDC}")
-
-
 def getpfp(member: discord.Member):
     return member.display_avatar.with_size(4096).with_static_format("png")
 

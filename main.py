@@ -3,7 +3,7 @@ import os
 
 from discord.ext import commands
 from dotenv import load_dotenv
-from assets.stuff import config, col, getcogs, senderror
+from assets.stuff import config, col, getcogs
 
 bot = commands.Bot(
     command_prefix=config["prefixes"],
@@ -40,21 +40,35 @@ async def on_command_error(ctx, error):
     # If the command does not exist/is not found.
     if isinstance(error, commands.CommandNotFound):
         await ctx.message.add_reaction("❓")
-    # If the command is on cooldown.
+    elif isinstance(error, commands.NotOwner):
+        await ctx.message.add_reaction("🔐")
     elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(embed=discord.Embed(title=f"Slow down!",
-                                           description=f"Try again in {error.retry_after:.2f}s.",
-                                           color=0xeb4034))
+        await ctx.reply(embed=discord.Embed(
+            title=f"Slow down!",
+            description=f"Try again in {error.retry_after:.2f}s.",
+            color=0xeb4034
+        ))
     elif isinstance(error, commands.MemberNotFound):
         await ctx.reply("That's not a valid member!")
     elif isinstance(error, commands.MessageNotFound):
         await ctx.send("Did you delete your message? ")
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.reply("You don't have the required permissions to perform this command! :pensive:")
-    elif TimeoutError:
+    elif isinstance(error, TimeoutError):
         pass
-    elif isinstance(error, commands.NotOwner):
-        await ctx.message.add_reaction("🔐")
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.reply(error)
+    else:
+        try:
+            embed = discord.Embed(
+                title="An error occurred! Please notify Fripe if necessary.",
+                description=f"```{error}```",
+                timestamp=ctx.message.created_at,
+                colour=0xff0000
+            )
+            embed.set_footer(text=f"Caused by {ctx.author}")
+            await ctx.send(embed=embed)
+        except Exception:
+            print(f"{col.WARN + col.BOLD}Failed to send chat message{col.ENDC}")
+        raise error
 
 
 # COMMANDS -----------------------------------------------------------------------------------
