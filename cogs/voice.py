@@ -1,8 +1,9 @@
 import discord
 import asyncio
-from gtts import gTTS
+import requests
 
-from discord.ext import commands 
+import requests
+from discord.ext import commands
 
 
 class Voice(commands.Cog):
@@ -32,16 +33,17 @@ class Voice(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def tts(self, ctx, *, message):
-        tts = gTTS(message)
+        url = f"http://translate.google.com/translate_tts?total=1&idx=0&textlen=32&client=tw-ob&q={message}&tl=En-gb"
+        r = requests.get(url)
+
         with open('assets/img/tts.mp3', 'wb') as f:
-            tts.write_to_fp(f)
+            f.write(r.content)
         if ctx.author.voice is None:
             return await ctx.send('You need to be in a voice channel to use this command!')
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             voice = await channel.connect()
 
-        server = ctx.message.guild.voice_client
         voice.play(discord.FFmpegPCMAudio('assets/img/tts.mp3'))
         while voice.is_playing():
             await asyncio.sleep(1)
