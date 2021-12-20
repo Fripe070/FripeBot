@@ -22,16 +22,15 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=['8ball'], help="A magic eightball")
     async def eightball(self, ctx):
-        await ctx.reply(
-            random.choice([
-                "Yes",
-                "No",
-                "<:perhaps:819028239275655169>",
-                "Surely",
-                "Maybe tomorrow",
-                "Not yet",
-                "If you say so 🙃"
-            ]))
+        await ctx.reply(random.choice([
+            "Yes",
+            "No",
+            "<:perhaps:819028239275655169>",
+            "Surely",
+            "Maybe tomorrow",
+            "Not yet",
+            "If you say so 🙃"
+        ]))
 
     @commands.command(help="Scrambles the text supplied")
     async def scramble(self, ctx, *, arg):

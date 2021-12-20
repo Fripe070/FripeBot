@@ -1,10 +1,9 @@
 import discord
-import json
-import subprocess
 import requests
 import os
 import asyncio
 import random
+import re
 
 from discord.ext import commands
 from assets.stuff import securestring, splitstring, getpfp
@@ -154,24 +153,25 @@ class Utility(commands.Cog):
     @commands.command(aliases=['def', 'definition'])
     async def define(self, ctx, *, word):
         """Gets the defenition for a word"""
-        embed = discord.Embed(title=f"Defenition of the word: {word}")
+        r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}")
+        r = r.json()
 
-        try:
-            resp = requests.get(f'https://api.dictionaryapi.dev/api/v2/entries/en_GB/{word}')
-            resp = resp.json()
-            resp = resp[0]["meanings"]
-            for i in resp:
-                for e in i["definitions"][:2]:
-                    try:
-                        embed.add_field(name=i["partOfSpeech"],
-                                        value=f'**Defenition:** ```{e["definition"]}```\n**Example:** ```{e["example"]}```')
-                    except KeyError:
-                        try:
-                            embed.add_field(name=i["partOfSpeech"], value=f'Defenition: ```{e["definition"]}```')
-                        except KeyError:
-                            embed.add_field(name="e", value=f'Defenition: ```{e["definition"]}```')
+        if isinstance(r, list):
+            embed = discord.Embed(
+                title=f"Defenition of the word: {word}",
+                description=f"""
+{r[0]['meanings'][0]['partOfSpeech']}
+**Pronunciation:** {r[0]['phonetic']}
+**Origin:** {r[0]['origin']}
+
+**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}
+**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}
+""",
+                color=ctx.author.colour
+            )
+
             await ctx.reply(embed=embed)
-        except KeyError:
+        else:
             embed = discord.Embed(
                 title="Could not find a defenition for that word!",
                 description="Do you want to use urban dictionary instead? (Results are not filtered and can be inappropriate)",
@@ -180,38 +180,37 @@ class Utility(commands.Cog):
             )
             askmessage = await ctx.reply(embed=embed)
 
-            yesemoji = "<:yes:823202605123502100>"
-
             def check(reaction, user):
-                return user == ctx.message.author and str(reaction.emoji) == yesemoji
-
-            await askmessage.add_reaction(yesemoji)
+                return user == ctx.message.author and str(reaction.emoji) == '<:yes:823202605123502100>'
+            await askmessage.add_reaction('<:yes:823202605123502100>')
             try:
-                reaction, user = await self.bot.wait_for('reaction_add', timeout=20.0, check=check)
-            except TimeoutError:
-                pass
+                await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+            except Exception:
+                return
             else:
-                resp = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
+                r = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
+                r = r.json()
+                r = r["list"][random.randint(0, len(r["list"]) - 1)]
 
-                resp = resp.json()
-
-                resp = resp["list"][0]
+                def sublinks(e: str):
+                    for i in re.findall('\[[^\]]*\]', e):
+                        e = e.replace(i, f"{i}(https://www.urbandictionary.com/define.php?term={i[1:-1].replace(' ', '+')})")
+                    return e
 
                 embed = discord.Embed(
                     title=f"Defenition of the word: {word}",
-                    description=f"""[**Permalink**]({resp['permalink']})
-Likes/Dislikes: {resp['thumbs_up']}/{resp['thumbs_down']}
+                    description=f"""[**Permalink**]({r['permalink']})
+Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
 
 **Definition:**
-{resp['definition'].replace('[', '').replace(']', '')}
+{sublinks(r['definition'])}
 
 **Example:**
-{resp['example'].replace('[', '').replace(']', '')}"""
-                )
+{sublinks(r['example'])}""")
 
-                embed.set_footer(text=f"Writen by: {resp['author']}")
-                print(resp)
-                await ctx.send(embed=embed)
+                embed.set_footer(text=f"Writen by: {r['author']}")
+                await askmessage.clear_reaction('<:yes:823202605123502100>')
+                await askmessage.edit(embed=embed)
 
 
 def setup(bot):
