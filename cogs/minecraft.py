@@ -4,6 +4,7 @@ import json
 import base64
 
 from discord.ext import commands
+from gzip import GzipFile
 
 
 class Minecraft(commands.Cog):
@@ -295,6 +296,11 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 """)
 
         await ctx.reply(embed=embed)
+
+    @commands.command(aliases=["nbt", "nbttojson", "jsonnbt", "nbtjson"])
+    async def nbtread(self, ctx):
+        file = ctx.message.attachments[0]
+
 
 
 def setup(bot):

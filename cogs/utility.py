@@ -157,16 +157,18 @@ class Utility(commands.Cog):
         r = r.json()
 
         if isinstance(r, list):
-            embed = discord.Embed(
-                title=f"Defenition of the word: {word}",
-                description=f"""
-{r[0]['meanings'][0]['partOfSpeech']}
+
+            embed_desc = f"""{r[0]['meanings'][0]['partOfSpeech']}
 **Pronunciation:** {r[0]['phonetic']}
 **Origin:** {r[0]['origin']}
 
-**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}
-**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}
-""",
+**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}"""
+            if "example" in r[0]['meanings'][0]['definitions'][0]:
+                embed_desc += f"**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}"
+
+            embed = discord.Embed(
+                title=f"Defenition of the word: {word}",
+                description=embed_desc,
                 color=ctx.author.colour
             )
 
