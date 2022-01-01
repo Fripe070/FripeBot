@@ -231,6 +231,7 @@ class Minecraft(commands.Cog):
 
         r = requests.get(url)
         server = r.json()
+        print(json.dumps(server, indent=4))
 
         if server["online"] is False:
             if port:
@@ -250,20 +251,20 @@ class Minecraft(commands.Cog):
 **Version:** {server['version']}
 **Players:** {server['players']['online']}/{server['players']['max']}
 """
-        try:
+        if "list" in server["players"]:
             embed_desc += f"**Player list:** ```\n{', '.join(server['players']['list'])}\n```\n"
-        except KeyError:
-            pass
 
-        try:
-            embed_desc += f"**Software:** {server['software']}\n"
-        except KeyError:
-            pass
+        if "software" in server:
+            if server['software'] == "Vanilla" and "mods" in server:
+                embed_desc += f"**Software:** {server['software']} (probably not true)\n"
+            else:
+                embed_desc += f"**Software:** {server['software']}\n"
 
-        try:
+        if "map" in server:
             embed_desc += f"**Current map:** {server['map']}\n"
-        except KeyError:
-            pass
+
+        if "mods" in server:
+            embed_desc += f"**Mods:** {len(server['mods']['names'])}\n"
 
         embed_desc += f"""
 **Motd:** ```
