@@ -244,9 +244,13 @@ class Minecraft(commands.Cog):
         for i in server["motd"]["clean"]:
             motd += i.strip() + "\n"
 
+        location = requests.get("https://geolocation-db.com/jsonp/" + server["ip"]).content.decode("utf-8")
+        location = json.loads(location.split("(")[1].strip(")"))
+
         embed_desc = f"""
 **Server ip:** \"{server["hostname"]}\" ({server["ip"]})
 **Port:** `{server["port"]}`
+**Location:** {location['country_name']}
 
 **Version:** {server['version']}
 **Players:** {server['players']['online']}/{server['players']['max']}
@@ -297,6 +301,10 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 """)
 
         await ctx.reply(embed=embed)
+
+    @commands.command(aliases=["nbt", "nbttojson", "jsonnbt", "nbtjson"])
+    async def nbtread(self, ctx):
+        file = ctx.message.attachments[0]
 
 
 def setup(bot):

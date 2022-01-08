@@ -157,12 +157,19 @@ class Utility(commands.Cog):
         r = r.json()
 
         if isinstance(r, list):
+            embed_desc = ""
+            if "partOfSpeech" in r[0]['meanings'][0]:
+                embed_desc += f"{r[0]['meanings'][0]['partOfSpeech']}"
 
-            embed_desc = f"""{r[0]['meanings'][0]['partOfSpeech']}
-**Pronunciation:** {r[0]['phonetic']}
-**Origin:** {r[0]['origin']}
+            if "phonetic" in r[0]:
+                embed_desc += f"**Pronunciation:** {r[0]['phonetic']}"
 
-**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}"""
+            if "origin" in r[0]:
+                embed_desc += f"**Origin:** {r[0]['origin']}"
+
+            if "definition" in r[0]['meanings'][0]['definitions'][0]:
+                embed_desc += f"**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}"
+
             if "example" in r[0]['meanings'][0]['definitions'][0]:
                 embed_desc += f"**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}"
 
