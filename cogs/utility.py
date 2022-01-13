@@ -159,19 +159,19 @@ class Utility(commands.Cog):
         if isinstance(r, list):
             embed_desc = ""
             if "partOfSpeech" in r[0]['meanings'][0]:
-                embed_desc += f"{r[0]['meanings'][0]['partOfSpeech']}"
+                embed_desc += f"{r[0]['meanings'][0]['partOfSpeech']}\n"
 
             if "phonetic" in r[0]:
-                embed_desc += f"**Pronunciation:** {r[0]['phonetic']}"
+                embed_desc += f"**Pronunciation:** {r[0]['phonetic']}\n"
 
             if "origin" in r[0]:
-                embed_desc += f"**Origin:** {r[0]['origin']}"
+                embed_desc += f"**Origin:** {r[0]['origin']}\n"
 
             if "definition" in r[0]['meanings'][0]['definitions'][0]:
-                embed_desc += f"**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}"
+                embed_desc += f"**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}\n"
 
             if "example" in r[0]['meanings'][0]['definitions'][0]:
-                embed_desc += f"**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}"
+                embed_desc += f"**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}\n"
 
             embed = discord.Embed(
                 title=f"Defenition of the word: {word}",
