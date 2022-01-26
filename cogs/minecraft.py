@@ -2,9 +2,12 @@ import discord
 import requests
 import json
 import base64
+import re
+import time
 
 from discord.ext import commands
 from gzip import GzipFile
+from assets.stuff import securestring
 
 
 class Minecraft(commands.Cog):
@@ -305,6 +308,64 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
     @commands.command(aliases=["nbt", "nbttojson", "jsonnbt", "nbtjson"])
     async def nbtread(self, ctx):
         file = ctx.message.attachments[0]
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author != self.bot.user:
+            projects = [
+                'BDS',      # Bedrock Dedicated Server
+                'MCPE',     # Minecraft (Bedrock codebase)
+                'MCCE',     # Minecraft Console Edition
+                'MCD',      # Minecraft Dungeons
+                'MCL',      # Minecraft Launcher
+                'REALMS',   # Minecraft Realms
+                'MC',       # Minecraft: Java Edition
+                'WEB'       # Mojang Web Services
+            ]
+            issues = []
+            for project in projects:
+                issues += (re.findall(f"{project}-[0-9]+", message.content))
+            for issue in issues:
+                r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
+                if 'errorMessages' in r:
+                    return
+                r = r['fields']
+
+                desc = re.sub(r'/\s*[\r\n]/gm', '\n', r['description'])
+                desc = re.sub(r'h[1-6]\..*\n', '', desc)
+                desc = re.sub('', '', desc)
+                desc = desc.replace('{noformat}', '```')
+                embed_desc = "\n".join(embed_desc.split('\n')[0:2])
+
+                embed = discord.Embed(
+                    title=f"[{issue}] {securestring(r['summary'])}",
+                    url=f"https://bugs.mojang.com/browse/{issue}",
+                    description=desc,
+                    colour=0x30cb72
+                )
+
+                if r['resolution'] is not None:
+                    embed.add_field(
+                        name="Status:",
+                        value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>"
+                    )
+                    if r['fixVersions'] != []:
+                        print("SUS")
+                        embed.add_field(
+                            name="Fix version:",
+                            value=r['fixVersions'][0]['name']
+                        )
+                else:
+                    embed.add_field(
+                        name="Status:",
+                        value=f"Open"
+                    )
+                embed.add_field(
+                    name="Created:",
+                    value=f"<t:{round(time.mktime(time.strptime(r['created'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>"
+                )
+
+                await message.reply(embed=embed)
 
 
 def setup(bot):
