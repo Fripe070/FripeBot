@@ -10,12 +10,23 @@ class Logging(commands.Cog):
         self.bot = bot
 
     @Cog.listener()
+    async def on_command(self, ctx):
+        print(f"Command was executed by {ctx.message.author}\n{ctx.message.content}")
+        embed = discord.Embed(
+            title=f"{ctx.author.name} Ran a command in {ctx.channel.name} ({ctx.channel.id})",
+            description=ctx.content,
+            color=ctx.author.color
+        )
+        embed.set_footer(text=f"Message ID: {ctx.id}")
+
+        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+
+    @Cog.listener()
     async def on_message_delete(self, message):
         if message.author != self.bot.user and message.channel.type != discord.ChannelType.private:
-            print("e")
             embed = discord.Embed(
                 title=f"Message by {message.author.name} was deleted in {message.channel.name} ({message.channel.id})",
-                description=f"{message.content}",
+                description=message.content,
                 color=message.author.color
             )
             embed.set_footer(text=f"Message ID: {message.id}")

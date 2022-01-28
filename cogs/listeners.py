@@ -30,10 +30,6 @@ class Listeners(commands.Cog):
             if message.content == "🤡":
                 await message.reply("https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4")
 
-    @Cog.listener()
-    async def on_command(self, ctx):
-        print(f"Command was executed by {col.CYAN}{ctx.message.author}\n{col.HEADER}{ctx.message.content}{col.ENDC}")
-
 
 def setup(bot):
     bot.add_cog(Listeners(bot))
