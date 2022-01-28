@@ -14,7 +14,7 @@ class Logging(commands.Cog):
         print(f"Command was executed by {ctx.message.author}\n{ctx.message.content}")
         embed = discord.Embed(
             title=f"{ctx.author.name} Ran a command in {ctx.channel.name} ({ctx.channel.id})",
-            description=ctx.content,
+            description=ctx.message.content,
             color=ctx.author.color
         )
         embed.set_footer(text=f"Message ID: {ctx.id}")
