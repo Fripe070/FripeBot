@@ -71,7 +71,7 @@ class Utility(commands.Cog):
     @commands.is_owner()
     async def bash(self, ctx, *, args):
         proc = await asyncio.create_subprocess_shell(
-            f"/bin/bash -c '{args}'",
+            f"{args}",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
@@ -83,7 +83,7 @@ class Utility(commands.Cog):
         print(stdout)
         print(stderr)
         for part in splitstring(stdout, 1993):
-            await ctx.send(f"```\n{part}```")
+            await ctx.send(f"```ansi\n{securestring(part)}```")
 
     @commands.command(aliases=['Exec'])
     @commands.is_owner()

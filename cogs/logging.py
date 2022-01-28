@@ -17,7 +17,7 @@ class Logging(commands.Cog):
             description=ctx.message.content,
             color=ctx.author.color
         )
-        embed.set_footer(text=f"Message ID: {ctx.id}")
+        embed.set_footer(text=f"Message ID: {ctx.message.id}")
 
         await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
 
