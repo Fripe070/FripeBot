@@ -1,4 +1,5 @@
 {
   "prefixes": ["f!", "F!", "thebestprefixever"],
-  "mojira": false
+  "mojira": false,
+  "logging_channel_id": "000000000000000000"
 }
