@@ -7,7 +7,7 @@ import time
 
 from discord.ext import commands
 from gzip import GzipFile
-from assets.stuff import securestring
+from assets.stuff import securestring, config
 
 
 class Minecraft(commands.Cog):
@@ -312,6 +312,8 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author != self.bot.user:
+            if not config["mojira"]:
+                return
             projects = [
                 'BDS',      # Bedrock Dedicated Server
                 'MCPE',     # Minecraft (Bedrock codebase)
@@ -324,7 +326,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             ]
             issues = []
             for project in projects:
-                issues += (re.findall(f"^!{project}-[0-9]+", message.content))
+                issues += (re.findall(f"{project}-[0-9]+", message.content))
             for issue in issues:
                 r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
                 if 'errorMessages' in r:
@@ -350,7 +352,6 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
                         value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>"
                     )
                     if r['fixVersions'] != []:
-                        print("SUS")
                         embed.add_field(
                             name="Fix version:",
                             value=r['fixVersions'][0]['name']
