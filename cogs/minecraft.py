@@ -324,7 +324,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             ]
             issues = []
             for project in projects:
-                issues += (re.findall(f"{project}-[0-9]+", message.content))
+                issues += (re.findall(f"^!{project}-[0-9]+", message.content))
             for issue in issues:
                 r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
                 if 'errorMessages' in r:
@@ -335,7 +335,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
                 desc = re.sub(r'h[1-6]\..*\n', '', desc)
                 desc = re.sub('', '', desc)
                 desc = desc.replace('{noformat}', '```')
-                embed_desc = "\n".join(embed_desc.split('\n')[0:2])
+                desc = "\n".join(desc.split('\n')[0:2])
 
                 embed = discord.Embed(
                     title=f"[{issue}] {securestring(r['summary'])}",
