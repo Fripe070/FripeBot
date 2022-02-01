@@ -27,7 +27,7 @@ class Logging(commands.Cog):
             embed = discord.Embed(
                 title=f"Message by {message.author.name} was deleted in {message.channel.name} ({message.channel.id})",
                 description=message.content,
-                color=message.author.color
+                color=discord.Color.red()
             )
             if message.reference is not None:
                 ref = await message.channel.fetch_message(message.reference.message_id)
@@ -46,7 +46,7 @@ class Logging(commands.Cog):
         if before.author != self.bot.user and before.channel.type != discord.ChannelType.private:
             embed = discord.Embed(
                 title=f"Message by {before.author.name} was edited in {before.channel.name} ({before.channel.id})",
-                color=before.author.color
+                color=discord.Color.dark_gold()
             )
             embed.add_field(name="Before", value=f"{before.content}")
             embed.add_field(name="After", value=f"{after.content}")
