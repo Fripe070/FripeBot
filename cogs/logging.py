@@ -29,7 +29,15 @@ class Logging(commands.Cog):
                 description=message.content,
                 color=message.author.color
             )
-            embed.set_footer(text=f"Message ID: {message.id}")
+            if message.reference is not None:
+                ref = await message.channel.fetch_message(message.reference.message_id)
+                embed.add_field(
+                    name=f"Replying to {ref.author.name} ({ref.author.id}), message content:",
+                    value=ref.content
+                )
+                embed.set_footer(text=f"Message ID: {message.id}, replied to message ID: {ref.id}")
+            else:
+                embed.set_footer(text=f"Message ID: {message.id}")
 
             await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
 

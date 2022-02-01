@@ -14,45 +14,59 @@ class Utility(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["pfpget", "gpfp", "pfp"])
-    async def getpfp(self, ctx, member: discord.Member = None):
+    async def getpfp(self, ctx, user: discord.User = None):
         """Gets a users profile picture at a high resolution"""
-        if not member:
+        if not user:
             member = ctx.message.author
 
-        embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
-                              title=f"{member.display_name}'s pfp")
-        embed.set_image(url=getpfp(member))
+        embed = discord.Embed(colour=user.colour, timestamp=ctx.message.created_at,
+                              title=f"{user.display_name}'s pfp")
+        embed.set_image(url=getpfp(user))
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
     # Command to get info about a account
     @commands.command()
-    async def whois(self, ctx, member: discord.Member = None):
+    async def whois(self, ctx, user: discord.User = None):
         """Displays information about a discord user"""
-        if not member:
-            member = ctx.message.author
+        if not user:
+            user = ctx.message.author
 
-        roles = [role.mention for role in member.roles[1:]]
-        roles.reverse()
+        embed_desc = f"**Username:** {securestring(user.name)}\n"
 
-        embed = discord.Embed(colour=member.colour, timestamp=ctx.message.created_at,
-                              title=f"User Info - {member}")
+        in_server = bool(user in ctx.guild.members)
 
-        embed.set_thumbnail(url=getpfp(member))
+        if in_server:
+            embed_desc += f"**Nickname:** {securestring(user.display_name)}\n"
+            member = ctx.guild.get_member(user.id)
+            roles = [role.mention for role in ctx.guild.get_member(user.id).roles[1:]]
+            roles.reverse()
 
+        embed_desc += f"""**Discriminator:** #{user.discriminator}
+**Mention:** {user.mention}
+**ID:** {user.id}
+**Is user a bot:** {user.bot}
+**Created at:** <t:{round(user.created_at.timestamp())}> (<t:{round(user.created_at.timestamp())}:R>)"""
+
+        if in_server:
+            member = ctx.guild.get_member(user.id)
+            embed_desc += f"""
+**Joined server at:** <t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)
+**Highest Role:** {member.top_role.mention}
+**Roles:** {" ".join(roles)}"""
+
+
+
+        embed = discord.Embed(
+            title=f"User Info - {user}",
+            description=embed_desc,
+            colour=user.colour,
+            timestamp=ctx.message.created_at
+        )
+
+        embed.set_thumbnail(url=getpfp(user))
         embed.set_footer(text=f"Requested by {ctx.author}")
 
-        embed.add_field(name=f"Info about {member.name}", value=f"""**Username:** {securestring(member.name)}
-        **Nickname:** {securestring(member.display_name)}
-        **Mention:** {member.mention}
-        **ID:** {member.id}
-        **Account Created At:** {member.created_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
-        **Joined server at:** {member.joined_at.strftime("%a, %#d %B %Y, %I:%M %p UTC")}
-        **Is user on mobile:** {member.is_on_mobile()}
-        **Highest Role:** {member.top_role.mention}
-
-        **Roles:** {" ".join(roles)}""")
-#            **Activity:** {afunctionthatfroopwants(member.activity.name)}
         await ctx.send(embed=embed)
 
     @commands.command()

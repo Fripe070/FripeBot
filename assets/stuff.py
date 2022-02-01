@@ -48,8 +48,8 @@ def getcogs(dir: str = None):
     return COGS if COGS != [] else None
 
 
-def getpfp(member: discord.Member):
-    return member.display_avatar.with_size(4096).with_static_format("png")
+def getpfp(user: discord.User):
+    return user.display_avatar.with_size(4096).with_static_format("png")
 
 
 def splitstring(message, length=2000):

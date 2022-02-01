@@ -48,8 +48,8 @@ async def on_command_error(ctx, error):
             description=f"Try again in {error.retry_after:.2f}s.",
             color=0xeb4034
         ))
-    elif isinstance(error, commands.MemberNotFound):
-        await ctx.reply("That's not a valid member!")
+    elif isinstance(error, commands.MemberNotFound) or isinstance(error, commands.UserNotFound):
+        await ctx.reply("That's not a valid user!")
     elif isinstance(error, commands.MessageNotFound):
         await ctx.send("Did you delete your message? ")
     elif isinstance(error, TimeoutError):
