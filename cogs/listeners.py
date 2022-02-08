@@ -29,6 +29,8 @@ class Listeners(commands.Cog):
 
             if message.content == "🤡":
                 await message.reply("https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4")
+            elif message.content in ["owo", "uwu"]:
+                await message.reply("ratio")
 
 
 def setup(bot):
