@@ -1,5 +1,6 @@
 import discord
 import os
+import logging
 
 from discord.ext import commands
 from dotenv import load_dotenv
@@ -11,6 +12,13 @@ bot = commands.Bot(
     intents=discord.Intents.all(),
     strip_after_prefix=True
 )
+
+# Taken directly from the d.py docs (https://discordpy.readthedocs.io/en/latest/logging.html#logging-setup)
+logger = logging.getLogger('discord')
+logger.setLevel(logging.WARNING)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 # COG LOADING  -----------------------------------------------------------------------------------
 reloads = []
