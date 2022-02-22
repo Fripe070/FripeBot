@@ -229,7 +229,11 @@ class Utility(commands.Cog):
 
         r = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
         r = r.json()
-        r = r["list"][random.randint(0, len(r["list"]) - 1)]
+        if len(r["list"]) != 0:
+            r = r["list"][random.randint(0, len(r["list"]) - 1)]
+        else:
+            await ctx.send(f"Couldn't find any definition for \"{word}\" on the urban dictionary.") # This is only a temporary solution until I get time to fix it properly 
+            return
 
         def sublinks(e: str):
             for i in re.findall('\[[^\]]*\]', e):
