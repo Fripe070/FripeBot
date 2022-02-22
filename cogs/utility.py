@@ -174,7 +174,7 @@ class Utility(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def define(self, ctx, *, word):
         """Gets the defenition for a word"""
-        if "-ud" not in word.lower().split(" ") and "--urbandictionary" not in word.lower().split(" "):
+        if "-u" not in word.lower().split(" ") and "--urbandictionary" not in word.lower().split(" "):
             r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
             if r.status_code == 200 and isinstance(r.json(), list):
                 r = r.json()
@@ -229,11 +229,21 @@ class Utility(commands.Cog):
 
         r = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
         r = r.json()
-        if len(r["list"]) != 0:
-            r = r["list"][random.randint(0, len(r["list"]) - 1)]
-        else:
-            await ctx.send(f"Couldn't find any definition for \"{word}\" on the urban dictionary.") # This is only a temporary solution until I get time to fix it properly 
+
+        if len(r["list"]) == 0:
+            embed = discord.Embed(
+                title="Could not find a defenition for that word!",
+                colour=discord.Colour.red(),
+                timestamp=ctx.message.created_at
+            )
+            if askmessage is not None:
+                await askmessage.clear_reaction('<:yes:823202605123502100>')
+                await askmessage.edit(embed=embed)
+            else:
+                await ctx.reply(embed=embed)
             return
+
+        r = r["list"][random.randint(0, len(r["list"]) - 1)]
 
         def sublinks(e: str):
             for i in re.findall('\[[^\]]*\]', e):
