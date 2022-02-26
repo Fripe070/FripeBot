@@ -1,6 +1,5 @@
 import discord
 import asyncio
-import requests
 
 from discord.ext import commands
 
@@ -8,22 +7,21 @@ from discord.ext import commands
 class Voice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.queue = []
+        self.paused = False
+        self.loop = False
 
-    # Joining a VC:
-    @commands.command(name="VCjoin", help="Joins the user's VC")
-    async def vcjoin(self, ctx):
+    @commands.command(aliases=['vcjoin'])
+    async def join(self, ctx):
         if ctx.author.voice is None:
-            # Exiting if the user is not in a voice channel
             return await ctx.send('You need to be in a voice channel to use this command!')
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             await channel.connect()  # Join the channel
 
-    # Leaving a VC:
-    @commands.command(name="VCleave", help="Leaves the VC", pass_context=True)
-    async def vcleave(self, ctx):
+    @commands.command(aliases=['vcleave'])
+    async def leave(self, ctx):
         if ctx.author.voice is None:
-            # Exiting if the user is not in a voice channel
             return await ctx.send('You need to be in a voice channel to use this command!')
         else:
             server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
@@ -46,33 +44,44 @@ class Voice(commands.Cog):
         await voice.disconnect()
 
     @commands.command()
-    @commands.cooldown(1, 5, commands.BucketType.user)
-    async def play(self, ctx, *, url):
+    async def play(self, ctx, *, url=None):
         if ctx.author.voice is None:
             return await ctx.send('You need to be in a voice channel to use this command!')
-        else:
-            channel = ctx.author.voice.channel  # Get the sender's voice channel
+        channel = ctx.author.voice.channel
+        try:
+            voice = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
+            await voice.move_to(channel)
+        except AttributeError:
             voice = await channel.connect()
 
+        if url:
+            self.queue.append(url)
+        for attachment in ctx.message.attachments:
+            self.queue.append(attachment.url)
+
         voice.play(discord.FFmpegPCMAudio(url))
+
         while voice.is_playing():
             await asyncio.sleep(1)
         await voice.disconnect()
 
     @commands.command()
-    async def fileplay(self, ctx):
-        if ctx.author.voice is None:
-            return await ctx.send('You need to be in a voice channel to use this command!')
+    async def nowplaying(self, ctx):
+        if self.queue:
+            await ctx.reply(f'Now playing: {self.queue[0]}')
         else:
-            channel = ctx.author.voice.channel  # Get the sender's voice channel
-            voice = await channel.connect()
+            return await ctx.send('There is nothing playing!')
 
-        queue = [attachment.url for attachment in ctx.message.attachments]
-        for url in queue:
-            voice.play(discord.FFmpegPCMAudio(url))
-            while voice.is_playing():
-                await asyncio.sleep(1)
-        await voice.disconnect()
+    # I'll get this working sometime else
+    # @commands.command()
+    # async def queue(self, ctx):
+    #     if self.queue:
+    #         embed = discord.Embed(
+    #             title="Queue",
+    #             description=", ".join(f"[{i + 1}]({song}) - {song}" for i, song in enumerate(self.queue)),
+    #         )
+    #
+    #         await ctx.send(embed=embed)
 
 
 def setup(bot):

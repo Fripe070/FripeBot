@@ -28,6 +28,7 @@ for cog in getcogs():
         reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
     except Exception as error:
         reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
+    print(f"{col.ENDC}")
 
 
 # ON Ready -----------------------------------------------------------------------------------
@@ -40,43 +41,6 @@ Logged in as {col.CYAN}{bot.user.name}{col.BLUE}, with the ID {col.CYAN}{bot.use
 {col.BLUE}Status set to "{col.CYAN}watching {status}{col.BLUE}"
 Cogs:
 ''' + "\n".join(reloads) + f"\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}")
-
-
-# ERROR HANDLING -----------------------------------------------------------------------------------
-@bot.event
-async def on_command_error(ctx, error):
-    # If the command does not exist/is not found.
-    if isinstance(error, commands.CommandNotFound):
-        await ctx.message.add_reaction("❓")
-    elif isinstance(error, commands.NotOwner):
-        await ctx.message.add_reaction("🔐")
-    elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.reply(embed=discord.Embed(
-            title=f"Slow down!",
-            description=f"Try again in {error.retry_after:.2f}s.",
-            color=0xeb4034
-        ))
-    elif isinstance(error, commands.MemberNotFound) or isinstance(error, commands.UserNotFound):
-        await ctx.reply("That's not a valid user!")
-    elif isinstance(error, commands.MessageNotFound):
-        await ctx.send("Did you delete your message? ")
-    elif isinstance(error, TimeoutError):
-        pass
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.reply(error)
-    else:
-        try:
-            embed = discord.Embed(
-                title="An error occurred! Please notify Fripe if necessary.",
-                description=f"```{error}```",
-                timestamp=ctx.message.created_at,
-                colour=0xff0000
-            )
-            embed.set_footer(text=f"Caused by {ctx.author}")
-            await ctx.send(embed=embed)
-        except Exception:
-            print(f"{col.WARN + col.BOLD}Failed to send chat message{col.ENDC}")
-        raise error
 
 
 # COMMANDS -----------------------------------------------------------------------------------
