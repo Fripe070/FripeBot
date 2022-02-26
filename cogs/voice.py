@@ -59,6 +59,21 @@ class Voice(commands.Cog):
             await asyncio.sleep(1)
         await voice.disconnect()
 
+    @commands.command()
+    async def fileplay(self, ctx):
+        if ctx.author.voice is None:
+            return await ctx.send('You need to be in a voice channel to use this command!')
+        else:
+            channel = ctx.author.voice.channel  # Get the sender's voice channel
+            voice = await channel.connect()
+
+        queue = [attachment.url for attachment in ctx.message.attachments]
+        for url in queue:
+            voice.play(discord.FFmpegPCMAudio(url))
+            while voice.is_playing():
+                await asyncio.sleep(1)
+        await voice.disconnect()
+
 
 def setup(bot):
     bot.add_cog(Voice(bot))
