@@ -174,7 +174,7 @@ class Utility(commands.Cog):
     @commands.command(aliases=['def', 'definition'])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def define(self, ctx, *, word):
-        """Gets the defenition for a word"""
+        """Gets the definition for a word"""
         if "-u" != word.lower().split(" ")[0] and "--urbandictionary" != word.lower().split(" ")[0]:
             r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
             if r.status_code == 200 and isinstance(r.json(), list):
@@ -190,13 +190,13 @@ class Utility(commands.Cog):
                     embed_desc += f"**Origin:** {r[0]['origin']}\n"
 
                 if "definition" in r[0]['meanings'][0]['definitions'][0]:
-                    embed_desc += f"**Defenition:** {r[0]['meanings'][0]['definitions'][0]['definition']}\n"
+                    embed_desc += f"**Definition:** {r[0]['meanings'][0]['definitions'][0]['definition']}\n"
 
                 if "example" in r[0]['meanings'][0]['definitions'][0]:
                     embed_desc += f"**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}\n"
 
                 embed = discord.Embed(
-                    title=f"Defenition of the word: {word}",
+                    title=f"Definition of the word: {word}",
                     description=embed_desc,
                     color=ctx.author.colour
                 )
@@ -204,7 +204,7 @@ class Utility(commands.Cog):
                 return
 
             embed = discord.Embed(
-                title="Could not find a defenition for that word!",
+                title="Could not find a definition for that word!",
                 description="Do you want to use urban dictionary instead? (Results are not filtered and can be inappropriate)",
                 colour=ctx.author.colour,
                 timestamp=ctx.message.created_at
@@ -228,7 +228,7 @@ class Utility(commands.Cog):
 
         if len(r["list"]) == 0:
             embed = discord.Embed(
-                title="Could not find a defenition for that word!",
+                title="Could not find a definition for that word!",
                 colour=discord.Colour.red(),
                 timestamp=ctx.message.created_at
             )
@@ -247,7 +247,7 @@ class Utility(commands.Cog):
             return e
 
         embed = discord.Embed(
-            title=f"Defenition of the word: {word}",
+            title=f"Definition of the word: {word}",
             description=f"""[**Permalink**]({r['permalink']})
 Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
 
