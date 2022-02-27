@@ -1,3 +1,4 @@
 pycord
 python-dotenv~=0.15.0
 PyNaCl
+requests

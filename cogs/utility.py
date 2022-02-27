@@ -4,6 +4,7 @@ import os
 import asyncio
 import random
 import re
+import sys
 
 from discord.ext import commands
 from assets.stuff import securestring, splitstring, getpfp
@@ -83,7 +84,7 @@ class Utility(commands.Cog):
     @commands.is_owner()
     async def bash(self, ctx, *, args):
         proc = await asyncio.create_subprocess_shell(
-            f"{args}",
+            args.split(),
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
@@ -174,7 +175,7 @@ class Utility(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def define(self, ctx, *, word):
         """Gets the defenition for a word"""
-        if "-u" not in word.lower().split(" ") and "--urbandictionary" not in word.lower().split(" "):
+        if "-u" != word.lower().split(" ")[0] and "--urbandictionary" != word.lower().split(" ")[0]:
             r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
             if r.status_code == 200 and isinstance(r.json(), list):
                 r = r.json()
@@ -215,16 +216,11 @@ class Utility(commands.Cog):
 
             await askmessage.add_reaction('<:yes:823202605123502100>')
             try:
-                await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+                await self.bot.wait_for('reaction_add', timeout=3.0, check=check)
             except TimeoutError:
                 return
         else:
-            tmp = ""
-            for i in word.split(" "):
-                if i.lower() == "-ud" or i.lower() == "--urbandictionary":
-                    continue
-                tmp += i + " "
-            word = tmp
+            word = word.split(" ")[1:]
             askmessage = None
 
         r = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
@@ -266,7 +262,35 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             await askmessage.clear_reaction('<:yes:823202605123502100>')
             await askmessage.edit(embed=embed)
         else:
-            await ctx.reply(embed=embed)
+            askmessage = await ctx.reply(embed=embed)
+
+        def check(reaction, user):
+            return user == ctx.message.author and str(reaction.emoji) == '🚮'
+
+        await askmessage.add_reaction('🚮')
+        try:
+            await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+        except TimeoutError:
+            return
+        await askmessage.delete()
+
+    @commands.command(alias=["botstatus", "botinfo"])
+    async def status(self, ctx):
+        """Displays various statistics about the bot."""
+        embed = discord.Embed(
+            title="Bot status",
+            colour=ctx.author.colour,
+            timestamp=ctx.message.created_at
+        )
+
+        pyver = sys.version_info
+
+        embed.description = f"""
+Python Version: {pyver.major}.{pyver.minor}.{pyver.micro}
+Pycord Version: {discord.__version__}
+
+"""
+        await ctx.reply(embed=embed)
 
 
 def setup(bot):
