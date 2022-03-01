@@ -366,7 +366,7 @@ Pycord Version: {discord.__version__}"""
             return user == message.author and str(reaction.emoji) == '🚮'
 
         await snipemsg.add_reaction('🚮')
-        await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+        await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
         await snipemsg.delete()
 
 
