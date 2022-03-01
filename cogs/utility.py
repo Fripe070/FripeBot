@@ -26,42 +26,79 @@ class Utility(commands.Cog):
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
-    # Command to get info about a account
     @commands.command()
     async def whois(self, ctx, user: discord.User = None):
         """Displays information about a discord user"""
         if not user:
             user = ctx.message.author
+        user = await self.bot.fetch_user(user.id)
 
-        embed_desc = f"**Username:** {securestring(user.name)}\n"
+        embed = discord.Embed(
+            title=f"User Info - {user}",
+            description="",
+            colour=user.colour,
+            timestamp=ctx.message.created_at
+        )
+
+        embed.description = f"**Username:** {securestring(user.name)}\n"
 
         in_server = bool(user in ctx.guild.members)
 
         if in_server:
-            embed_desc += f"**Nickname:** {securestring(user.display_name)}\n"
-            member = ctx.guild.get_member(user.id)
+            embed.description += f"**Nickname:** {securestring(user.display_name)}\n"
             roles = [role.mention for role in ctx.guild.get_member(user.id).roles[1:]]
             roles.reverse()
 
-        embed_desc += f"""**Discriminator:** #{user.discriminator}
+        embed.description += f"""**Discriminator:** #{user.discriminator}
 **Mention:** {user.mention}
-**ID:** {user.id}
+**ID:** {user.id}"""
+
+        for activity in ctx.guild.get_member(user.id).activities:
+            if isinstance(activity, discord.CustomActivity):
+                embed.description += f"\n**Status:** {activity}"
+
+        embed.description += f"""
 **Is user a bot:** {user.bot}
 **Created at:** <t:{round(user.created_at.timestamp())}> (<t:{round(user.created_at.timestamp())}:R>)"""
 
         if in_server:
             member = ctx.guild.get_member(user.id)
-            embed_desc += f"""
+            embed.description += f"""
 **Joined server at:** <t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)
 **Highest Role:** {member.top_role.mention}
 **Roles:** {" ".join(roles)}"""
 
-        embed = discord.Embed(
-            title=f"User Info - {user}",
-            description=embed_desc,
-            colour=user.colour,
-            timestamp=ctx.message.created_at
-        )
+        if user.banner:
+            embed.set_image(url=user.banner.url)
+
+        r = requests.get("https://pronoundb.org/api/v1/lookup", params={"id": user.id, "platform": "discord"})
+        if r.status_code == 200:
+            pronouns = {
+                "hh": "he / him",
+                "hi": "he / it",
+                "hs": "he / she",
+                "ht": "he / they",
+                "ih": "it / him",
+                "ii": "it / its",
+                "is": "it / she",
+                "it": "it / they",
+                "shh": "she / he",
+                "sh": "she / her",
+                "si": "she / it",
+                "st": "she / they",
+                "th": "they / he",
+                "ti": "they / it",
+                "ts": "they / she",
+                "tt": "they / them",
+                "any": "Any pronouns",
+                "other": "Other pronouns",
+                "ask": "Ask me my pronouns",
+                "avoid": "Avoid pronouns, use my name"
+            }
+            pronoun = r.json()["pronouns"]
+            if not pronoun == "unspecified":
+                embed.description += f"""
+**Pronouns:** {pronouns[pronoun]}"""
 
         embed.set_thumbnail(url=getpfp(user))
         embed.set_footer(text=f"Requested by {ctx.author}")
