@@ -322,7 +322,6 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
         else:
             await ctx.reply(f"```json\n{nbt}\n```")
 
-
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.author != self.bot.user:
