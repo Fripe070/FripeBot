@@ -321,9 +321,7 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
 
         embed.description = f"""
 Python Version: {pyver.major}.{pyver.minor}.{pyver.micro}
-Pycord Version: {discord.__version__}
-
-"""
+Pycord Version: {discord.__version__}"""
         await ctx.reply(embed=embed)
 
     @commands.Cog.listener()
