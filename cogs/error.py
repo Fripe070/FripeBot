@@ -31,7 +31,7 @@ class Error(commands.Cog):
             pass
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(error)
-        elif isinstance(error, commands.CommandInvokeError) & isinstance(error.orignal, asyncio.TimeoutError):
+        elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
             return
         else:
             try:
