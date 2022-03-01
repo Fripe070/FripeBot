@@ -328,7 +328,8 @@ Pycord Version: {discord.__version__}
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        self.snipe_message = message
+        if message.author != self.bot.user:
+            self.snipe_message = message
 
     @commands.command()
     async def snipe(self, ctx):
