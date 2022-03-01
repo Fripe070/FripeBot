@@ -217,8 +217,8 @@ class Utility(commands.Cog):
             await askmessage.add_reaction('<:yes:823202605123502100>')
             try:
                 await self.bot.wait_for('reaction_add', timeout=3.0, check=check)
-            except TimeoutError:
-                return
+            except asyncio.TimeoutError:
+                await ctx.send("The bot timed out!")
         else:
             word = word.split(" ")[1:]
             askmessage = None
