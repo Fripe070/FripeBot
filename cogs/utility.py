@@ -6,6 +6,7 @@ import random
 import re
 import sys
 import time
+import datetime
 
 from discord.ext import commands
 from assets.stuff import securestring, splitstring, getpfp
@@ -16,6 +17,7 @@ class Utility(commands.Cog):
         self.bot = bot
 
         self.snipe_message = None
+        self.snipe_message_time = None
 
     @commands.command(aliases=["pfpget", "gpfp", "pfp"])
     async def getpfp(self, ctx, user: discord.User = None):
@@ -328,6 +330,7 @@ Pycord Version: {discord.__version__}"""
     async def on_message_delete(self, message):
         if message.author != self.bot.user:
             self.snipe_message = message
+            self.snipe_message_time = datetime.datetime.now()
 
     @commands.command()
     async def snipe(self, ctx):
@@ -338,8 +341,8 @@ Pycord Version: {discord.__version__}"""
             await ctx.reply("No message was deleted!")
             return
 
-        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(message.created_at.timetuple())) > 60 * 5:
-            await ctx.reply("That message was deleted more than 5 minutes ago!")
+        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(self.snipe_message_time.timetuple())) > 10:
+            await ctx.reply("That message was deleted more than 10 seconds ago!")
             return
 
         embed = discord.Embed(
@@ -354,10 +357,10 @@ Pycord Version: {discord.__version__}"""
                 embed.add_field(name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:", value=ref.content)
                 embed.set_footer(text=f"React with 🚮 to delete this message.")
             except discord.errors.NotFound:
-                pass
+                embed.set_footer(text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message.")
 
         if not embed.footer:
-            embed.set_footer(text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message.")
+            embed.set_footer(text="React with 🚮 to delete this message.")
 
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
         self.snipe_message = None
