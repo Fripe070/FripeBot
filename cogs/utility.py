@@ -215,10 +215,9 @@ class Utility(commands.Cog):
                 return user == ctx.message.author and str(reaction.emoji) == '<:yes:823202605123502100>'
 
             await askmessage.add_reaction('<:yes:823202605123502100>')
-            try:
-                await self.bot.wait_for('reaction_add', timeout=3.0, check=check)
-            except asyncio.TimeoutError:
-                return
+            await self.bot.wait_for('reaction_add', timeout=3.0, check=check)
+
+
         else:
             word = word.split(" ")[1:]
             askmessage = None

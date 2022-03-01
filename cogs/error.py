@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 
 from discord.ext import commands
@@ -30,6 +32,8 @@ class Error(commands.Cog):
             pass
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(error)
+        elif isinstance(error, commands.CommandInvokeError) & isinstance(error.orignal, asyncio.TimeoutError):
+            return
         else:
             try:
                 embed = discord.Embed(
