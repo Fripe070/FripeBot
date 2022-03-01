@@ -1,5 +1,6 @@
 {
   "prefixes": ["f!", "F!", "thebestprefixever"],
   "mojira": false,
-  "logging_channel_id": "000000000000000000"
+  "logging_channel_id": "000000000000000000",
+  "disabled_cogs": ["cogs.example", "cogs.example2"],
 }

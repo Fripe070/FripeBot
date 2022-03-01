@@ -5,6 +5,7 @@ import asyncio
 import random
 import re
 import sys
+import time
 
 from discord.ext import commands
 from assets.stuff import securestring, splitstring, getpfp
@@ -13,6 +14,8 @@ from assets.stuff import securestring, splitstring, getpfp
 class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        self.snipe_message = None
 
     @commands.command(aliases=["pfpget", "gpfp", "pfp"])
     async def getpfp(self, ctx, user: discord.User = None):
@@ -302,10 +305,7 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             return user == ctx.message.author and str(reaction.emoji) == '🚮'
 
         await askmessage.add_reaction('🚮')
-        try:
-            await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
-        except TimeoutError:
-            return
+        await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
         await askmessage.delete()
 
     @commands.command(alias=["botstatus", "botinfo"])
@@ -325,6 +325,50 @@ Pycord Version: {discord.__version__}
 
 """
         await ctx.reply(embed=embed)
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message):
+        self.snipe_message = message
+
+    @commands.command()
+    async def snipe(self, ctx):
+        """Snipes the last deleted message."""
+        message = self.snipe_message
+
+        if message is None:
+            await ctx.reply("No message was deleted!")
+            return
+
+        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(message.created_at.timetuple())) > 60 * 5:
+            await ctx.reply("That message was deleted more than 5 minutes ago!")
+            return
+
+        embed = discord.Embed(
+            title=f"Message sent by {message.author.display_name} ({message.author.id})",
+            description=message.content,
+            timestamp=message.created_at,
+            colour=message.author.colour
+        )
+        if message.reference:
+            try:
+                ref = await ctx.fetch_message(message.reference.message_id)
+                embed.add_field(name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:", value=ref.content)
+                embed.set_footer(text=f"React with 🚮 to delete this message.")
+            except discord.errors.NotFound:
+                pass
+
+        if not embed.footer:
+            embed.set_footer(text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message.")
+
+        snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
+        self.snipe_message = None
+
+        def check(reaction, user):
+            return user == message.author and str(reaction.emoji) == '🚮'
+
+        await snipemsg.add_reaction('🚮')
+        await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
+        await snipemsg.delete()
 
 
 def setup(bot):

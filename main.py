@@ -23,12 +23,14 @@ logger.addHandler(handler)
 # COG LOADING  -----------------------------------------------------------------------------------
 reloads = []
 for cog in getcogs():
-    try:
-        bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
-        reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
-    except Exception as error:
-        reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
-    print(f"{col.ENDC}")
+    if "disabled_cogs" in config:
+        if cog not in config["disabled_cogs"]:
+            try:
+                bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
+                reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
+            except Exception as error:
+                reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
+            print(f"{col.ENDC}")
 
 
 # ON Ready -----------------------------------------------------------------------------------

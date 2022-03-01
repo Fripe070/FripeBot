@@ -30,12 +30,15 @@ class Logging(commands.Cog):
                 color=discord.Color.red()
             )
             if message.reference is not None:
-                ref = await message.channel.fetch_message(message.reference.message_id)
-                embed.add_field(
-                    name=f"Replying to {ref.author.name} ({ref.author.id}), message content:",
-                    value=ref.content
-                )
-                embed.set_footer(text=f"Message ID: {message.id}, replied to message ID: {ref.id}")
+                if not message.reference.fail_if_not_exists:
+                    ref = await message.channel.fetch_message(message.reference.message_id)
+                    embed.add_field(
+                        name=f"Replying to {ref.author.name} ({ref.author.id}), message content:",
+                        value=ref.content
+                    )
+                    embed.set_footer(text=f"Message ID: {message.id}, replied to message ID: {ref.id}")
+                else:
+                    embed.set_footer(text=f"Message ID: {message.id}, replied to a deleted message.")
             else:
                 embed.set_footer(text=f"Message ID: {message.id}")
 
