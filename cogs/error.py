@@ -1,6 +1,5 @@
-import asyncio
-
 import discord
+import asyncio
 
 from discord.ext import commands
 from discord.ext.commands import Cog
@@ -32,7 +31,7 @@ class Error(commands.Cog):
             pass
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(error)
-        elif isinstance(error, commands.CommandInvokeError) & isinstance(error.original, asyncio.TimeoutError):
+        elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
             return
         else:
             try:

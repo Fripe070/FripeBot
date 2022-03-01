@@ -4,10 +4,12 @@ import json
 import base64
 import re
 import time
+import io
+import python_nbt.nbt
 
 from discord.ext import commands
-from gzip import GzipFile
 from assets.stuff import securestring, config
+from gzip import BadGzipFile
 
 
 class Minecraft(commands.Cog):
@@ -307,7 +309,20 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 
     @commands.command(aliases=["nbt", "nbttojson", "jsonnbt", "nbtjson"])
     async def nbtread(self, ctx):
-        file = ctx.message.attachments[0]
+        file = await ctx.message.attachments[0].to_file()
+        try:
+            nbt = python_nbt.nbt.read_from_nbt_file(file.fp)
+        except BadGzipFile:
+            await ctx.reply("This file is not a valid NBT file.")
+            return
+        nbt = json.loads(str(nbt).replace("\"", "\\\"").replace("'", "\""))
+        nbt = json.dumps(nbt, indent=4)
+        if len(str(nbt)) > 3988:
+            await ctx.reply(file=discord.File(io.BytesIO(nbt.encode("utf-8")), filename="nbt.json"))
+        else:
+            await ctx.reply(f"```json\n{nbt}\n```")
+
+
 
     @commands.Cog.listener()
     async def on_message(self, message):
