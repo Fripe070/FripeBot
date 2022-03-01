@@ -252,7 +252,7 @@ class Utility(commands.Cog):
             askmessage = await ctx.reply(embed=embed)
 
             def check(reaction, user):
-                return user == ctx.message.author and str(reaction.emoji) == '<:yes:823202605123502100>'
+                return user == ctx.message.author and str(reaction.emoji) == '<:yes:823202605123502100>' and reaction.message == askmessage
             await askmessage.add_reaction('<:yes:823202605123502100>')
             await self.bot.wait_for('reaction_add', timeout=30.0, check=check)
 
@@ -363,7 +363,7 @@ Pycord Version: {discord.__version__}"""
         self.snipe_message = None
 
         def check(reaction, user):
-            return user == message.author and str(reaction.emoji) == '🚮'
+            return user == message.author and str(reaction.emoji) == '🚮' and reaction.message == snipemsg
 
         await snipemsg.add_reaction('🚮')
         await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
