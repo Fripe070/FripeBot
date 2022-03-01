@@ -58,9 +58,10 @@ class Utility(commands.Cog):
 **Mention:** {user.mention}
 **ID:** {user.id}"""
 
-        for activity in ctx.guild.get_member(user.id).activities:
-            if isinstance(activity, discord.CustomActivity):
-                embed.description += f"\n**Status:** {activity}"
+        if in_server:
+            for activity in ctx.guild.get_member(user.id).activities:
+                if isinstance(activity, discord.CustomActivity):
+                    embed.description += f"\n**Status:** {activity}"
 
         embed.description += f"""
 **Is user a bot:** {user.bot}
