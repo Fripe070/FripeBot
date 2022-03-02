@@ -29,7 +29,12 @@ class Fun(commands.Cog):
             "Surely",
             "Maybe tomorrow",
             "Not yet",
-            "If you say so 🙃"
+            "If you say so 🙃",
+            "Absolutely!",
+            "For sure!",
+            "I don't think so",
+            "I don't know",
+            "If you want it to be 😉"
         ]))
 
     @commands.command(help="Scrambles the text supplied")
