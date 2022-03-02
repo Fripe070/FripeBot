@@ -4,7 +4,7 @@ import logging
 
 from discord.ext import commands
 from dotenv import load_dotenv
-from assets.stuff import config, col, getcogs
+from assets.stuff import config, col, getcogs, disable_commands
 
 bot = commands.Bot(
     command_prefix=config["prefixes"],
@@ -29,12 +29,7 @@ for cog in getcogs():
     except Exception as error:
         reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
 
-disabled_commands = []
-for command in bot.commands:
-    if command.name in config["disabled_commands"]:
-        command.update(enabled=False)
-        disabled_commands.append(command.name)
-
+disabled_commands = disable_commands(bot)
 
 # ON Ready -----------------------------------------------------------------------------------
 @bot.event

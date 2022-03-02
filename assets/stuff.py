@@ -47,6 +47,15 @@ def getcogs(dir: str = None):
     return COGS if COGS != [] else None
 
 
+def disable_commands(bot):
+    disabled_commands = []
+    for command in bot.commands:
+        if command.name in config["disabled_commands"]:
+            command.update(enabled=False)
+            disabled_commands.append(command.name)
+    return disabled_commands
+
+
 def getpfp(user: discord.User):
     return user.display_avatar.with_size(4096).with_static_format("png")
 

@@ -5,7 +5,7 @@ import os
 import asyncio
 
 from discord.ext import commands
-from assets.stuff import col, getcogs
+from assets.stuff import col, getcogs, disable_commands
 
 
 class Admin(commands.Cog):
@@ -104,7 +104,7 @@ class Admin(commands.Cog):
 
         await ctx.message.add_reaction("👍")
 
-    @commands.command()  # Currently not working
+    @commands.command()
     @commands.is_owner()
     async def reload(self, ctx, to_reload=None):
         """Restarts the bot"""
@@ -127,6 +127,7 @@ class Admin(commands.Cog):
                 embedcolor = 0xeb4034
 
         print("\n".join(reloads))
+        disable_commands(self.bot)
 
         embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor,
                               description="‍" + "\n".join(reloadembed))
