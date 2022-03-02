@@ -40,10 +40,9 @@ def getcogs(dir: str = None):
         for filename in files:  # For all files in that directory
             if filename.endswith(".py"):  # Makes sure the file is actualy a python file
                 # Adds the file to the list named "COGS"
-                COGS.append(
-                    (os.path.join(path, filename)
-                     # Replaces "\" and "/" with "."
-                     ).replace("\\", ".").replace("/", ".")[:-3])
+                cog = os.path.join(path, filename).replace("\\", ".").replace("/", ".")[:-3]
+                if cog not in config["disabled_cogs"]:
+                    COGS.append(cog)
 
     return COGS if COGS != [] else None
 

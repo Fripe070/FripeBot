@@ -13,7 +13,7 @@ class Error(commands.Cog):
     @Cog.listener()
     async def on_command_error(self, ctx, error):
         # If the command does not exist/is not found.
-        if isinstance(error, commands.CommandNotFound):
+        if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
             await ctx.message.add_reaction("❓")
         elif isinstance(error, commands.NotOwner):
             await ctx.message.add_reaction("🔐")

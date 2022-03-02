@@ -23,14 +23,17 @@ logger.addHandler(handler)
 # COG LOADING  -----------------------------------------------------------------------------------
 reloads = []
 for cog in getcogs():
-    if "disabled_cogs" in config:
-        if cog not in config["disabled_cogs"]:
-            try:
-                bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
-                reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
-            except Exception as error:
-                reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
-            print(f"{col.ENDC}")
+    try:
+        bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
+        reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
+    except Exception as error:
+        reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
+
+disabled_commands = []
+for command in bot.commands:
+    if command.name in config["disabled_commands"]:
+        command.update(enabled=False)
+        disabled_commands.append(command.name)
 
 
 # ON Ready -----------------------------------------------------------------------------------
@@ -41,8 +44,10 @@ async def on_ready():
     print(f'''{col.BOLD + col.BLUE}Connected successfully!
 Logged in as {col.CYAN}{bot.user.name}{col.BLUE}, with the ID {col.CYAN}{bot.user.id}
 {col.BLUE}Status set to "{col.CYAN}watching {status}{col.BLUE}"
+Successfully loaded {col.GREEN}{len(bot.commands) - len(disabled_commands)} commands{col.BLUE} and \
+{col.GREEN}{len(reloads)} cogs{col.BLUE}, of which {col.GREEN}{len(disabled_commands)} command(s){col.BLUE} were disabled!
 Cogs:
-''' + "\n".join(reloads) + f"\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}")
+''' + "\n".join(reloads) + f'\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}')
 
 
 # COMMANDS -----------------------------------------------------------------------------------
