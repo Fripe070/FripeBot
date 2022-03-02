@@ -41,22 +41,22 @@ class Fun(commands.Cog):
     async def scramble(self, ctx, *, arg):
         await ctx.reply(''.join(random.sample(arg, len(arg))))
 
-    # Code stolen (with consent) from "! Thonk##2761" on discord
-    # Code is heavily modified by me
     @commands.command(aliases=['source', 'git'], help="Links my GitHub profile")
-    async def github(self, ctx, member: discord.Member = None):
+    async def github(self, ctx, user: discord.User = None):
         await ctx.message.delete()
-        embed = discord.Embed(title="Fripe070", url="https://github.com/Fripe070",
-                              color=0x00ffbf, timestamp=ctx.message.created_at)
-        embed.set_author(name="Fripe070", url="https://github.com/Fripe070",
-                         icon_url="https://github.com/TechnoShip123/DiscordBot/blob/master/resources/GitHub-Mark-Light-32px.png?raw=true")
-        embed.set_thumbnail(url="https://avatars.githubusercontent.com/fripe070")
-        embed.add_field(name="This bot:", value="https://github.com/Fripe070/FripeBot")
+        embed = discord.Embed(
+            title="Fripe070",
+            description="[This bot is open source!](https://github.com/Fripe070/FripeBot)",
+            url="https://github.com/Fripe070",
+            color=ctx.author.color,
+            timestamp=ctx.message.created_at
+        )
+        embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066")
         embed.set_footer(text=f"Requested by: {ctx.author.name}", icon_url=ctx.author.avatar)
-        if member is None:
+        if user is None:
             await ctx.send(embed=embed)
         else:
-            await ctx.send(f'{member.mention} Please take a look at my github', embed=embed)
+            await ctx.send(f'{user.mention} Please take a look at my github', embed=embed)
 
     @commands.command(aliases=["jumbo"])
     async def emoji(self, ctx, emoji: discord.Emoji):
