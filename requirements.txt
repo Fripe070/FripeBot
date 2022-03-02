@@ -1,5 +1,5 @@
-pycord
-python-dotenv~=0.15.0
+py-cord
+python-dotenv
 PyNaCl
 requests
 Python-NBT

@@ -29,7 +29,8 @@ for cog in getcogs():
     except Exception as error:
         reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
 
-disabled_commands = disable_commands(bot)
+disabled_cmds = disable_commands(bot)
+
 
 # ON Ready -----------------------------------------------------------------------------------
 @bot.event
@@ -39,8 +40,9 @@ async def on_ready():
     print(f'''{col.BOLD + col.BLUE}Connected successfully!
 Logged in as {col.CYAN}{bot.user.name}{col.BLUE}, with the ID {col.CYAN}{bot.user.id}
 {col.BLUE}Status set to "{col.CYAN}watching {status}{col.BLUE}"
-Successfully loaded {col.GREEN}{len(bot.commands) - len(disabled_commands)} commands{col.BLUE} and \
-{col.GREEN}{len(reloads)} cogs{col.BLUE}, of which {col.GREEN}{len(disabled_commands)} command(s){col.BLUE} were disabled!
+Successfully loaded {col.GREEN}{len(reloads)} cogs{col.BLUE} and \
+{col.GREEN}{len(bot.commands) - len(disabled_cmds)} commands{col.BLUE} of which {col.GREEN}{len(disabled_cmds)} \
+command(s){col.BLUE} were disabled!
 Cogs:
 ''' + "\n".join(reloads) + f'\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}')
 
