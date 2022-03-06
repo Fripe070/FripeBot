@@ -59,16 +59,17 @@ class Fun(commands.Cog):
             await ctx.send(f'{user.mention} Please take a look at my github', embed=embed)
 
     @commands.command(aliases=["jumbo"])
-    async def emoji(self, ctx, emoji: discord.Emoji):
-        if str(emoji).startswith("<a:"):
-            animated = True
-        else:
-            animated = False
-        embed = discord.Embed(timestamp=ctx.message.created_at,
-                              title=f"Emoji Info",
-                              description=f"""Emoji name: `{emoji.name}`
-                              Emoji ID: `{emoji.id}`
-                              Animated: {animated}""")
+    async def emoji(self, ctx, emoji):
+        """Gives you info about the emoji suplied"""
+        emoji_id = int(emoji.split(":")[2][:-1])
+        emoji = self.bot.get_emoji(emoji_id)
+
+        embed = discord.Embed(
+            title=f"Emoji Info",
+            description=f"Emoji name: `{emoji.name}`\nEmoji ID: `{emoji.id}`\nAnimated: {emoji.animated}",
+            timestamp=ctx.message.created_at,
+            color=ctx.author.color
+        )
 
         embed.set_image(url=emoji.url)
         embed.set_footer(text=f"Requested by {ctx.author}")
@@ -78,24 +79,22 @@ class Fun(commands.Cog):
     @commands.is_owner()
     async def echo(self, ctx, *, msg):
         """Makes the bot say things"""
-        if isinstance(ctx.channel, discord.channel.DMChannel):
-            await ctx.send("That command isn't available in dms")
-        else:
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()
-            await ctx.send(msg)
+        await ctx.send(msg)
 
-    @commands.command(aliases=['esay', 'embedsay'])
-    @commands.is_owner()
+    @commands.command(aliases=['esay', 'embedsay', 'eecho'])
     async def embedecho(self, ctx, *, msg):
         """Makes the bot say things"""
-        if isinstance(ctx.channel, discord.channel.DMChannel):
-            await ctx.send("That command isn't available in dms")
-        else:
+        if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()
-            embed = discord.Embed(title="This is a embed! :o",
-                                  description=msg)
-            embed.set_footer(text=f"Requested by {ctx.author}")
-            await ctx.send(embed=embed)
+        embed = discord.Embed(
+            title=msg.split(' ')[0],
+            description=' '.join(msg.split(' ')[1:]),
+            color=ctx.author.color
+        )
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.send(embed=embed)
 
 
 def setup(bot):

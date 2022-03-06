@@ -373,6 +373,20 @@ Pycord Version: {discord.__version__}"""
         await self.bot.wait_for('reaction_add', timeout=60.0, check=check)
         await snipemsg.delete()
 
+    @commands.command()
+    async def allroles(self, ctx):
+        """Lists all roles in the server."""
+        roles = [f"{role.mention} with {len(role.members)} member(s)." for role in ctx.guild.roles[1:]]
+        roles.reverse()
+        embed = discord.Embed(
+            title=f"Roles in {ctx.guild.name}",
+            description="\n".join(roles),
+            colour=ctx.author.colour,
+            timestamp=ctx.message.created_at
+        )
+        embed.set_footer(text=f"{len(roles)} roles in total.")
+        await ctx.reply(embed=embed)
+
 
 def setup(bot):
     bot.add_cog(Utility(bot))
