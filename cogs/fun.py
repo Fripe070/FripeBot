@@ -34,7 +34,7 @@ class Fun(commands.Cog):
             "For sure!",
             "I don't think so",
             "I don't know",
-            "If you want it to be 😉"
+            "If you wish 😉"
         ]))
 
     @commands.command(help="Scrambles the text supplied")
