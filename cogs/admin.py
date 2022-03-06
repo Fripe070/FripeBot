@@ -57,10 +57,10 @@ class Admin(commands.Cog):
         for cog in getcogs(to_load):
             try:
                 self.bot.load_extension(f"{cog}")
-                loads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
+                loads.append(f"{col.BLUE}│ {col.GREEN}{cog}{col.ENDC}")
                 loadembed.append(f"<:Check:829656697835749377> {cog}")
             except Exception as error:
-                loads.append(f"{col.FAIL}│ {col.WARN}{error}")
+                loads.append(f"{col.FAIL}│ {col.WARN}{error}{col.ENDC}")
                 loadembed.append(f"<:warning:829656327797604372> {error}")
                 embedcolor = 0xeb4034
 
