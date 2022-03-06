@@ -73,57 +73,27 @@ class Fun(commands.Cog):
         embed.set_image(url=emoji.url)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
-    #
-    # @commands.command()
-    # async def kill(self, ctx, person1=None):
-    #     """Kill someone with a randomized Minecraft death message"""
-    #     if person1 is None:
-    #         person1 = random.choice(list(entites.values()))
-    #     if "panda" in person1:
-    #         await ctx.reply("How dare you try to kill a panda >:(")
-    #     else:
-    #         temp_message = random.choice(list(death_messages.values()))
-    #         temp_message = temp_message.replace("%1$s", str(person1))
-    #         temp_message = temp_message.replace("%2$s", str(ctx.author.mention))
-    #         temp_message = temp_message.replace("%3$s", random.choice(list(mcitems.values())))
-    #         await ctx.message.delete()
-    #         await ctx.send(temp_message)
-    #
-    # @commands.command(aliases=["ikill"])
-    # async def itemkill(self, ctx, person1=None):
-    #     """Kill someone with a randomized Minecraft death message"""
-    #     if person1 is None:
-    #         person1 = random.choice(list(entites.values()))
-    #     if "panda" in person1:
-    #         await ctx.reply("How dare you try to kill a panda >:(")
-    #     else:
-    #         temp_message = random.choice(list(item_deaths.values()))
-    #         temp_message = temp_message.replace("%1$s", str(person1))
-    #         temp_message = temp_message.replace("%2$s", str(ctx.author.mention))
-    #         temp_message = temp_message.replace("%3$s", random.choice(list(mcitems.values())))
-    #         await ctx.message.delete()
-    #         await ctx.send(temp_message)
 
     @commands.command(aliases=['Say'])
     @commands.is_owner()
-    async def echo(self, ctx, *, tell):
+    async def echo(self, ctx, *, msg):
         """Makes the bot say things"""
         if isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.send("That command isn't available in dms")
         else:
             await ctx.message.delete()
-            await ctx.send(tell)
+            await ctx.send(msg)
 
     @commands.command(aliases=['esay', 'embedsay'])
     @commands.is_owner()
-    async def embedecho(self, ctx, *, tell):
+    async def embedecho(self, ctx, *, msg):
         """Makes the bot say things"""
         if isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.send("That command isn't available in dms")
         else:
             await ctx.message.delete()
             embed = discord.Embed(title="This is a embed! :o",
-                                  description=tell)
+                                  description=msg)
             embed.set_footer(text=f"Requested by {ctx.author}")
             await ctx.send(embed=embed)
 
