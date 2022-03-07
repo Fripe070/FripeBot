@@ -5,10 +5,14 @@ from discord.ext.commands import *
 from assets.stuff import config
 
 
+async def logtochannel(bot, embed):
+    await bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+    
+    
 class Logging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
+        
     @Cog.listener()
     async def on_command(self, ctx):
         print(f"Command was executed by {ctx.message.author}\n{ctx.message.content}")
@@ -19,7 +23,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"Message ID: {ctx.message.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_message_delete(self, message):
@@ -42,7 +46,7 @@ class Logging(commands.Cog):
             else:
                 embed.set_footer(text=f"Message ID: {message.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_message_edit(self, before, after):
@@ -55,7 +59,7 @@ class Logging(commands.Cog):
             embed.add_field(name="After", value=f"{after.content}")
             embed.set_footer(text=f"Message ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_update(self, before, after):
@@ -67,7 +71,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"User ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
         if before.roles != after.roles:
             embed_desc = f"Before: {', '.join([role.mention for role in before.roles[1:]])}\n"
             embed_desc += f"After: {', '.join([role.mention for role in after.roles[1:]])}\n"
@@ -81,7 +85,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"User ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_user_update(self, before, after):
@@ -93,7 +97,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"User ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
         if before.discriminator != after.discriminator:
             embed = discord.Embed(
@@ -103,7 +107,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"User ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
         if before.avatar != after.avatar:
             embed = discord.Embed(
@@ -113,7 +117,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"User ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_join(self, member):
@@ -123,7 +127,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"User ID: {member.id}, Guild ID: {member.guild.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_remove(self, member):
@@ -133,7 +137,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"User ID: {member.id}, Guild ID: {member.guild.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_guild_update(self, before, after):
@@ -144,7 +148,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"Guild ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
         if before.icon != after.icon:
             embed = discord.Embed(
@@ -153,7 +157,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"Guild ID: {before.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_guild_role_create(self, role):
@@ -164,7 +168,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"Guild ID: {role.guild.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_guild_role_delete(self, role):
@@ -175,7 +179,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"Guild ID: {role.guild.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_guild_role_update(self, before, after):
@@ -187,7 +191,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"Guild ID: {before.guild.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
         if before.color != after.color:
             embed = discord.Embed(
@@ -197,7 +201,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"Guild ID: {before.guild.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
         if before.permissions != after.permissions:
             embed = discord.Embed(
@@ -207,7 +211,7 @@ class Logging(commands.Cog):
             )
             embed.set_footer(text=f"Guild ID: {before.guild.id}")
 
-            await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+            await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_ban(self, guild, user):
@@ -217,7 +221,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"User ID: {user.id}, Guild ID: {guild.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_unban(self, guild, user):
@@ -227,7 +231,7 @@ class Logging(commands.Cog):
         )
         embed.set_footer(text=f"User ID: {user.id}, Guild ID: {guild.id}")
 
-        await self.bot.get_channel(int(config["logging_channel_id"])).send(embed=embed)
+        await logtochannel(self.bot, embed)
 
 
 def setup(bot):
