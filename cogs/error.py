@@ -17,6 +17,17 @@ class Error(commands.Cog):
             await ctx.message.add_reaction("❓")
         elif isinstance(error, commands.NotOwner):
             await ctx.message.add_reaction("🔐")
+            owner = await self.bot.application_info()
+            owner = owner.owner
+
+            def check(reaction, user):
+                return user == owner and str(reaction.emoji) == '🔐' and reaction.message == ctx.message
+
+            if await self.bot.wait_for('reaction_add', timeout=60.0, check=check):
+                new_ctx = ctx
+                new_ctx.author = owner
+                await self.bot.invoke(new_ctx)
+
         elif isinstance(error, commands.CommandOnCooldown):
             await ctx.reply(embed=discord.Embed(
                 title=f"Slow down!",
