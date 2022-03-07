@@ -1,5 +1,6 @@
 import discord
 import random
+import re
 
 from discord.ext import commands
 
@@ -58,20 +59,28 @@ class Fun(commands.Cog):
         else:
             await ctx.send(f'{user.mention} Please take a look at my github', embed=embed)
 
-    @commands.command(aliases=["jumbo"])
+    @commands.command(aliases=["jumbo", "emote"])
     async def emoji(self, ctx, emoji):
         """Gives you info about the emoji suplied"""
-        emoji_id = int(emoji.split(":")[2][:-1])
-        emoji = self.bot.get_emoji(emoji_id)
+        if not re.match(r'<a?:[a-zA-Z0-9_]+:[0-9]+>', emoji):
+            await ctx.reply("That's not a custom emoji!")
+            return
+
+        emoji = emoji.split(":")
+        emoji_id = int(emoji[2][:-1])
+        emoji_name = emoji[1]
+        animated = bool(emoji[0] == "<a")
 
         embed = discord.Embed(
             title=f"Emoji Info",
-            description=f"Emoji name: `{emoji.name}`\nEmoji ID: `{emoji.id}`\nAnimated: {emoji.animated}",
+            description=f"Emoji name: `{emoji_name}`\nEmoji ID: `{emoji_id}`\nAnimated: {animated}",
             timestamp=ctx.message.created_at,
             color=ctx.author.color
         )
 
-        embed.set_image(url=emoji.url)
+        file_ext = "gif" if animated else "png"
+
+        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096")
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
 
