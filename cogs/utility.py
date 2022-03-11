@@ -16,8 +16,7 @@ class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        self.snipe_message = None
-        self.snipe_message_time = None
+        self.snipe_message = {}
 
     @commands.command(aliases=["pfpget", "gpfp", "pfp"])
     async def getpfp(self, ctx, user: discord.User = None):
@@ -330,19 +329,27 @@ Pycord Version: {discord.__version__}"""
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author != self.bot.user:
-            self.snipe_message = message
-            self.snipe_message_time = datetime.datetime.now()
+            self.snipe_message = {
+                message.guild.id: {
+                    message.channel.id: {
+                        "msg": message,
+                        "time": datetime.datetime.now()
+                    }
+                }
+            }
+            print(self.snipe_message)
 
     @commands.command()
     async def snipe(self, ctx):
         """Snipes the last deleted message."""
-        message = self.snipe_message
+        snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
+        message = snipe["msg"]
 
-        if message is None:
+        if snipe == {}:
             await ctx.reply("No message was deleted!")
             return
 
-        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(self.snipe_message_time.timetuple())) > 10:
+        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) > 10:
             await ctx.reply("That message was deleted more than 10 seconds ago!")
             return
 
