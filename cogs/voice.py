@@ -11,18 +11,18 @@ class Voice(commands.Cog):
         self.paused = False
         self.loop = False
 
-    @commands.command(aliases=['vcjoin'])
+    @commands.command(aliases=["vcjoin"])
     async def join(self, ctx):
         if ctx.author.voice is None:
-            return await ctx.send('You need to be in a voice channel to use this command!')
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             await channel.connect()  # Join the channel
 
-    @commands.command(aliases=['vcleave'])
+    @commands.command(aliases=["vcleave"])
     async def leave(self, ctx):
         if ctx.author.voice is None:
-            return await ctx.send('You need to be in a voice channel to use this command!')
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
             await server.disconnect()  # Leave the VC
@@ -31,14 +31,16 @@ class Voice(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def tts(self, ctx, *, message):
         if ctx.author.voice is None:
-            return await ctx.send('You need to be in a voice channel to use this command!')
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             voice = await channel.connect()
 
-        voice.play(discord.FFmpegPCMAudio(
-            f'http://translate.google.com/translate_tts?total=1&idx=0&textlen=32&client=tw-ob&q={message}&tl=En-gb'
-        ))
+        voice.play(
+            discord.FFmpegPCMAudio(
+                f"http://translate.google.com/translate_tts?total=1&idx=0&textlen=32&client=tw-ob&q={message}&tl=En-gb"
+            )
+        )
         while voice.is_playing():
             await asyncio.sleep(1)
         await voice.disconnect()
@@ -46,7 +48,7 @@ class Voice(commands.Cog):
     @commands.command()
     async def play(self, ctx, *, url=None):
         if ctx.author.voice is None:
-            return await ctx.send('You need to be in a voice channel to use this command!')
+            return await ctx.send("You need to be in a voice channel to use this command!")
         channel = ctx.author.voice.channel
         try:
             voice = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
@@ -68,9 +70,9 @@ class Voice(commands.Cog):
     @commands.command()
     async def nowplaying(self, ctx):
         if self.queue:
-            await ctx.reply(f'Now playing: {self.queue[0]}')
+            await ctx.reply(f"Now playing: {self.queue[0]}")
         else:
-            return await ctx.send('There is nothing playing!')
+            return await ctx.send("There is nothing playing!")
 
     # I'll get this working sometime else
     # @commands.command()

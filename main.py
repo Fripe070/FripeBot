@@ -7,24 +7,21 @@ from dotenv import load_dotenv
 from assets.stuff import config, col, getcogs, disable_commands
 
 bot = commands.Bot(
-    command_prefix=config["prefixes"],
-    case_insensitive=True,
-    intents=discord.Intents.all(),
-    strip_after_prefix=True
+    command_prefix=config["prefixes"], case_insensitive=True, intents=discord.Intents.all(), strip_after_prefix=True
 )
 
 # Taken directly from the d.py docs (https://discordpy.readthedocs.io/en/latest/logging.html#logging-setup)
-logger = logging.getLogger('discord')
+logger = logging.getLogger("discord")
 logger.setLevel(logging.WARNING)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
 logger.addHandler(handler)
 
 # COG LOADING  -----------------------------------------------------------------------------------
 reloads = []
 for cog in getcogs():
     try:
-        bot.load_extension(cog.replace('\\', '.').replace('/', '.'))
+        bot.load_extension(cog.replace("\\", ".").replace("/", "."))
         reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
     except Exception as error:
         reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
@@ -35,16 +32,18 @@ disabled_cmds = disable_commands(bot)
 # ON Ready -----------------------------------------------------------------------------------
 @bot.event
 async def on_ready():
-    status = f'you. And {len(bot.guilds)} servers 👀'
+    status = f"you. And {len(bot.guilds)} servers 👀"
     await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-    print(f'''{col.BOLD + col.BLUE}Connected successfully!
+    print(
+        f"""{col.BOLD + col.BLUE}Connected successfully!
 Logged in as {col.CYAN}{bot.user.name}{col.BLUE}, with the ID {col.CYAN}{bot.user.id}
 {col.BLUE}Status set to "{col.CYAN}watching {status}{col.BLUE}"
-Successfully loaded {col.GREEN}{len(reloads)} cogs{col.BLUE} and \
-{col.GREEN}{len(bot.commands) - len(disabled_cmds)} commands{col.BLUE} of which {col.GREEN}{len(disabled_cmds)} \
-command(s){col.BLUE} were disabled!
+Successfully loaded {col.GREEN}{len(reloads)} cogs{col.BLUE} and {col.GREEN}{len(bot.commands) - len(disabled_cmds)} commands{col.BLUE} of which {col.GREEN}{len(disabled_cmds)} command(s){col.BLUE} were disabled!
 Cogs:
-''' + "\n".join(reloads) + f'\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}')
+"""
+        + "\n".join(reloads)
+        + f"\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}"
+    )
 
 
 # COMMANDS -----------------------------------------------------------------------------------
@@ -82,4 +81,4 @@ bot.help_command = Help()
 
 # RUN THE BOT -----------------------------------------------------------------------------------
 load_dotenv()
-bot.run(os.getenv('TOKEN'))
+bot.run(os.getenv("TOKEN"))

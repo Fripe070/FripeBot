@@ -21,19 +21,19 @@ class Error(commands.Cog):
             owner = owner.owner
 
             def check(reaction, user):
-                return user == owner and str(reaction.emoji) == '🔐' and reaction.message == ctx.message
+                return user == owner and str(reaction.emoji) == "🔐" and reaction.message == ctx.message
 
-            if await self.bot.wait_for('reaction_add', timeout=60.0, check=check):
+            if await self.bot.wait_for("reaction_add", timeout=60.0, check=check):
                 new_ctx = ctx
                 new_ctx.author = owner
                 await self.bot.invoke(new_ctx)
 
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.reply(embed=discord.Embed(
-                title=f"Slow down!",
-                description=f"Try again in {error.retry_after:.2f}s.",
-                color=0xeb4034
-            ))
+            await ctx.reply(
+                embed=discord.Embed(
+                    title=f"Slow down!", description=f"Try again in {error.retry_after:.2f}s.", color=0xEB4034
+                )
+            )
         elif isinstance(error, commands.MemberNotFound) or isinstance(error, commands.UserNotFound):
             await ctx.reply("That's not a valid user!")
         elif isinstance(error, commands.MessageNotFound):
@@ -50,7 +50,7 @@ class Error(commands.Cog):
                     title="An error occurred! Please notify Fripe if necessary.",
                     description=f"```{error}```",
                     timestamp=ctx.message.created_at,
-                    colour=0xff0000
+                    colour=0xFF0000,
                 )
                 embed.set_footer(text=f"Caused by {ctx.author}")
                 await ctx.send(embed=embed)

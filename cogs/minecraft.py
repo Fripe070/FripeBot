@@ -22,26 +22,23 @@ class Minecraft(commands.Cog):
         msg = await ctx.reply("Geting statuses from the websites... <a:loading:894950036964782141>")
 
         mc_sites = [
-            "minecraft.net",                         # Main website
-            "mojang.com",                            # Mojang website, used to change information about mojang accounts
-            "session.minecraft.net",                 # Possibly deprecated
+            "minecraft.net",  # Main website
+            "mojang.com",  # Mojang website, used to change information about mojang accounts
+            "session.minecraft.net",  # Possibly deprecated
             "authserver.mojang.com",
             "account.mojang.com",
             "api.mojang.com",
-            "textures.minecraft.net",                # Texture assets
-            "launchermeta.mojang.com",               # Stores hashes in a json file, to use later to get assets
-            "libraries.minecraft.net",               # Used for minecraft libraries
+            "textures.minecraft.net",  # Texture assets
+            "launchermeta.mojang.com",  # Stores hashes in a json file, to use later to get assets
+            "libraries.minecraft.net",  # Used for minecraft libraries
             "sessionserver.mojang.com",
             "api.minecraftservices.com",
-            "resources.download.minecraft.net",      # Used to get minecraft resources
-            "launcher.mojang.com"                    # Used to get version.jar (does not get assets?)
+            "resources.download.minecraft.net",  # Used to get minecraft resources
+            "launcher.mojang.com",  # Used to get version.jar (does not get assets?)
         ]
 
         embed_desc = ""
-        embed = discord.Embed(
-            title="Responses from the different minecraft related websites.",
-            description=embed_desc
-        )
+        embed = discord.Embed(title="Responses from the different minecraft related websites.", description=embed_desc)
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
 
         for url in mc_sites:
@@ -63,7 +60,7 @@ class Minecraft(commands.Cog):
             await msg.edit(embed=embed)
         await msg.edit(content=None)
 
-    @commands.command(aliases=['mcplayer', 'mcuser', "mcusr"])
+    @commands.command(aliases=["mcplayer", "mcuser", "mcusr"])
     async def playerinfo(self, ctx, player):
         await ctx.message.add_reaction("<a:loading:894950036964782141>")
         msg = await ctx.send("Fetching player UUID... (this might take a while)")
@@ -84,10 +81,10 @@ class Minecraft(commands.Cog):
         tmprequest = requests.get(url).json()
         pastnames = []
         for name in tmprequest:
-            if 'changedToAt' in name:
+            if "changedToAt" in name:
                 pastnames.append(f"{name['name']} (<t:{int(int(name['changedToAt']) / 1000)}:R>)")
             else:
-                pastnames.append(name['name'])
+                pastnames.append(name["name"])
 
         oldestname = pastnames[0]
         pastnames.reverse()
@@ -97,7 +94,12 @@ class Minecraft(commands.Cog):
         for name in pastnames:
             i += 1
             if name != oldestname:
-                if len(f"{pastnamesstring}{name}\n{oldestname} and {len(pastnames[i:])} more\n\n**Original:**\n{oldestname}") < 1020:
+                if (
+                    len(
+                        f"{pastnamesstring}{name}\n{oldestname} and {len(pastnames[i:])} more\n\n**Original:**\n{oldestname}"
+                    )
+                    < 1020
+                ):
                     pastnamesstring += f"{name}\n"
                 else:
                     pastnamesstring += f"and {len(pastnames[i:])} more\n"
@@ -145,39 +147,36 @@ class Minecraft(commands.Cog):
             mojira = "ae677f7d98ac70a533713518416df4452fe5700365c09cf45d0d156ea9396551"
 
             if cape_url.endswith(migrator):
-                embed_desc += '**Cape:** [migrator]'
+                embed_desc += "**Cape:** [migrator]"
             elif cape_url.endswith(minecon11):
-                embed_desc += '**Cape:** [MineCon 2011]'
+                embed_desc += "**Cape:** [MineCon 2011]"
             elif cape_url.endswith(minecon12):
-                embed_desc += '**Cape:** [MineCon 2012]'
+                embed_desc += "**Cape:** [MineCon 2012]"
             elif cape_url.endswith(minecon13):
-                embed_desc += '**Cape:** [MineCon 2013]'
+                embed_desc += "**Cape:** [MineCon 2013]"
             elif cape_url.endswith(minecon15):
-                embed_desc += '**Cape:** [MineCon 2015]'
+                embed_desc += "**Cape:** [MineCon 2015]"
             elif cape_url.endswith(minecon16):
-                embed_desc += '**Cape:** [MineCon 2016]'
+                embed_desc += "**Cape:** [MineCon 2016]"
             elif cape_url.endswith(realmsmapmaker):
-                embed_desc += '**Cape:** [Realms Mapmaker]'
+                embed_desc += "**Cape:** [Realms Mapmaker]"
             elif cape_url.endswith(mojang):
-                embed_desc += '**Cape:** [Mojang]'
+                embed_desc += "**Cape:** [Mojang]"
             elif cape_url.endswith(mojangclassic):
-                embed_desc += '**Cape:** [Mojang (Classic)]'
+                embed_desc += "**Cape:** [Mojang (Classic)]"
             elif cape_url.endswith(mojangstudios):
-                embed_desc += '**Cape:** [Mojang Studios]'
+                embed_desc += "**Cape:** [Mojang Studios]"
             elif cape_url.endswith(translator):
-                embed_desc += '**Cape:** [Translator]'
+                embed_desc += "**Cape:** [Translator]"
             elif cape_url.endswith(mojira):
-                embed_desc += '**Cape:** [Mojira Moderator]'
+                embed_desc += "**Cape:** [Mojira Moderator]"
             else:
-                embed_desc += f'**Cape:** [Other]'
+                embed_desc += f"**Cape:** [Other]"
 
             embed_desc += f'({skincape["textures"]["CAPE"]["url"]})\n'
 
         await msg.edit(content="Applying embed description... (this might take a while)")
-        embed = discord.Embed(
-            title=f'Minecraft user information for player "{username}"',
-            description=embed_desc
-        )
+        embed = discord.Embed(title=f'Minecraft user information for player "{username}"', description=embed_desc)
 
         await msg.edit(content="Applying embed thumbnail... (this might take a while)")
         try:
@@ -193,10 +192,10 @@ class Minecraft(commands.Cog):
             url = f"https://api.slothpixel.me/api/players/{uuid}"
             hypixel = requests.get(url).json()
 
-            if hypixel['online']:
+            if hypixel["online"]:
                 last_seen = "Now"
             else:
-                if hypixel['last_logout']:
+                if hypixel["last_logout"]:
                     last_seen = f"<t:{round(hypixel['last_logout'] / 1000)}:R>"
                 else:
                     last_seen = None
@@ -205,7 +204,7 @@ class Minecraft(commands.Cog):
     {'since ' + last_seen if last_seen is not None and not hypixel['online'] else ''}"""
 
             url = f"https://api.slothpixel.me/api/players/{uuid}/status"
-            playing = requests.get(url).json()['game']['type'] if hypixel['online'] else None
+            playing = requests.get(url).json()["game"]["type"] if hypixel["online"] else None
 
             embed.add_field(
                 name="Hypixel:",
@@ -216,7 +215,8 @@ class Minecraft(commands.Cog):
 **Exp:** {hypixel['exp']:,}
 **Total coins:** {hypixel['total_coins']:,}
 **Karma:** {hypixel['karma']:,}
-**Mc version:** {hypixel['mc_version'] if hypixel['mc_version'] else 'Unknown'}""")
+**Mc version:** {hypixel['mc_version'] if hypixel['mc_version'] else 'Unknown'}""",
+            )
         except KeyError:
             pass
         await msg.delete()
@@ -264,7 +264,7 @@ class Minecraft(commands.Cog):
             embed_desc += f"**Player list:** ```\n{', '.join(server['players']['list'])}\n```\n"
 
         if "software" in server:
-            if server['software'] == "Vanilla" and "mods" in server:
+            if server["software"] == "Vanilla" and "mods" in server:
                 embed_desc += f"**Software:** {server['software']} (probably not true)\n"
             else:
                 embed_desc += f"**Software:** {server['software']}\n"
@@ -281,10 +281,7 @@ class Minecraft(commands.Cog):
 ```
 """
 
-        embed = discord.Embed(
-            title=f'Info about server "{ip}"',
-            description=embed_desc
-        )
+        embed = discord.Embed(title=f'Info about server "{ip}"', description=embed_desc)
 
         await ctx.reply(embed=embed)
 
@@ -303,7 +300,8 @@ Latest release: {mcversion["latest"]['release']}
 Latest snapshot: {mcversion["latest"]['snapshot']}
 Full release date: <t:1321614000:D> (<t:1321614000:R>)
 First went public: <t:1242554400:D> (<t:1242554400:R>)
-""")
+""",
+            )
 
         await ctx.reply(embed=embed)
 
@@ -315,7 +313,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
         except BadGzipFile:
             await ctx.reply("This file is not a valid NBT file.")
             return
-        nbt = json.loads(str(nbt).replace("\"", "\\\"").replace("'", "\""))
+        nbt = json.loads(str(nbt).replace('"', '\\"').replace("'", '"'))
         nbt = json.dumps(nbt, indent=4)
         if len(str(nbt)) > 3988:
             await ctx.reply(file=discord.File(io.BytesIO(nbt.encode("utf-8")), filename="nbt.json"))
@@ -328,55 +326,49 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             if not config["mojira"]:
                 return
             projects = [
-                'BDS',      # Bedrock Dedicated Server
-                'MCPE',     # Minecraft (Bedrock codebase)
-                'MCCE',     # Minecraft Console Edition
-                'MCD',      # Minecraft Dungeons
-                'MCL',      # Minecraft Launcher
-                'REALMS',   # Minecraft Realms
-                'MC',       # Minecraft: Java Edition
-                'WEB'       # Mojang Web Services
+                "BDS",  # Bedrock Dedicated Server
+                "MCPE",  # Minecraft (Bedrock codebase)
+                "MCCE",  # Minecraft Console Edition
+                "MCD",  # Minecraft Dungeons
+                "MCL",  # Minecraft Launcher
+                "REALMS",  # Minecraft Realms
+                "MC",  # Minecraft: Java Edition
+                "WEB",  # Mojang Web Services
             ]
             issues = []
             for project in projects:
-                issues += (re.findall(f"{project}-[0-9]+", message.content))
+                issues += re.findall(f"{project}-[0-9]+", message.content)
             for issue in issues:
                 r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
-                if 'errorMessages' in r:
+                if "errorMessages" in r:
                     return
-                r = r['fields']
+                r = r["fields"]
 
-                desc = re.sub(r'/\s*[\r\n]/gm', '\n', r['description'])
-                desc = re.sub(r'h[1-6]\..*\n', '', desc)
-                desc = re.sub('', '', desc)
-                desc = desc.replace('{noformat}', '```')
-                desc = "\n".join(desc.split('\n')[0:2])
+                desc = re.sub(r"/\s*[\r\n]/gm", "\n", r["description"])
+                desc = re.sub(r"h[1-6]\..*\n", "", desc)
+                desc = re.sub("", "", desc)
+                desc = desc.replace("{noformat}", "```")
+                desc = "\n".join(desc.split("\n")[0:2])
 
                 embed = discord.Embed(
                     title=f"[{issue}] {securestring(r['summary'])}",
                     url=f"https://bugs.mojang.com/browse/{issue}",
                     description=desc,
-                    colour=0x30cb72
+                    colour=0x30CB72,
                 )
 
-                if r['resolution'] is not None:
+                if r["resolution"] is not None:
                     embed.add_field(
                         name="Status:",
-                        value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>"
+                        value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
                     )
-                    if r['fixVersions'] != []:
-                        embed.add_field(
-                            name="Fix version:",
-                            value=r['fixVersions'][0]['name']
-                        )
+                    if r["fixVersions"] != []:
+                        embed.add_field(name="Fix version:", value=r["fixVersions"][0]["name"])
                 else:
-                    embed.add_field(
-                        name="Status:",
-                        value=f"Open"
-                    )
+                    embed.add_field(name="Status:", value=f"Open")
                 embed.add_field(
                     name="Created:",
-                    value=f"<t:{round(time.mktime(time.strptime(r['created'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>"
+                    value=f"<t:{round(time.mktime(time.strptime(r['created'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
                 )
 
                 await message.reply(embed=embed)

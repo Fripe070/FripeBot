@@ -7,16 +7,16 @@ with open("config.json") as f:
 
 
 class col:
-    HEADER = '\033[95m'
-    BLUE = '\033[94m'
-    CYAN = '\033[96m'
-    GREEN = '\033[92m'
-    WARN = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    ITALIC = '\033[3m'
+    HEADER = "\033[95m"
+    BLUE = "\033[94m"
+    CYAN = "\033[96m"
+    GREEN = "\033[92m"
+    WARN = "\033[93m"
+    FAIL = "\033[91m"
+    ENDC = "\033[0m"
+    BOLD = "\033[1m"
+    UNDERLINE = "\033[4m"
+    ITALIC = "\033[3m"
 
 
 # COGS  -----------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ def getpfp(user: discord.User):
 
 
 def splitstring(message, length=2000):
-    return [message[i:i + length] for i in range(0, len(message), length)]
+    return [message[i : i + length] for i in range(0, len(message), length)]
 
 
 def securestring(oldstring):

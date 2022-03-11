@@ -28,7 +28,9 @@ class Listeners(commands.Cog):
                 await channel.send(f"{message.content}", files=files)
 
             if message.content == "🤡":
-                await message.reply("https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4")
+                await message.reply(
+                    "https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4"
+                )
 
 
 def setup(bot):
