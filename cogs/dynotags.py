@@ -1,6 +1,5 @@
 import discord
 import requests
-import json
 
 from discord.ext import commands
 
@@ -21,7 +20,6 @@ class Dynotags(commands.Cog):
 
         if raw_args:
             args = raw_args.split(" ")
-            print(args)
             if "-e" in args or "--embed" in args:
                 embed = discord.Embed(title=f'Tag "{tagname}" content:')
                 embed.add_field(name="**Plaintext:**", value=tags[tagname])
@@ -49,5 +47,5 @@ class Dynotags(commands.Cog):
             await channel.send(embed=embed)
 
 
-def setup(bot):
-    bot.add_cog(Dynotags(bot))
+async def setup(bot):
+    await bot.add_cog(Dynotags(bot))

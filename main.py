@@ -1,52 +1,53 @@
 import discord
-import os
 import logging
+import json
 
 from discord.ext import commands
-from dotenv import load_dotenv
-from assets.stuff import config, col, getcogs, disable_commands
+from assets.customfuncs.get_cogs import get_cogs
 
-bot = commands.Bot(
-    command_prefix=config["prefixes"], case_insensitive=True, intents=discord.Intents.all(), strip_after_prefix=True
+
+class Bot(commands.Bot):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.logger = logging.getLogger('discord')
+        self.logger.setLevel(logging.INFO)
+        formatter = logging.Formatter('[%(asctime)s %(levelname)s] %(name)s: %(message)s')
+        handler = logging.FileHandler('discord.log', 'w', 'utf-8')
+        handler.setFormatter(formatter)
+        self.logger.addHandler(handler)
+
+    async def setup_hook(self):
+        bot.logger.info("Loading cogs...")
+        for cog in get_cogs("cogs"):
+            try:
+                await bot.load_extension(cog)
+                bot.logger.info(f"Cog loaded: {cog}")
+            except Exception as error:
+                bot.logger.error(error)
+                raise error
+
+
+with open("config.json") as f:
+    config = json.load(f)
+
+bot = Bot(
+    command_prefix=config["prefixes"],
+    case_insensitive=True,
+    intents=discord.Intents.all(),
+    strip_after_prefix=True
 )
 
-# Taken directly from the d.py docs (https://discordpy.readthedocs.io/en/latest/logging.html#logging-setup)
-logger = logging.getLogger("discord")
-logger.setLevel(logging.WARNING)
-handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
-handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
-logger.addHandler(handler)
-
-# COG LOADING  -----------------------------------------------------------------------------------
-reloads = []
-for cog in getcogs():
-    try:
-        bot.load_extension(cog.replace("\\", ".").replace("/", "."))
-        reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
-    except Exception as error:
-        reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
-
-disabled_cmds = disable_commands(bot)
+for command in bot.commands:
+    if command in config["disabled_commands"]:
+        command.update(enabled=False)
 
 
-# ON Ready -----------------------------------------------------------------------------------
 @bot.event
 async def on_ready():
-    status = f"you. And {len(bot.guilds)} servers 👀"
-    await bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-    print(
-        f"""{col.BOLD + col.BLUE}Connected successfully!
-Logged in as {col.CYAN}{bot.user.name}{col.BLUE}, with the ID {col.CYAN}{bot.user.id}
-{col.BLUE}Status set to "{col.CYAN}watching {status}{col.BLUE}"
-Successfully loaded {col.GREEN}{len(reloads)} cogs{col.BLUE} and {col.GREEN}{len(bot.commands) - len(disabled_cmds)} commands{col.BLUE} of which {col.GREEN}{len(disabled_cmds)} command(s){col.BLUE} were disabled!
-Cogs:
-"""
-        + "\n".join(reloads)
-        + f"\n{col.BLUE}└───────────────────────────────────────────────────────{col.ENDC}"
-    )
+    bot.logger.info(f"Logged in as {bot.user.name} with the id {bot.user.id}")
 
 
-# COMMANDS -----------------------------------------------------------------------------------
 class Help(commands.HelpCommand):  # TODO Put this in a cog
     def get_command_signature(self, command):
         return command.qualified_name
@@ -79,6 +80,5 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
 bot.help_command = Help()
 
-# RUN THE BOT -----------------------------------------------------------------------------------
-load_dotenv()
-bot.run(os.getenv("TOKEN"))
+if __name__ == "__main__":
+    bot.run(config["token"])

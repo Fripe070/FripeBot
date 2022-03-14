@@ -212,5 +212,5 @@ class Logging(commands.Cog):
         await logtochannel(self.bot, embed)
 
 
-def setup(bot):
-    bot.add_cog(Logging(bot))
+async def setup(bot):
+    await bot.add_cog(Logging(bot))

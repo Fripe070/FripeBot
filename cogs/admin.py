@@ -5,7 +5,8 @@ import os
 import asyncio
 
 from discord.ext import commands
-from assets.stuff import col, getcogs, disable_commands
+from assets.customfuncs.get_cogs import get_cogs
+from main import config
 
 
 class Admin(commands.Cog):
@@ -16,23 +17,24 @@ class Admin(commands.Cog):
     async def setstatus(self, ctx, activity, *, new_status):
         """Sets the bots status"""
         status = new_status
+
         if activity == "watching":
-            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} {status}{col.BLUE}"{col.ENDC}')
+            self.bot.logger.info(f'Status set to "{activity} {status}')
             await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
             await ctx.reply(f'Status set to "{activity} {status}"')
 
         elif activity == "playing":
-            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} {status}{col.BLUE}"{col.ENDC}')
+            self.bot.logger.info(f'Status set to "{activity} {status}')
             await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.playing))
             await ctx.reply(f'Status set to "{activity} {status}"')
 
         elif activity == "listening":
-            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} {status}{col.BLUE}"{col.ENDC}')
+            self.bot.logger.info(f'Status set to "{activity} to {status}')
             await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.listening))
             await ctx.reply(f'Status set to "{activity} to {status}"')
 
         elif activity == "competing":
-            print(f'{col.BLUE}{col.BOLD}Status set to "{col.CYAN}{activity} in {status}{col.BLUE}"{col.ENDC}')
+            self.bot.logger.info(f'Status set to "{activity} in {status}')
             await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.competing))
             await ctx.reply(f'Status set to "{activity} in {status}"')
         else:
@@ -48,17 +50,15 @@ class Admin(commands.Cog):
         if to_load is None:
             await ctx.reply("Thats not valid.")
             return
-        else:
-            print(f"{col.BLUE}Loading cog(s)!{col.ENDC}")
-        for cog in getcogs(to_load):
+
+        self.bot.logger.info("Loading cogs...")
+        for cog in get_cogs(to_load):
             try:
-                self.bot.load_extension(f"{cog}")
-                loads.append(f"{col.BLUE}│ {col.GREEN}{cog}{col.ENDC}")
-                loadembed.append(f"<:Check:829656697835749377> {cog}")
+                await self.bot.load_extension(cog)
+                self.bot.logger.info(f"Cog loaded: {cog}")
             except Exception as error:
-                loads.append(f"{col.FAIL}│ {col.WARN}{error}{col.ENDC}")
-                loadembed.append(f"<:warning:829656327797604372> {error}")
-                embedcolor = 0xEB4034
+                self.bot.logger.error(error)
+                raise error
 
         print("\n".join(loads))
 
@@ -72,27 +72,25 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def unload(self, ctx, to_unload=None):
         """Unloads a specified cog"""
-        unloads = []
-        unloadembed = []
+        unloads = {"successful": [], "errored": []}
         embedcolor = 0x34EB40
         if to_unload is None:
             await ctx.reply("Thats not valid.")
             return
-        else:
-            print(f"{col.BLUE}Unloading cog(s)!{col.ENDC}")
-        for cog in getcogs(to_unload):
+
+        self.bot.logger.info("Unloading cogs...")
+        for cog in get_cogs(to_unload):
             try:
-                self.bot.unload_extension(f"{cog}")
-                unloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
-                unloadembed.append(f"<:Check:829656697835749377> {cog}")
+                await self.bot.unload_extension(cog)
+                self.bot.logger.info(f"Cog loaded: {cog}")
+                unloads["successful"].append(cog)
             except Exception as error:
-                unloads.append(f"{col.FAIL}│ {col.WARN}{error}")
-                unloadembed.append(f"<:warning:829656327797604372> {error}")
-                embedcolor = 0xEB4034
+                self.bot.logger.error(error)
+                unloads["errored"].append(cog)
 
         print("\n".join(unloads))
 
-        embed = discord.Embed(title=f"Unloaded cogs!", color=embedcolor, description="‍" + "\n".join(unloadembed))
+        embed = discord.Embed(title=f"Unloaded cogs!", color=embedcolor)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -102,28 +100,22 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def reload(self, ctx, to_reload=None):
         """Restarts the bot"""
-        reloads = []
-        reloadembed = []
-        embedcolor = 0x34EB40
-        if getcogs(to_reload) is None:
-            await ctx.reply("Thats not valid.")
-            return
-        else:
-            print(f"{col.BLUE}Reloading cog(s)!{col.ENDC}")
-        for cog in getcogs(to_reload):
+        reloads = {"successful": [], "errored": []}
+        self.bot.logger.info("Loading cogs...")
+        for cog in get_cogs(to_reload):
             try:
-                self.bot.reload_extension(f"{cog}")
-                reloads.append(f"{col.BLUE}│ {col.GREEN}{cog}")
-                reloadembed.append(f"<:Check:829656697835749377> {cog}")
+                await self.bot.load_extension(cog)
+                self.bot.logger.info(f"Cog loaded: {cog}")
+                reloads["successful"].append(cog)
             except Exception as error:
-                reloads.append(f"{col.FAIL}│ {col.WARN}{error}")
-                reloadembed.append(f"<:warning:829656327797604372> {error}")
-                embedcolor = 0xEB4034
+                self.bot.logger.error(error)
+                reloads["errored"].append(cog)
 
-        print("\n".join(reloads))
-        disable_commands(self.bot)
+        for command in self.bot.commands:
+            if command in config["disabled_commands"]:
+                command.update(enabled=False)
 
-        embed = discord.Embed(title=f"Reloaded cogs!", color=embedcolor, description="‍" + "\n".join(reloadembed))
+        embed = discord.Embed(title=f"Reloaded cogs!", color=0x34EB40)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -134,8 +126,9 @@ class Admin(commands.Cog):
     async def stop(self, ctx):
         """Stops the bot"""
         await ctx.message.add_reaction("👍")
-        await ctx.reply("Ok. :(\nshutting down...")
-        print(f"{col.FAIL}{col.BOLD}{ctx.author.name} Told me to stop{col.ENDC}")
+        await ctx.reply("Ok. :(\nShutting down...")
+        print(f"{ctx.author.name} Told me to stop.")
+        self.bot.logger.info(f"{ctx.author.name} Told me to stop.")
         await self.bot.close()
 
     @commands.command()
@@ -144,8 +137,11 @@ class Admin(commands.Cog):
         """Updates the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Updating...")
-        print(f"{col.FAIL}{col.BOLD}{ctx.author.name} Told me to update{col.ENDC}")
-        shellscript = subprocess.Popen(["update.sh"], stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
+        print(f"{ctx.author.name} Told me to update.")
+        self.bot.logger.info(f"{ctx.author.name} Told me to update.")
+        shellscript = subprocess.Popen(
+            ["sh", "update.sh"], stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+        )
         stdout, stderr = shellscript.communicate()
         respnse = "Done!"
         if stdout is not None:
@@ -153,8 +149,7 @@ class Admin(commands.Cog):
         if stderr is not None:
             respnse += f"```bash\n{stderr.decode('utf-8')}```"
         await ctx.reply(respnse)
-        os.execv(sys.executable, ["python3.9"] + sys.argv)
 
 
-def setup(bot):
-    bot.add_cog(Admin(bot))
+async def setup(bot):
+    await bot.add_cog(Admin(bot))
