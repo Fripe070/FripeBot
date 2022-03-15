@@ -41,6 +41,7 @@ bot = Bot(
 for command in bot.commands:
     if command in config["disabled_commands"]:
         command.update(enabled=False)
+        bot.logger.info(f"Disabled command: \"{command}\"")
 
 
 @bot.event

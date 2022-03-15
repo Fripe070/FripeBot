@@ -3,7 +3,6 @@ import re
 
 from discord.ext import commands
 from discord.ext.commands import *
-from assets.stuff import col
 
 
 class Listeners(commands.Cog):
