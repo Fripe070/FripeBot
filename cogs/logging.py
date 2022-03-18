@@ -15,7 +15,7 @@ class Logging(commands.Cog):
 
     @Cog.listener()
     async def on_command(self, ctx):
-        print(f"Command was executed by {ctx.message.author}\n{ctx.message.content}")
+        self.bot.logger.info(f"Command was executed by {ctx.message.author}\n{ctx.message.content}")
         embed = discord.Embed(
             title=f"{ctx.author.name} Ran a command in {ctx.channel.name} ({ctx.channel.id})",
             description=ctx.message.content,

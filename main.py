@@ -25,7 +25,6 @@ class Bot(commands.Bot):
                 bot.logger.info(f"Cog loaded: {cog}")
             except Exception as error:
                 bot.logger.error(error)
-                raise error
 
 
 with open("config.json") as f:

@@ -1,7 +1,5 @@
 import discord
 import subprocess
-import sys
-import os
 import asyncio
 
 from discord.ext import commands
@@ -44,25 +42,28 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def load(self, ctx, to_load=None):
         """Loads a specified cog"""
-        loads = []
-        loadembed = []
-        embedcolor = 0x34EB40
         if to_load is None:
-            await ctx.reply("Thats not valid.")
+            await ctx.reply("Thats not a valid cog.")
             return
 
+        embed_color = discord.Color.green()
+        embed_desc = ""
+
         self.bot.logger.info("Loading cogs...")
+        print(get_cogs(to_load))
         for cog in get_cogs(to_load):
             try:
                 await self.bot.load_extension(cog)
                 self.bot.logger.info(f"Cog loaded: {cog}")
+                embed_desc += f"<:Xred:953366007576141924> {cog}\n"
             except Exception as error:
                 self.bot.logger.error(error)
+                embed_color = discord.Color.red()
+                embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog} - {error}\n"
                 raise error
 
-        print("\n".join(loads))
+        embed = discord.Embed(title=f"Loaded cog(s)!", description=embed_desc, color=embed_color)
 
-        embed = discord.Embed(title=f"Loaded cogs!", color=embedcolor, description="‍" + "\n".join(loadembed))
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -100,22 +101,31 @@ class Admin(commands.Cog):
     @commands.is_owner()
     async def reload(self, ctx, to_reload=None):
         """Restarts the bot"""
-        reloads = {"successful": [], "errored": []}
-        self.bot.logger.info("Loading cogs...")
+        if to_reload is None:
+            await ctx.reply("Thats not a valid cog.")
+            return
+
+        embed_color = discord.Color.green()
+        embed_desc = ""
+
+        self.bot.logger.info("Reloading cogs...")
+        print(get_cogs(to_reload))
         for cog in get_cogs(to_reload):
             try:
-                await self.bot.load_extension(cog)
-                self.bot.logger.info(f"Cog loaded: {cog}")
-                reloads["successful"].append(cog)
+                await self.bot.reload_extension(cog)
+                self.bot.logger.info(f"Cog reloaded: {cog}")
+                embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog}\n"
             except Exception as error:
                 self.bot.logger.error(error)
-                reloads["errored"].append(cog)
+                embed_color = discord.Color.red()
+                embed_desc += f"<:Xred:953366007576141924> {cog} - {error}\n"
 
         for command in self.bot.commands:
             if command in config["disabled_commands"]:
                 command.update(enabled=False)
 
-        embed = discord.Embed(title=f"Reloaded cogs!", color=0x34EB40)
+        embed = discord.Embed(title=f"Reloaded cog(s)!", description=embed_desc, color=embed_color)
+
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 

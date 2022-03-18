@@ -37,9 +37,16 @@ class Listeners(commands.Cog):
         if message.author == self.bot.user:
             return
 
-        rgbs = re.findall(r"#[0-9A-Fa-f]{6}", message.content)
-        for rgb in rgbs:
-            await message.reply(f"", mention_author=False)
+        colours = re.findall(r"f!#([0-9A-Fa-f]{6})", message.content)
+        if not colours:
+            return
+
+        print(colours)
+        for colour in colours:
+            print(colour)
+            url = f"https://www.colorhexa.com/{colour}.png"
+
+            await message.reply(url, mention_author=False)
 
 
 async def setup(bot):
