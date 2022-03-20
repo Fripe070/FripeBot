@@ -384,6 +384,20 @@ Pycord Version: {discord.__version__}"""
         embed.set_footer(text=f"{len(roles)} roles in total.")
         await ctx.reply(embed=embed)
 
+    @commands.command()
+    async def remind(self, ctx, ae: str, *, message=None):
+        """Reminds you of something in the future. Time format: H:M:S"""
+        try:
+            x = time.strptime(ae, "%H:%M:%S")
+        except ValueError:
+            return await ctx.reply("Invalid time format! Use H:M:S")
+        if not message:
+            return await ctx.reply("You need to specify what I should remind you about!")
+        seconds = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+        await ctx.reply(f"Ok. I will remind you about {message} in {int(seconds)}s.")
+        await asyncio.sleep(seconds)
+        await ctx.send(f"Hey! {ctx.author.mention}!\n{message}")
+
 
 async def setup(bot):
     await bot.add_cog(Utility(bot))
