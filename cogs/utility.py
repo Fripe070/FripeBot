@@ -142,11 +142,11 @@ class Utility(commands.Cog):
     @commands.is_owner()
     async def execute(self, ctx, *, code):
         """Executes python code"""
+        code = code.replace("```py", "").replace("```", "").strip()
+        code = "\n".join([f"\t{line}" for line in code.splitlines()])
         if len(code) == 0:
             await ctx.reply("I cant execute nothing")
             return
-        code = code.replace("```py", "").replace("```", "").strip()
-        code = "\n".join([f"\t{line}" for line in code.splitlines()])
         function_code = "async def __exec_code(self, ctx):\n" f"{code}"
 
         exec(function_code)
