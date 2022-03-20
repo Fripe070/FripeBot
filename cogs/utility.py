@@ -22,7 +22,7 @@ class Utility(commands.Cog):
     async def getpfp(self, ctx, user: discord.User = None):
         """Gets a users profile picture at a high resolution"""
         if not user:
-            member = ctx.message.author
+            user = ctx.message.author
 
         embed = discord.Embed(colour=user.colour, timestamp=ctx.message.created_at, title=f"{user.display_name}'s pfp")
         embed.set_image(url=getpfp(user))
@@ -39,22 +39,25 @@ class Utility(commands.Cog):
         embed = discord.Embed(
             title=f"User Info - {user}", description="", colour=user.colour, timestamp=ctx.message.created_at
         )
-
         embed.description = f"**Username:** {securestring(user.name)}\n"
 
-        in_server = bool(user in ctx.guild.members)
+        if user.mutual_guilds:
+            if ctx.guild in user.mutual_guilds:
+                member = ctx.guild.get_member(user.id)
+            else:
+                member = user.mutual_guilds[0].get_member(user.id)
+        else:
+            member = None
 
-        if in_server:
+        if member and ctx.guild in user.mutual_guilds:
             embed.description += f"**Nickname:** {securestring(user.display_name)}\n"
-            roles = [role.mention for role in ctx.guild.get_member(user.id).roles[1:]]
-            roles.reverse()
 
         embed.description += f"""**Discriminator:** #{user.discriminator}
 **Mention:** {user.mention}
 **ID:** {user.id}"""
 
-        if in_server:
-            for activity in ctx.guild.get_member(user.id).activities:
+        if member:
+            for activity in member.activities:
                 if isinstance(activity, discord.CustomActivity):
                     embed.description += f"\n**Status:** {activity}"
 
@@ -62,8 +65,9 @@ class Utility(commands.Cog):
 **Is user a bot:** {user.bot}
 **Created at:** <t:{round(user.created_at.timestamp())}> (<t:{round(user.created_at.timestamp())}:R>)"""
 
-        if in_server:
-            member = ctx.guild.get_member(user.id)
+        if member and ctx.guild in user.mutual_guilds:
+            roles = [role.mention for role in member.roles[1:]]
+            roles.reverse()
             embed.description += f"""
 **Joined server at:** <t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)
 **Highest Role:** {member.top_role.mention}
@@ -275,7 +279,7 @@ class Utility(commands.Cog):
         r = r["list"][random.randint(0, len(r["list"]) - 1)]
 
         def sublinks(e: str):
-            for i in re.findall("\[[^\]]*\]", e):
+            for i in re.findall(r"\[[^]]*]", e):
                 e = e.replace(i, f"{i}(https://www.urbandictionary.com/define.php?term={i[1:-1].replace(' ', '+')})")
             return e
 
