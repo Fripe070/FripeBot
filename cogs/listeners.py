@@ -1,7 +1,8 @@
 import discord
+import re
+
 from discord.ext import commands
 from discord.ext.commands import *
-from assets.stuff import col
 
 
 class Listeners(commands.Cog):
@@ -11,13 +12,12 @@ class Listeners(commands.Cog):
     @Cog.listener()
     async def on_message(self, message):
         if message.author != self.bot.user:
-            # Detect if the bot is pinged in the message
+            # Detect if the bot is mentioned in the message
             if f"<@{self.bot.user.id}>" in message.content or f"<@!{self.bot.user.id}>" in message.content:
                 await message.add_reaction("<:ping_gun:823948139504861225>")
-                await message.reply("My prefix is `f!`", delete_after=5)
+                await message.reply("My prefix is `f!`", delete_after=5, mention_author=False)
 
             if message.channel.type == discord.ChannelType.private:
-                print(f"{col.CYAN}{message.author}:{col.ENDC} {message.content}")
                 channel = self.bot.get_channel(920014770206294129)
                 if message.attachments:
                     files = []
@@ -32,6 +32,22 @@ class Listeners(commands.Cog):
                     "https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4"
                 )
 
+    @Cog.listener()
+    async def on_message(self, message):
+        if message.author == self.bot.user:
+            return
 
-def setup(bot):
-    bot.add_cog(Listeners(bot))
+        colours = re.findall(r"f!#([0-9A-Fa-f]{6})", message.content)
+        if not colours:
+            return
+
+        print(colours)
+        for colour in colours:
+            print(colour)
+            url = f"https://www.colorhexa.com/{colour}.png"
+
+            await message.reply(url, mention_author=False)
+
+
+async def setup(bot):
+    await bot.add_cog(Listeners(bot))

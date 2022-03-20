@@ -1,9 +1,9 @@
 import discord
 import json
 import os
+import pathlib
 
-with open("config.json") as f:
-    config = json.load(f)
+from main import config
 
 
 class col:
@@ -20,40 +20,10 @@ class col:
 
 
 # COGS  -----------------------------------------------------------------------------------
-def getcogs(dir: str = None):
-    COGS = []  # Makes a empty list named "COGS"
-
-    if dir is None:  # If the "dir" variable is empty deafult it to "cogs"
-        dir = "cogs"
-    elif dir.startswith("cogs"):
-        pass
-    else:
-        dir = f"cogs/{dir}"
-
-    dir = dir.replace(".", "/")  # Replaces "." with "/"
-    dir = dir.replace("\\", "/")  # Replaces "\" with "/"
-
-    if os.path.isfile(f"{dir}.py"):  # If the path provided is a file (aka not a directory)
-        return [dir.replace("\\", ".").replace("/", ".")]  # Replaces "\" and "/" with "." and returns the file
-
-    for path, subdirs, files in os.walk(dir):  # For evcerything in the "dir" directory
-        for filename in files:  # For all files in that directory
-            if filename.endswith(".py"):  # Makes sure the file is actualy a python file
-                # Adds the file to the list named "COGS"
-                cog = os.path.join(path, filename).replace("\\", ".").replace("/", ".")[:-3]
-                if cog not in config["disabled_cogs"]:
-                    COGS.append(cog)
-
-    return COGS if COGS != [] else None
 
 
-def disable_commands(bot):
-    disabled_commands = []
-    for command in bot.commands:
-        if command.name in config["disabled_commands"]:
-            command.update(enabled=False)
-            disabled_commands.append(command.name)
-    return disabled_commands
+def disable_commands(bot) -> list[str]:
+    return [command for command in bot.commands if command not in config["disabled_commands"]]
 
 
 def getpfp(user: discord.User):
