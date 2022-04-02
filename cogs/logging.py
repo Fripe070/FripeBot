@@ -107,7 +107,7 @@ class Logging(commands.Cog):
         if before.avatar != after.avatar:
             embed = discord.Embed(
                 title=f"{before.name} changed their avatar",
-                description=f"Before: {before.avatar_url}\nAfter: {after.avatar_url}",
+                description=f"Before: {before.display_avatar}\nAfter: {after.display_avatar}",
                 color=before.color,
             )
             embed.set_footer(text=f"User ID: {before.id}")

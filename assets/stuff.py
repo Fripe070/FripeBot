@@ -31,7 +31,7 @@ def getpfp(user: discord.User):
 
 
 def splitstring(message, length=2000):
-    return [message[i : i + length] for i in range(0, len(message), length)]
+    return [message[i: i + length] for i in range(0, len(message), length)]
 
 
 def securestring(oldstring):
