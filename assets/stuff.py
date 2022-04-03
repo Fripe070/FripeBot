@@ -23,7 +23,11 @@ class col:
 
 
 def disable_commands(bot) -> list[str]:
-    return [command for command in bot.commands if command not in config["disabled_commands"]]
+    return [
+        command
+        for command in bot.commands
+        if command not in config["disabled_commands"]
+    ]
 
 
 def getpfp(user: discord.User):
@@ -31,7 +35,7 @@ def getpfp(user: discord.User):
 
 
 def splitstring(message, length=2000):
-    return [message[i: i + length] for i in range(0, len(message), length)]
+    return [message[i : i + length] for i in range(0, len(message), length)]
 
 
 def securestring(oldstring):

@@ -15,7 +15,9 @@ class Logging(commands.Cog):
 
     @Cog.listener()
     async def on_command(self, ctx):
-        self.bot.logger.info(f"Command was executed by {ctx.message.author}\n{ctx.message.content}")
+        self.bot.logger.info(
+            f"Command was executed by {ctx.message.author}\n{ctx.message.content}"
+        )
         embed = discord.Embed(
             title=f"{ctx.author.name} Ran a command in {ctx.channel.name} ({ctx.channel.id})",
             description=ctx.message.content,
@@ -27,7 +29,10 @@ class Logging(commands.Cog):
 
     @Cog.listener()
     async def on_message_delete(self, message):
-        if message.author != self.bot.user and message.channel.type != discord.ChannelType.private:
+        if (
+            message.author != self.bot.user
+            and message.channel.type != discord.ChannelType.private
+        ):
             embed = discord.Embed(
                 title=f"Message by {message.author.name} was deleted in {message.channel.name} ({message.channel.id})",
                 description=message.content,
@@ -35,13 +40,20 @@ class Logging(commands.Cog):
             )
             if message.reference is not None:
                 if not message.reference.fail_if_not_exists:
-                    ref = await message.channel.fetch_message(message.reference.message_id)
-                    embed.add_field(
-                        name=f"Replying to {ref.author.name} ({ref.author.id}), message content:", value=ref.content
+                    ref = await message.channel.fetch_message(
+                        message.reference.message_id
                     )
-                    embed.set_footer(text=f"Message ID: {message.id}, replied to message ID: {ref.id}")
+                    embed.add_field(
+                        name=f"Replying to {ref.author.name} ({ref.author.id}), message content:",
+                        value=ref.content,
+                    )
+                    embed.set_footer(
+                        text=f"Message ID: {message.id}, replied to message ID: {ref.id}"
+                    )
                 else:
-                    embed.set_footer(text=f"Message ID: {message.id}, replied to a deleted message.")
+                    embed.set_footer(
+                        text=f"Message ID: {message.id}, replied to a deleted message."
+                    )
             else:
                 embed.set_footer(text=f"Message ID: {message.id}")
 
@@ -49,7 +61,10 @@ class Logging(commands.Cog):
 
     @Cog.listener()
     async def on_message_edit(self, before, after):
-        if before.author != self.bot.user and before.channel.type != discord.ChannelType.private:
+        if (
+            before.author != self.bot.user
+            and before.channel.type != discord.ChannelType.private
+        ):
             embed = discord.Embed(
                 title=f"Message by {before.author.name} was edited in {before.channel.name} ({before.channel.id})",
                 color=discord.Color.dark_gold(),
@@ -72,12 +87,20 @@ class Logging(commands.Cog):
 
             await logtochannel(self.bot, embed)
         if before.roles != after.roles:
-            embed_desc = f"Before: {', '.join([role.mention for role in before.roles[1:]])}\n"
-            embed_desc += f"After: {', '.join([role.mention for role in after.roles[1:]])}\n"
+            embed_desc = (
+                f"Before: {', '.join([role.mention for role in before.roles[1:]])}\n"
+            )
+            embed_desc += (
+                f"After: {', '.join([role.mention for role in after.roles[1:]])}\n"
+            )
             diff = set(before.roles[1:]).symmetric_difference(set(after.roles[1:]))
             embed_desc += f"Differance: {', '.join([role.mention for role in diff])}"
 
-            embed = discord.Embed(title=f"{before.name} changed their roles", description=embed_desc, color=after.color)
+            embed = discord.Embed(
+                title=f"{before.name} changed their roles",
+                description=embed_desc,
+                color=after.color,
+            )
             embed.set_footer(text=f"User ID: {before.id}")
 
             await logtochannel(self.bot, embed)
@@ -116,14 +139,18 @@ class Logging(commands.Cog):
 
     @Cog.listener()
     async def on_member_join(self, member):
-        embed = discord.Embed(title=f"{member.name} joined {member.guild.name}", color=member.color)
+        embed = discord.Embed(
+            title=f"{member.name} joined {member.guild.name}", color=member.color
+        )
         embed.set_footer(text=f"User ID: {member.id}, Guild ID: {member.guild.id}")
 
         await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_remove(self, member):
-        embed = discord.Embed(title=f"{member.name} left {member.guild.name}", color=member.color)
+        embed = discord.Embed(
+            title=f"{member.name} left {member.guild.name}", color=member.color
+        )
         embed.set_footer(text=f"User ID: {member.id}, Guild ID: {member.guild.id}")
 
         await logtochannel(self.bot, embed)
@@ -132,7 +159,8 @@ class Logging(commands.Cog):
     async def on_guild_update(self, before, after):
         if before.name != after.name:
             embed = discord.Embed(
-                title=f"{before.name} changed it's name", description=f"Before: {before.name}\nAfter: {after.name}"
+                title=f"{before.name} changed it's name",
+                description=f"Before: {before.name}\nAfter: {after.name}",
             )
             embed.set_footer(text=f"Guild ID: {before.id}")
 
@@ -150,7 +178,9 @@ class Logging(commands.Cog):
     @Cog.listener()
     async def on_guild_role_create(self, role):
         embed = discord.Embed(
-            title=f"{role.name} was created in {role.guild.name}", description=f"Role ID: {role.id}", colour=role.color
+            title=f"{role.name} was created in {role.guild.name}",
+            description=f"Role ID: {role.id}",
+            colour=role.color,
         )
         embed.set_footer(text=f"Guild ID: {role.guild.id}")
 
@@ -159,7 +189,9 @@ class Logging(commands.Cog):
     @Cog.listener()
     async def on_guild_role_delete(self, role):
         embed = discord.Embed(
-            title=f"{role.name} was deleted in {role.guild.name}", description=f"Role ID: {role.id}", colour=role.color
+            title=f"{role.name} was deleted in {role.guild.name}",
+            description=f"Role ID: {role.id}",
+            colour=role.color,
         )
         embed.set_footer(text=f"Guild ID: {role.guild.id}")
 
@@ -199,14 +231,18 @@ class Logging(commands.Cog):
 
     @Cog.listener()
     async def on_member_ban(self, guild, user):
-        embed = discord.Embed(title=f"{user.name} was banned from {guild.name}", colour=user.color)
+        embed = discord.Embed(
+            title=f"{user.name} was banned from {guild.name}", colour=user.color
+        )
         embed.set_footer(text=f"User ID: {user.id}, Guild ID: {guild.id}")
 
         await logtochannel(self.bot, embed)
 
     @Cog.listener()
     async def on_member_unban(self, guild, user):
-        embed = discord.Embed(title=f"{user.name} was unbanned from {guild.name}", colour=user.color)
+        embed = discord.Embed(
+            title=f"{user.name} was unbanned from {guild.name}", colour=user.color
+        )
         embed.set_footer(text=f"User ID: {user.id}, Guild ID: {guild.id}")
 
         await logtochannel(self.bot, embed)

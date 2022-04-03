@@ -14,7 +14,11 @@ class Dynotags(commands.Cog):
         tags = requests.get(url).json()
 
         if not tagname or tagname not in tags:
-            embed = discord.Embed(title="Dyno Tags:", description=", ".join(sorted(tags.keys())), color=0x2473C7)
+            embed = discord.Embed(
+                title="Dyno Tags:",
+                description=", ".join(sorted(tags.keys())),
+                color=0x2473C7,
+            )
             await ctx.reply(embed=embed)
             return
 
@@ -43,7 +47,9 @@ class Dynotags(commands.Cog):
         await ctx.reply(f"Purging and sending list of tags to {channel.mention}")
         await channel.purge(limit=None)
         for tag in tags:
-            embed = discord.Embed(title=f"?t {tag}", description=tags[tag], color=0x2473C7)
+            embed = discord.Embed(
+                title=f"?t {tag}", description=tags[tag], color=0x2473C7
+            )
             await channel.send(embed=embed)
 
 
