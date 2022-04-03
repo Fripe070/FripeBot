@@ -141,13 +141,13 @@ class Fun(commands.Cog):
 
         if not activity_name:
             return await ctx.reply(
-                "You need to give me an activity to launch!\nPossible acctivities: "
+                "You need to give me an activity to launch!\nPossible activities: "
                 + ", ".join(activities.keys())
             )
         activity_name = activity_name.lower()
         if activity_name not in activities.keys():
             return await ctx.reply(
-                "That's not a valid activity.\nPossible acctivities: "
+                "That's not a valid activity.\nPossible activities: "
                 + ", ".join(activities.keys())
             )
         if ctx.author.voice is None:
