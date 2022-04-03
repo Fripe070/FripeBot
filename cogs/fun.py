@@ -138,13 +138,13 @@ class Fun(commands.Cog):
             "land-io": "903769130790969345",
             "putt party": "945737671223947305",
         }
-        activity_name = activity_name.lower()
 
         if not activity_name:
             return await ctx.reply(
                 "You need to give me an activity to launch!\nPossible acctivities: "
                 + ", ".join(activities.keys())
             )
+        activity_name = activity_name.lower()
         if activity_name not in activities.keys():
             return await ctx.reply(
                 "That's not a valid activity.\nPossible acctivities: "
