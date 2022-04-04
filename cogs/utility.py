@@ -24,7 +24,11 @@ class Utility(commands.Cog):
         if not user:
             user = ctx.message.author
 
-        embed = discord.Embed(colour=user.colour, timestamp=ctx.message.created_at, title=f"{user.display_name}'s pfp")
+        embed = discord.Embed(
+            colour=user.colour,
+            timestamp=ctx.message.created_at,
+            title=f"{user.display_name}'s pfp",
+        )
         embed.set_image(url=getpfp(user))
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
@@ -37,7 +41,10 @@ class Utility(commands.Cog):
         user = await self.bot.fetch_user(user.id)
 
         embed = discord.Embed(
-            title=f"User Info - {user}", description="", colour=user.colour, timestamp=ctx.message.created_at
+            title=f"User Info - {user}",
+            description="",
+            colour=user.colour,
+            timestamp=ctx.message.created_at,
         )
         embed.description = f"**Username:** {securestring(user.name)}\n"
 
@@ -76,7 +83,10 @@ class Utility(commands.Cog):
         if user.banner:
             embed.set_image(url=user.banner.url)
 
-        r = requests.get("https://pronoundb.org/api/v1/lookup", params={"id": user.id, "platform": "discord"})
+        r = requests.get(
+            "https://pronoundb.org/api/v1/lookup",
+            params={"id": user.id, "platform": "discord"},
+        )
         if r.status_code == 200:
             pronouns = {
                 "hh": "he / him",
@@ -118,7 +128,9 @@ class Utility(commands.Cog):
         out = requests.get(site).text
         for part in splitstring(out):
             embed = discord.Embed(
-                timestamp=ctx.message.created_at, title=f"Output:", description=f"```\n{securestring(part)}```"
+                timestamp=ctx.message.created_at,
+                title=f"Output:",
+                description=f"```\n{securestring(part)}```",
             )
             await ctx.send(embed=embed)
 
@@ -152,7 +164,9 @@ class Utility(commands.Cog):
         exec(function_code)
         output = await locals()["__exec_code"](self, ctx)
         if output:
-            formatted_output = "\n    ".join(output) if len(code.splitlines()) > 1 else output
+            formatted_output = (
+                "\n    ".join(output) if len(code.splitlines()) > 1 else output
+            )
             await ctx.reply(
                 embed=discord.Embed(
                     colour=0xFF0000,
@@ -178,7 +192,12 @@ class Utility(commands.Cog):
         if os.getenv("TOKEN") in str(eval(arg)):
             # Sends a randomly generated string that looks like a token
             await ctx.reply(
-                "".join(random.choices("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_", k=59))
+                "".join(
+                    random.choices(
+                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_",
+                        k=59,
+                    )
+                )
             )
         else:
             await ctx.reply(eval(arg))  # Actually Evaluates
@@ -187,10 +206,20 @@ class Utility(commands.Cog):
     @commands.command()
     async def members(self, ctx):
         """Counts the amount of people in the server"""
-        embed = discord.Embed(colour=ctx.author.colour, timestamp=ctx.message.created_at, title="Member Info")
+        embed = discord.Embed(
+            colour=ctx.author.colour,
+            timestamp=ctx.message.created_at,
+            title="Member Info",
+        )
         embed.set_footer(text=f"Requested by {ctx.author.display_name}")
-        embed.add_field(name=f"Users:", value=f"{len([member for member in ctx.guild.members if not member.bot])}")
-        embed.add_field(name=f"Bots:", value=f"{len([member for member in ctx.guild.members if member.bot])}")
+        embed.add_field(
+            name=f"Users:",
+            value=f"{len([member for member in ctx.guild.members if not member.bot])}",
+        )
+        embed.add_field(
+            name=f"Bots:",
+            value=f"{len([member for member in ctx.guild.members if member.bot])}",
+        )
         embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")
         await ctx.reply(embed=embed)
 
@@ -205,15 +234,24 @@ class Utility(commands.Cog):
             color = 0xFF8C00
         else:
             color = 0xFF2200
-        embed = discord.Embed(title="Pong! :ping_pong:", description=f"The ping is **{bot_ping}ms!**", color=color)
+        embed = discord.Embed(
+            title="Pong! :ping_pong:",
+            description=f"The ping is **{bot_ping}ms!**",
+            color=color,
+        )
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=["def", "definition"])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def define(self, ctx, *, word):
         """Gets the definition for a word"""
-        if "-u" != word.lower().split(" ")[0] and "--urbandictionary" != word.lower().split(" ")[0]:
-            r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
+        if (
+            "-u" != word.lower().split(" ")[0]
+            and "--urbandictionary" != word.lower().split(" ")[0]
+        ):
+            r = requests.get(
+                f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True
+            )
             if r.status_code == 200 and isinstance(r.json(), list):
                 r = r.json()
                 embed_desc = ""
@@ -233,7 +271,9 @@ class Utility(commands.Cog):
                     embed_desc += f"**Example:** {r[0]['meanings'][0]['definitions'][0]['example']}\n"
 
                 embed = discord.Embed(
-                    title=f"Definition of the word: {word}", description=embed_desc, color=ctx.author.colour
+                    title=f"Definition of the word: {word}",
+                    description=embed_desc,
+                    color=ctx.author.colour,
                 )
                 await ctx.reply(embed=embed)
                 return
@@ -280,7 +320,10 @@ class Utility(commands.Cog):
 
         def sublinks(e: str):
             for i in re.findall(r"\[[^]]*]", e):
-                e = e.replace(i, f"{i}(https://www.urbandictionary.com/define.php?term={i[1:-1].replace(' ', '+')})")
+                e = e.replace(
+                    i,
+                    f"{i}(https://www.urbandictionary.com/define.php?term={i[1:-1].replace(' ', '+')})",
+                )
             return e
 
         embed = discord.Embed(
@@ -312,7 +355,11 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
     @commands.command(alias=["botstatus", "botinfo"])
     async def status(self, ctx):
         """Displays various statistics about the bot."""
-        embed = discord.Embed(title="Bot status", colour=ctx.author.colour, timestamp=ctx.message.created_at)
+        embed = discord.Embed(
+            title="Bot status",
+            colour=ctx.author.colour,
+            timestamp=ctx.message.created_at,
+        )
 
         pyver = sys.version_info
 
@@ -325,7 +372,12 @@ Pycord Version: {discord.__version__}"""
     async def on_message_delete(self, message):
         if message.author != self.bot.user:
             self.snipe_message = {
-                message.guild.id: {message.channel.id: {"msg": message, "time": datetime.datetime.now()}}
+                message.guild.id: {
+                    message.channel.id: {
+                        "msg": message,
+                        "time": datetime.datetime.now(),
+                    }
+                }
             }
             print(self.snipe_message)
 
@@ -339,7 +391,10 @@ Pycord Version: {discord.__version__}"""
             await ctx.reply("No message was deleted!")
             return
 
-        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) > 10:
+        if (
+            time.mktime(ctx.message.created_at.timetuple())
+            - time.mktime(snipe["time"].timetuple())
+        ) > 10:
             await ctx.reply("That message was deleted more than 10 seconds ago!")
             return
 
@@ -353,7 +408,8 @@ Pycord Version: {discord.__version__}"""
             try:
                 ref = await ctx.fetch_message(message.reference.message_id)
                 embed.add_field(
-                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:", value=ref.content
+                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:",
+                    value=ref.content,
                 )
                 embed.set_footer(text=f"React with 🚮 to delete this message.")
             except discord.errors.NotFound:
@@ -364,11 +420,17 @@ Pycord Version: {discord.__version__}"""
         if not embed.footer:
             embed.set_footer(text="React with 🚮 to delete this message.")
 
-        snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
+        snipemsg = await ctx.reply(
+            f"Sniped message by {message.author.mention}", embed=embed
+        )
         self.snipe_message = None
 
         def check(reaction, user):
-            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
+            return (
+                user == message.author
+                and str(reaction.emoji) == "🚮"
+                and reaction.message == snipemsg
+            )
 
         await snipemsg.add_reaction("🚮")
         await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
@@ -377,7 +439,10 @@ Pycord Version: {discord.__version__}"""
     @commands.command()
     async def allroles(self, ctx):
         """Lists all roles in the server."""
-        roles = [f"{role.mention} with {len(role.members)} member(s)." for role in ctx.guild.roles[1:]]
+        roles = [
+            f"{role.mention} with {len(role.members)} member(s)."
+            for role in ctx.guild.roles[1:]
+        ]
         roles.reverse()
         embed = discord.Embed(
             title=f"Roles in {ctx.guild.name}",
@@ -396,8 +461,12 @@ Pycord Version: {discord.__version__}"""
         except ValueError:
             return await ctx.reply("Invalid time format! Use H:M:S")
         if not message:
-            return await ctx.reply("You need to specify what I should remind you about!")
-        seconds = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
+            return await ctx.reply(
+                "You need to specify what I should remind you about!"
+            )
+        seconds = datetime.timedelta(
+            hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec
+        ).total_seconds()
         await ctx.reply(f"Ok. I will remind you about {message} in {int(seconds)}s.")
         await asyncio.sleep(seconds)
         await ctx.send(f"Hey! {ctx.author.mention}!\n{message}")

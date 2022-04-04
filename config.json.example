@@ -1,8 +1,9 @@
 {
-  "prefixes": ["f!", "F!", "thebestprefixever"],
-  "mojira": false,
+  "prefixes": ["prefix1", "prefix2"],
+  "mojira": true,
   "logging_channel_id": "000000000000000000",
   "logging_level": 1,
   "disabled_cogs": ["cogs.example", "cogs.example2"],
-  "disabled_commands": [example_command, example_command2],
+  "disabled_commands": ["example_command", "example_command2"],
+  "token": ExampleToken
 }
