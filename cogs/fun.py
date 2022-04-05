@@ -156,7 +156,7 @@ class Fun(commands.Cog):
             )
 
         invite = await ctx.author.voice.channel.create_invite(
-            max_age=0,
+            max_age=3600,
             target_type=discord.InviteTarget.embedded_application,
             target_application_id=activities[activity_name],
         )
