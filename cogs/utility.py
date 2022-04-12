@@ -379,7 +379,6 @@ Pycord Version: {discord.__version__}"""
                     }
                 }
             }
-            print(self.snipe_message)
 
     @commands.command()
     async def snipe(self, ctx):
