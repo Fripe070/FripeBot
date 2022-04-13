@@ -164,9 +164,7 @@ class Utility(commands.Cog):
         exec(function_code)
         output = await locals()["__exec_code"](self, ctx)
         if output:
-            formatted_output = (
-                "\n    ".join(output) if len(code.splitlines()) > 1 else output
-            )
+            formatted_output = "\n    ".join(output) if len(code.splitlines()) > 1 else output
             await ctx.reply(
                 embed=discord.Embed(
                     colour=0xFF0000,
@@ -245,13 +243,8 @@ class Utility(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def define(self, ctx, *, word):
         """Gets the definition for a word"""
-        if (
-            "-u" != word.lower().split(" ")[0]
-            and "--urbandictionary" != word.lower().split(" ")[0]
-        ):
-            r = requests.get(
-                f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True
-            )
+        if "-u" != word.lower().split(" ")[0] and "--urbandictionary" != word.lower().split(" ")[0]:
+            r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
             if r.status_code == 200 and isinstance(r.json(), list):
                 r = r.json()
                 embed_desc = ""
@@ -390,10 +383,7 @@ Pycord Version: {discord.__version__}"""
             await ctx.reply("No message was deleted!")
             return
 
-        if (
-            time.mktime(ctx.message.created_at.timetuple())
-            - time.mktime(snipe["time"].timetuple())
-        ) > 10:
+        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) > 10:
             await ctx.reply("That message was deleted more than 10 seconds ago!")
             return
 
@@ -419,17 +409,11 @@ Pycord Version: {discord.__version__}"""
         if not embed.footer:
             embed.set_footer(text="React with 🚮 to delete this message.")
 
-        snipemsg = await ctx.reply(
-            f"Sniped message by {message.author.mention}", embed=embed
-        )
+        snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
         self.snipe_message = None
 
         def check(reaction, user):
-            return (
-                user == message.author
-                and str(reaction.emoji) == "🚮"
-                and reaction.message == snipemsg
-            )
+            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
 
         await snipemsg.add_reaction("🚮")
         await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
@@ -438,10 +422,7 @@ Pycord Version: {discord.__version__}"""
     @commands.command()
     async def allroles(self, ctx):
         """Lists all roles in the server."""
-        roles = [
-            f"{role.mention} with {len(role.members)} member(s)."
-            for role in ctx.guild.roles[1:]
-        ]
+        roles = [f"{role.mention} with {len(role.members)} member(s)." for role in ctx.guild.roles[1:]]
         roles.reverse()
         embed = discord.Embed(
             title=f"Roles in {ctx.guild.name}",
@@ -460,12 +441,8 @@ Pycord Version: {discord.__version__}"""
         except ValueError:
             return await ctx.reply("Invalid time format! Use H:M:S")
         if not message:
-            return await ctx.reply(
-                "You need to specify what I should remind you about!"
-            )
-        seconds = datetime.timedelta(
-            hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec
-        ).total_seconds()
+            return await ctx.reply("You need to specify what I should remind you about!")
+        seconds = datetime.timedelta(hours=x.tm_hour, minutes=x.tm_min, seconds=x.tm_sec).total_seconds()
         await ctx.reply(f"Ok. I will remind you about {message} in {int(seconds)}s.")
         await asyncio.sleep(seconds)
         await ctx.send(f"Hey! {ctx.author.mention}!\n{message}")

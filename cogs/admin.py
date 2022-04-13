@@ -18,38 +18,22 @@ class Admin(commands.Cog):
 
         if activity == "watching":
             self.bot.logger.info(f'Status set to "{activity} {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.watching
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
             await ctx.reply(f'Status set to "{activity} {status}"')
 
         elif activity == "playing":
             self.bot.logger.info(f'Status set to "{activity} {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.playing
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.playing))
             await ctx.reply(f'Status set to "{activity} {status}"')
 
         elif activity == "listening":
             self.bot.logger.info(f'Status set to "{activity} to {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.listening
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.listening))
             await ctx.reply(f'Status set to "{activity} to {status}"')
 
         elif activity == "competing":
             self.bot.logger.info(f'Status set to "{activity} in {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.competing
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.competing))
             await ctx.reply(f'Status set to "{activity} in {status}"')
         else:
             await ctx.reply(f"That's not a valid activity!")
@@ -78,9 +62,7 @@ class Admin(commands.Cog):
                 embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog} - {error}\n"
                 raise error
 
-        embed = discord.Embed(
-            title=f"Loaded cog(s)!", description=embed_desc, color=embed_color
-        )
+        embed = discord.Embed(title=f"Loaded cog(s)!", description=embed_desc, color=embed_color)
 
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
@@ -142,9 +124,7 @@ class Admin(commands.Cog):
             if command in config["disabled_commands"]:
                 command.update(enabled=False)
 
-        embed = discord.Embed(
-            title=f"Reloaded cog(s)!", description=embed_desc, color=embed_color
-        )
+        embed = discord.Embed(title=f"Reloaded cog(s)!", description=embed_desc, color=embed_color)
 
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)

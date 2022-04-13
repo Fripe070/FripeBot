@@ -19,9 +19,7 @@ class Minecraft(commands.Cog):
     @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.user)
     async def mcstatus(self, ctx):
-        msg = await ctx.reply(
-            "Geting statuses from the websites... <a:loading:894950036964782141>"
-        )
+        msg = await ctx.reply("Geting statuses from the websites... <a:loading:894950036964782141>")
 
         mc_sites = [
             "minecraft.net",  # Main website
@@ -48,9 +46,7 @@ class Minecraft(commands.Cog):
 
         for url in mc_sites:
             try:
-                await msg.edit(
-                    content=f"Getting status from `{url}` <a:loading:894950036964782141>"
-                )
+                await msg.edit(content=f"Getting status from `{url}` <a:loading:894950036964782141>")
                 r = requests.head(f"https://{url}", timeout=2)
 
                 if r.ok:
@@ -89,9 +85,7 @@ class Minecraft(commands.Cog):
         pastnames = []
         for name in tmprequest:
             if "changedToAt" in name:
-                pastnames.append(
-                    f"{name['name']} (<t:{int(int(name['changedToAt']) / 1000)}:R>)"
-                )
+                pastnames.append(f"{name['name']} (<t:{int(int(name['changedToAt']) / 1000)}:R>)")
             else:
                 pastnames.append(name["name"])
 
@@ -116,9 +110,7 @@ class Minecraft(commands.Cog):
 
         pastnamesstring += f"\n**Original name:**\n{oldestname}"
 
-        await msg.edit(
-            content="Fetching player model info... (this might take a while)"
-        )
+        await msg.edit(content="Fetching player model info... (this might take a while)")
 
         url = f"https://sessionserver.mojang.com/session/minecraft/profile/{uuid}"
         tmprequest = requests.get(url).json()
@@ -126,9 +118,7 @@ class Minecraft(commands.Cog):
         skincape = json.loads(base64.b64decode(skincape).decode("utf-8"))
         username = tmprequest["name"]
 
-        await msg.edit(
-            content="Fetching player model type... (this might take a while)"
-        )
+        await msg.edit(content="Fetching player model type... (this might take a while)")
         try:
             if skincape["textures"]["SKIN"]["metadata"] == {"model": "slim"}:
                 playermodel = "Slim"
@@ -146,37 +136,17 @@ class Minecraft(commands.Cog):
         await msg.edit(content="Fetching player cape... (this might take a while)")
         if "CAPE" in skincape["textures"]:
             cape_url = skincape["textures"]["CAPE"]["url"]
-            migrator = (
-                "2340c0e03dd24a11b15a8b33c2a7e9e32abb2051b2481d0ba7defd635ca7a933"
-            )
-            minecon11 = (
-                "953cac8b779fe41383e675ee2b86071a71658f2180f56fbce8aa315ea70e2ed6"
-            )
-            minecon12 = (
-                "a2e8d97ec79100e90a75d369d1b3ba81273c4f82bc1b737e934eed4a854be1b6"
-            )
-            minecon13 = (
-                "153b1a0dfcbae953cdeb6f2c2bf6bf79943239b1372780da44bcbb29273131da"
-            )
-            minecon15 = (
-                "b0cc08840700447322d953a02b965f1d65a13a603bf64b17c803c21446fe1635"
-            )
-            minecon16 = (
-                "e7dfea16dc83c97df01a12fabbd1216359c0cd0ea42f9999b6e97c584963e980"
-            )
-            realmsmapmaker = (
-                "17912790ff164b93196f08ba71d0e62129304776d0f347334f8a6eae509f8a56"
-            )
+            migrator = "2340c0e03dd24a11b15a8b33c2a7e9e32abb2051b2481d0ba7defd635ca7a933"
+            minecon11 = "953cac8b779fe41383e675ee2b86071a71658f2180f56fbce8aa315ea70e2ed6"
+            minecon12 = "a2e8d97ec79100e90a75d369d1b3ba81273c4f82bc1b737e934eed4a854be1b6"
+            minecon13 = "153b1a0dfcbae953cdeb6f2c2bf6bf79943239b1372780da44bcbb29273131da"
+            minecon15 = "b0cc08840700447322d953a02b965f1d65a13a603bf64b17c803c21446fe1635"
+            minecon16 = "e7dfea16dc83c97df01a12fabbd1216359c0cd0ea42f9999b6e97c584963e980"
+            realmsmapmaker = "17912790ff164b93196f08ba71d0e62129304776d0f347334f8a6eae509f8a56"
             mojang = "5786fe99be377dfb6858859f926c4dbc995751e91cee373468c5fbf4865e7151"
-            translator = (
-                "1bf91499701404e21bd46b0191d63239a4ef76ebde88d27e4d430ac211df681e"
-            )
-            mojangclassic = (
-                "8f120319222a9f4a104e2f5cb97b2cda93199a2ee9e1585cb8d09d6f687cb761"
-            )
-            mojangstudios = (
-                "9e507afc56359978a3eb3e32367042b853cddd0995d17d0da995662913fb00f7"
-            )
+            translator = "1bf91499701404e21bd46b0191d63239a4ef76ebde88d27e4d430ac211df681e"
+            mojangclassic = "8f120319222a9f4a104e2f5cb97b2cda93199a2ee9e1585cb8d09d6f687cb761"
+            mojangstudios = "9e507afc56359978a3eb3e32367042b853cddd0995d17d0da995662913fb00f7"
             mojira = "ae677f7d98ac70a533713518416df4452fe5700365c09cf45d0d156ea9396551"
 
             if cape_url.endswith(migrator):
@@ -208,9 +178,7 @@ class Minecraft(commands.Cog):
 
             embed_desc += f'({skincape["textures"]["CAPE"]["url"]})\n'
 
-        await msg.edit(
-            content="Applying embed description... (this might take a while)"
-        )
+        await msg.edit(content="Applying embed description... (this might take a while)")
         embed = discord.Embed(
             title=f'Minecraft user information for player "{username}"',
             description=embed_desc,
@@ -224,9 +192,7 @@ class Minecraft(commands.Cog):
 
         embed.add_field(name="Name history:", value=pastnamesstring)
 
-        await msg.edit(
-            content="Fetching player info from the hypixel API... (this might take a while)"
-        )
+        await msg.edit(content="Fetching player info from the hypixel API... (this might take a while)")
         try:
             # HYPIXEL
             url = f"https://api.slothpixel.me/api/players/{uuid}"
@@ -244,9 +210,7 @@ class Minecraft(commands.Cog):
     {'since ' + last_seen if last_seen is not None and not hypixel['online'] else ''}"""
 
             url = f"https://api.slothpixel.me/api/players/{uuid}/status"
-            playing = (
-                requests.get(url).json()["game"]["type"] if hypixel["online"] else None
-            )
+            playing = requests.get(url).json()["game"]["type"] if hypixel["online"] else None
 
             embed.add_field(
                 name="Hypixel:",
@@ -282,9 +246,7 @@ class Minecraft(commands.Cog):
 
         if server["online"] is False:
             if port:
-                await ctx.reply(
-                    "Server is currently offline, did you use the correct port?"
-                )
+                await ctx.reply("Server is currently offline, did you use the correct port?")
             else:
                 await ctx.reply("Server is currently offline.")
             return
@@ -293,9 +255,7 @@ class Minecraft(commands.Cog):
         for i in server["motd"]["clean"]:
             motd += i.strip() + "\n"
 
-        location = requests.get(
-            "https://geolocation-db.com/jsonp/" + server["ip"]
-        ).content.decode("utf-8")
+        location = requests.get("https://geolocation-db.com/jsonp/" + server["ip"]).content.decode("utf-8")
         location = json.loads(location.split("(")[1].strip(")"))
 
         embed_desc = f"""
@@ -307,15 +267,11 @@ class Minecraft(commands.Cog):
 **Players:** {server['players']['online']}/{server['players']['max']}
 """
         if "list" in server["players"]:
-            embed_desc += (
-                f"**Player list:** ```\n{', '.join(server['players']['list'])}\n```\n"
-            )
+            embed_desc += f"**Player list:** ```\n{', '.join(server['players']['list'])}\n```\n"
 
         if "software" in server:
             if server["software"] == "Vanilla" and "mods" in server:
-                embed_desc += (
-                    f"**Software:** {server['software']} (probably not true)\n"
-                )
+                embed_desc += f"**Software:** {server['software']} (probably not true)\n"
             else:
                 embed_desc += f"**Software:** {server['software']}\n"
 
@@ -366,9 +322,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
         nbt = json.loads(str(nbt).replace('"', '\\"').replace("'", '"'))
         nbt = json.dumps(nbt, indent=4)
         if len(str(nbt)) > 3988:
-            await ctx.reply(
-                file=discord.File(io.BytesIO(nbt.encode("utf-8")), filename="nbt.json")
-            )
+            await ctx.reply(file=discord.File(io.BytesIO(nbt.encode("utf-8")), filename="nbt.json"))
         else:
             await ctx.reply(f"```json\n{nbt}\n```")
 
@@ -391,9 +345,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             for project in projects:
                 issues += re.findall(f"{project}-[0-9]+", message.content)
             for issue in issues:
-                r = requests.get(
-                    f"https://bugs.mojang.com/rest/api/latest/issue/{issue}"
-                ).json()
+                r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
                 if "errorMessages" in r:
                     return
                 r = r["fields"]
@@ -417,9 +369,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
                         value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
                     )
                     if r["fixVersions"] != []:
-                        embed.add_field(
-                            name="Fix version:", value=r["fixVersions"][0]["name"]
-                        )
+                        embed.add_field(name="Fix version:", value=r["fixVersions"][0]["name"])
                 else:
                     embed.add_field(name="Status:", value=f"Open")
                 embed.add_field(

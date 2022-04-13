@@ -14,9 +14,7 @@ class Voice(commands.Cog):
     @commands.command(aliases=["vcjoin"])
     async def join(self, ctx):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             await channel.connect()  # Join the channel
@@ -24,22 +22,16 @@ class Voice(commands.Cog):
     @commands.command(aliases=["vcleave"])
     async def leave(self, ctx):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
-            server = (
-                ctx.message.guild.voice_client
-            )  # Get the server of the sender, specific VC doesn't matter.
+            server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
             await server.disconnect()  # Leave the VC
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def tts(self, ctx, *, message):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             voice = await channel.connect()
@@ -56,9 +48,7 @@ class Voice(commands.Cog):
     @commands.command()
     async def play(self, ctx, *, url=None):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         channel = ctx.author.voice.channel
         try:
             voice = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)

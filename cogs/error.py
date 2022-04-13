@@ -13,9 +13,7 @@ class Error(commands.Cog):
     @Cog.listener()
     async def on_command_error(self, ctx, error):
         # If the command does not exist/is not found.
-        if isinstance(error, commands.CommandNotFound) or isinstance(
-            error, commands.DisabledCommand
-        ):
+        if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
             return await ctx.message.add_reaction("❓")
         elif isinstance(error, commands.NotOwner):
             await ctx.message.add_reaction("🔐")
@@ -23,11 +21,7 @@ class Error(commands.Cog):
             owner = owner.owner
 
             def check(reaction, user):
-                return (
-                    user == owner
-                    and str(reaction.emoji) == "🔐"
-                    and reaction.message == ctx.message
-                )
+                return user == owner and str(reaction.emoji) == "🔐" and reaction.message == ctx.message
 
             if await self.bot.wait_for("reaction_add", timeout=60.0, check=check):
                 new_ctx = ctx
@@ -42,17 +36,13 @@ class Error(commands.Cog):
                     color=0xEB4034,
                 )
             )
-        elif isinstance(error, commands.MemberNotFound) or isinstance(
-            error, commands.UserNotFound
-        ):
+        elif isinstance(error, commands.MemberNotFound) or isinstance(error, commands.UserNotFound):
             return await ctx.reply("That's not a valid user!")
         elif isinstance(error, commands.MessageNotFound):
             return await ctx.send("Did you delete your message? ")
         elif isinstance(error, TimeoutError):
             return
-        elif isinstance(error, commands.CommandInvokeError) and isinstance(
-            error.original, asyncio.TimeoutError
-        ):
+        elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
             return
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(error)

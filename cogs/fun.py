@@ -1,12 +1,8 @@
-import json
-
 import discord
 import random
 import re
-import requests
 
 from discord.ext import commands
-from assets.stuff import config
 
 
 class Fun(commands.Cog):
@@ -61,15 +57,11 @@ class Fun(commands.Cog):
             timestamp=ctx.message.created_at,
         )
         embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066")
-        embed.set_footer(
-            text=f"Requested by: {ctx.author.name}", icon_url=ctx.author.avatar
-        )
+        embed.set_footer(text=f"Requested by: {ctx.author.name}", icon_url=ctx.author.avatar)
         if user is None:
             await ctx.send(embed=embed)
         else:
-            await ctx.send(
-                f"{user.mention} Please take a look at my github", embed=embed
-            )
+            await ctx.send(f"{user.mention} Please take a look at my github", embed=embed)
 
     @commands.command(aliases=["jumbo", "emote"])
     async def emoji(self, ctx, emoji):
@@ -92,9 +84,7 @@ class Fun(commands.Cog):
 
         file_ext = "gif" if animated else "png"
 
-        embed.set_image(
-            url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096"
-        )
+        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096")
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
 
@@ -141,19 +131,13 @@ class Fun(commands.Cog):
 
         if not activity_name:
             return await ctx.reply(
-                "You need to give me an activity to launch!\nPossible activities: "
-                + ", ".join(activities.keys())
+                "You need to give me an activity to launch!\nPossible activities: " + ", ".join(activities.keys())
             )
         activity_name = activity_name.lower()
         if activity_name not in activities.keys():
-            return await ctx.reply(
-                "That's not a valid activity.\nPossible activities: "
-                + ", ".join(activities.keys())
-            )
+            return await ctx.reply("That's not a valid activity.\nPossible activities: " + ", ".join(activities.keys()))
         if ctx.author.voice is None:
-            return await ctx.reply(
-                "You need to be in a voice channel to use this command."
-            )
+            return await ctx.reply("You need to be in a voice channel to use this command.")
 
         invite = await ctx.author.voice.channel.create_invite(
             max_age=3600,
