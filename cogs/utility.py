@@ -19,7 +19,7 @@ class Utility(commands.Cog):
         self.snipe_message = {}
 
     @commands.command(aliases=["pfpget", "gpfp", "pfp"])
-    async def getpfp(self, ctx, user: discord.User = None):
+    async def getpfp(self, ctx: commands.Context, user: discord.User = None):
         """Gets a users profile picture at a high resolution"""
         if not user:
             user = ctx.message.author
@@ -34,7 +34,7 @@ class Utility(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def whois(self, ctx, user: discord.User = None):
+    async def whois(self, ctx: commands.Context, user: discord.User = None):
         """Displays information about a discord user"""
         if not user:
             user = ctx.message.author
@@ -122,7 +122,7 @@ class Utility(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def webget(self, ctx, site: str):
+    async def webget(self, ctx: commands.Context, site: str):
         if not site.startswith("http://") and not site.startswith("https://"):
             site = f"https://{site}"
         out = requests.get(site).text
@@ -136,7 +136,7 @@ class Utility(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def bash(self, ctx, *, args):
+    async def bash(self, ctx: commands.Context, *, args):
         proc = await asyncio.create_subprocess_shell(
             args.split(), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
@@ -152,17 +152,17 @@ class Utility(commands.Cog):
 
     @commands.command(aliases=["Exec"])
     @commands.is_owner()
-    async def execute(self, ctx, *, code):
+    async def execute(self, ctx: commands.Context, *, code):
         """Executes python code"""
         code = code.replace("```py", "").replace("```", "").strip()
         code = "\n".join([f"\t{line}" for line in code.splitlines()])
         if len(code) == 0:
             await ctx.reply("I cant execute nothing")
             return
-        function_code = "async def __exec_code(self, ctx):\n" f"{code}"
+        function_code = "async def __exec_code(self, ctx: commands.Context):\n" f"{code}"
 
         exec(function_code)
-        output = await locals()["__exec_code"](self, ctx)
+        output = await locals()["__exec_code"](self, ctx: commands.Context)
         if output:
             formatted_output = "\n    ".join(output) if len(code.splitlines()) > 1 else output
             await ctx.reply(
@@ -177,7 +177,7 @@ class Utility(commands.Cog):
 
     @commands.command(aliases=["Eval"])
     @commands.is_owner()
-    async def evaluate(self, ctx, *, arg=None):
+    async def evaluate(self, ctx: commands.Context, *, arg=None):
         """Evaluates stuff"""
         if arg is None:
             await ctx.reply("I cant evaluate nothing")
@@ -202,7 +202,7 @@ class Utility(commands.Cog):
             await ctx.message.add_reaction("<:yes:823202605123502100>")
 
     @commands.command()
-    async def members(self, ctx):
+    async def members(self, ctx: commands.Context):
         """Counts the amount of people in the server"""
         embed = discord.Embed(
             colour=ctx.author.colour,
@@ -221,27 +221,9 @@ class Utility(commands.Cog):
         embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")
         await ctx.reply(embed=embed)
 
-    @commands.command()
-    async def ping(self, ctx):
-        """Displays the bots ping"""
-        await ctx.message.add_reaction("🏓")
-        bot_ping = round(self.bot.latency * 1000)
-        if bot_ping < 130:
-            color = 0x44FF44
-        elif bot_ping > 130 and bot_ping < 180:
-            color = 0xFF8C00
-        else:
-            color = 0xFF2200
-        embed = discord.Embed(
-            title="Pong! :ping_pong:",
-            description=f"The ping is **{bot_ping}ms!**",
-            color=color,
-        )
-        await ctx.reply(embed=embed)
-
     @commands.command(aliases=["def", "definition"])
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def define(self, ctx, *, word):
+    async def define(self, ctx: commands.Context, *, word):
         """Gets the definition for a word"""
         if "-u" != word.lower().split(" ")[0] and "--urbandictionary" != word.lower().split(" ")[0]:
             r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
@@ -345,22 +327,6 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
         await askmessage.delete()
 
-    @commands.command(alias=["botstatus", "botinfo"])
-    async def status(self, ctx):
-        """Displays various statistics about the bot."""
-        embed = discord.Embed(
-            title="Bot status",
-            colour=ctx.author.colour,
-            timestamp=ctx.message.created_at,
-        )
-
-        pyver = sys.version_info
-
-        embed.description = f"""
-Python Version: {pyver.major}.{pyver.minor}.{pyver.micro}
-Pycord Version: {discord.__version__}"""
-        await ctx.reply(embed=embed)
-
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         if message.author != self.bot.user:
@@ -374,7 +340,7 @@ Pycord Version: {discord.__version__}"""
             }
 
     @commands.command()
-    async def snipe(self, ctx):
+    async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
         snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
         message = snipe["msg"]
@@ -420,7 +386,7 @@ Pycord Version: {discord.__version__}"""
         await snipemsg.delete()
 
     @commands.command()
-    async def allroles(self, ctx):
+    async def allroles(self, ctx: commands.Context):
         """Lists all roles in the server."""
         roles = [f"{role.mention} with {len(role.members)} member(s)." for role in ctx.guild.roles[1:]]
         roles.reverse()
@@ -434,7 +400,7 @@ Pycord Version: {discord.__version__}"""
         await ctx.reply(embed=embed)
 
     @commands.command()
-    async def remind(self, ctx, ae: str, *, message=None):
+    async def remind(self, ctx: commands.Context, ae: str, *, message=None):
         """Reminds you of something in the future. Time format: H:M:S"""
         try:
             x = time.strptime(ae, "%H:%M:%S")

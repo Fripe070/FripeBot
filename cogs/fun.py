@@ -10,19 +10,19 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.command(help="Gives soup")
-    async def soup(self, ctx):
+    async def soup(self, ctx: commands.Context):
         await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
     @commands.command(aliases=["flip"], help="Flips a coin!")
-    async def coinflip(self, ctx):
+    async def coinflip(self, ctx: commands.Context):
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
 
     @commands.command(help="Rolls a dice!")
-    async def dice(self, ctx, sides=6):
+    async def dice(self, ctx: commands.Context, sides=6):
         await ctx.reply(f"You rolled a {random.randint(1, sides)}! :game_die:")
 
     @commands.command(aliases=["8ball"], help="A magic eightball")
-    async def eightball(self, ctx):
+    async def eightball(self, ctx: commands.Context):
         await ctx.reply(
             random.choice(
                 [
@@ -43,28 +43,11 @@ class Fun(commands.Cog):
         )
 
     @commands.command(help="Scrambles the text supplied")
-    async def scramble(self, ctx, *, arg):
+    async def scramble(self, ctx: commands.Context, *, arg):
         await ctx.reply("".join(random.sample(arg, len(arg))))
 
-    @commands.command(aliases=["source", "git"], help="Links my GitHub profile")
-    async def github(self, ctx, user: discord.User = None):
-        await ctx.message.delete()
-        embed = discord.Embed(
-            title="Fripe070",
-            description="[This bot is open source!](https://github.com/Fripe070/FripeBot)",
-            url="https://github.com/Fripe070",
-            color=ctx.author.color,
-            timestamp=ctx.message.created_at,
-        )
-        embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066")
-        embed.set_footer(text=f"Requested by: {ctx.author.name}", icon_url=ctx.author.avatar)
-        if user is None:
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(f"{user.mention} Please take a look at my github", embed=embed)
-
     @commands.command(aliases=["jumbo", "emote"])
-    async def emoji(self, ctx, emoji):
+    async def emoji(self, ctx: commands.Context, emoji):
         """Gives you info about the emoji suplied"""
         if not re.match(r"<a?:[a-zA-Z0-9_]+:[0-9]+>", emoji):
             await ctx.reply("That's not a custom emoji!")
@@ -90,14 +73,14 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=["Say"])
     @commands.is_owner()
-    async def echo(self, ctx, *, msg):
+    async def echo(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()
         await ctx.send(msg)
 
     @commands.command(aliases=["esay", "embedsay", "eecho"])
-    async def embedecho(self, ctx, *, msg):
+    async def embedecho(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()
@@ -110,7 +93,7 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def activity(self, ctx, *, activity_name=None):
+    async def activity(self, ctx: commands.Context, *, activity_name=None):
         """Starts a discord activity"""
         activities = {
             "poker night": "755827207812677713",

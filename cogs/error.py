@@ -11,7 +11,7 @@ class Error(commands.Cog):
         self.bot = bot
 
     @Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error(self, ctx: commands.Context, error):
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
             return await ctx.message.add_reaction("❓")

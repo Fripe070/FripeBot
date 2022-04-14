@@ -18,7 +18,7 @@ class Minecraft(commands.Cog):
 
     @commands.command()
     @commands.cooldown(1, 60, commands.BucketType.user)
-    async def mcstatus(self, ctx):
+    async def mcstatus(self, ctx: commands.Context):
         msg = await ctx.reply("Geting statuses from the websites... <a:loading:894950036964782141>")
 
         mc_sites = [
@@ -64,7 +64,7 @@ class Minecraft(commands.Cog):
         await msg.edit(content=None)
 
     @commands.command(aliases=["mcplayer", "mcuser", "mcusr"])
-    async def playerinfo(self, ctx, player):
+    async def playerinfo(self, ctx: commands.Context, player):
         await ctx.message.add_reaction("<a:loading:894950036964782141>")
         msg = await ctx.send("Fetching player UUID... (this might take a while)")
         url = f"https://api.mojang.com/users/profiles/minecraft/{player}"
@@ -230,7 +230,7 @@ class Minecraft(commands.Cog):
         await ctx.reply(embed=embed)
 
     @commands.command()
-    async def mcserver(self, ctx, ip=None, port=None):
+    async def mcserver(self, ctx: commands.Context, ip=None, port=None):
         if ip is None:
             await ctx.reply("You have to specify a server ip.")
             return
@@ -292,7 +292,7 @@ class Minecraft(commands.Cog):
         await ctx.reply(embed=embed)
 
     @commands.command()
-    async def mcinfo(self, ctx, version=None):
+    async def mcinfo(self, ctx: commands.Context, version=None):
         url = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
         r = requests.get(url)
 
@@ -312,7 +312,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=["nbt", "nbttojson", "jsonnbt", "nbtjson"])
-    async def nbtread(self, ctx):
+    async def nbtread(self, ctx: commands.Context):
         file = await ctx.message.attachments[0].to_file()
         try:
             nbt = python_nbt.nbt.read_from_nbt_file(file.fp)

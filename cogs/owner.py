@@ -7,12 +7,13 @@ from assets.customfuncs.get_cogs import get_cogs
 from main import config
 
 
-class Admin(commands.Cog):
+class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    async def setstatus(self, ctx, activity, *, new_status):
+    @commands.is_owner()
+    async def setstatus(self, ctx: commands.Context, activity, *, new_status=None):
         """Sets the bots status"""
         status = new_status
 
@@ -40,7 +41,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def load(self, ctx, to_load=None):
+    async def load(self, ctx: commands.Context, to_load=None):
         """Loads a specified cog"""
         if to_load is None:
             await ctx.reply("Thats not a valid cog.")
@@ -71,7 +72,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def unload(self, ctx, to_unload=None):
+    async def unload(self, ctx: commands.Context, to_unload=None):
         """Unloads a specified cog"""
         unloads = {"successful": [], "errored": []}
         embedcolor = 0x34EB40
@@ -99,7 +100,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx, to_reload=None):
+    async def reload(self, ctx: commands.Context, to_reload=None):
         """Restarts the bot"""
         if to_reload is None:
             await ctx.reply("Thats not a valid cog.")
@@ -133,7 +134,7 @@ class Admin(commands.Cog):
 
     @commands.command(aliases=["die", "shutdown"])
     @commands.is_owner()
-    async def stop(self, ctx):
+    async def stop(self, ctx: commands.Context):
         """Stops the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Ok. :(\nShutting down...")
@@ -143,7 +144,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def update(self, ctx):
+    async def update(self, ctx: commands.Context):
         """Updates the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Updating...")
@@ -164,4 +165,4 @@ class Admin(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Admin(bot))
+    await bot.add_cog(Owner(bot))
