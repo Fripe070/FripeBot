@@ -162,7 +162,7 @@ class Utility(commands.Cog):
         function_code = "async def __exec_code(self, ctx: commands.Context):\n" f"{code}"
 
         exec(function_code)
-        output = await locals()["__exec_code"](self, ctx: commands.Context)
+        output = await locals()["__exec_code"](self, ctx)
         if output:
             formatted_output = "\n    ".join(output) if len(code.splitlines()) > 1 else output
             await ctx.reply(
@@ -326,64 +326,6 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         await askmessage.add_reaction("🚮")
         await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
         await askmessage.delete()
-
-    @commands.Cog.listener()
-    async def on_message_delete(self, message: discord.Message):
-        if message.author != self.bot.user:
-            self.snipe_message = {
-                message.guild.id: {
-                    message.channel.id: {
-                        "msg": message,
-                        "time": datetime.datetime.now(),
-                    }
-                }
-            }
-
-    @commands.command()
-    async def snipe(self, ctx: commands.Context):
-        """Snipes the last deleted message."""
-        snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
-        message = snipe["msg"]
-
-        if snipe == {}:
-            await ctx.reply("No message was deleted!")
-            return
-
-        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) > 10:
-            await ctx.reply("That message was deleted more than 10 seconds ago!")
-            return
-
-        embed = discord.Embed(
-            title=f"Message sent by {message.author.display_name} ({message.author.id})",
-            description=message.content,
-            timestamp=message.created_at,
-            colour=message.author.colour,
-        )
-        if message.reference:
-            try:
-                ref = await ctx.fetch_message(message.reference.message_id)
-                embed.add_field(
-                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:",
-                    value=ref.content,
-                )
-                embed.set_footer(text=f"React with 🚮 to delete this message.")
-            except discord.errors.NotFound:
-                embed.set_footer(
-                    text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
-                )
-
-        if not embed.footer:
-            embed.set_footer(text="React with 🚮 to delete this message.")
-
-        snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
-        self.snipe_message = None
-
-        def check(reaction, user):
-            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
-
-        await snipemsg.add_reaction("🚮")
-        await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
-        await snipemsg.delete()
 
     @commands.command()
     async def allroles(self, ctx: commands.Context):
