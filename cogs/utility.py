@@ -328,7 +328,7 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         await askmessage.delete()
 
     @commands.Cog.listener()
-    async def on_message_delete(self, message):
+    async def on_message_delete(self, message: discord.Message):
         if message.author != self.bot.user:
             self.snipe_message = {
                 message.guild.id: {
