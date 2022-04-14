@@ -1,32 +1,32 @@
-import json
-
 import discord
 import random
 import re
-import requests
+import datetime
+import time
 
 from discord.ext import commands
-from assets.stuff import config
 
 
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+        self.snipe_message = {}
+
     @commands.command(help="Gives soup")
-    async def soup(self, ctx):
+    async def soup(self, ctx: commands.Context):
         await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
     @commands.command(aliases=["flip"], help="Flips a coin!")
-    async def coinflip(self, ctx):
+    async def coinflip(self, ctx: commands.Context):
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
 
     @commands.command(help="Rolls a dice!")
-    async def dice(self, ctx, sides=6):
+    async def dice(self, ctx: commands.Context, sides=6):
         await ctx.reply(f"You rolled a {random.randint(1, sides)}! :game_die:")
 
     @commands.command(aliases=["8ball"], help="A magic eightball")
-    async def eightball(self, ctx):
+    async def eightball(self, ctx: commands.Context):
         await ctx.reply(
             random.choice(
                 [
@@ -47,32 +47,11 @@ class Fun(commands.Cog):
         )
 
     @commands.command(help="Scrambles the text supplied")
-    async def scramble(self, ctx, *, arg):
+    async def scramble(self, ctx: commands.Context, *, arg):
         await ctx.reply("".join(random.sample(arg, len(arg))))
 
-    @commands.command(aliases=["source", "git"], help="Links my GitHub profile")
-    async def github(self, ctx, user: discord.User = None):
-        await ctx.message.delete()
-        embed = discord.Embed(
-            title="Fripe070",
-            description="[This bot is open source!](https://github.com/Fripe070/FripeBot)",
-            url="https://github.com/Fripe070",
-            color=ctx.author.color,
-            timestamp=ctx.message.created_at,
-        )
-        embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066")
-        embed.set_footer(
-            text=f"Requested by: {ctx.author.name}", icon_url=ctx.author.avatar
-        )
-        if user is None:
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(
-                f"{user.mention} Please take a look at my github", embed=embed
-            )
-
     @commands.command(aliases=["jumbo", "emote"])
-    async def emoji(self, ctx, emoji):
+    async def emoji(self, ctx: commands.Context, emoji):
         """Gives you info about the emoji suplied"""
         if not re.match(r"<a?:[a-zA-Z0-9_]+:[0-9]+>", emoji):
             await ctx.reply("That's not a custom emoji!")
@@ -92,22 +71,20 @@ class Fun(commands.Cog):
 
         file_ext = "gif" if animated else "png"
 
-        embed.set_image(
-            url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096"
-        )
+        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096")
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=["Say"])
     @commands.is_owner()
-    async def echo(self, ctx, *, msg):
+    async def echo(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()
         await ctx.send(msg)
 
     @commands.command(aliases=["esay", "embedsay", "eecho"])
-    async def embedecho(self, ctx, *, msg):
+    async def embedecho(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
         if not isinstance(ctx.channel, discord.channel.DMChannel):
             await ctx.message.delete()
@@ -120,8 +97,8 @@ class Fun(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command()
-    async def activity(self, ctx, *, activity_name=None):
-        """Starts a discord activity"""
+    async def activity(self, ctx: commands.Context, *, activity_name=None):
+        """Starts a discord activity, this requires invite permissions"""
         activities = {
             "poker night": "755827207812677713",
             "betrayal.io": "773336526917861400",
@@ -141,19 +118,13 @@ class Fun(commands.Cog):
 
         if not activity_name:
             return await ctx.reply(
-                "You need to give me an activity to launch!\nPossible activities: "
-                + ", ".join(activities.keys())
+                "You need to give me an activity to launch!\nPossible activities: " + ", ".join(activities.keys())
             )
         activity_name = activity_name.lower()
         if activity_name not in activities.keys():
-            return await ctx.reply(
-                "That's not a valid activity.\nPossible activities: "
-                + ", ".join(activities.keys())
-            )
+            return await ctx.reply("That's not a valid activity.\nPossible activities: " + ", ".join(activities.keys()))
         if ctx.author.voice is None:
-            return await ctx.reply(
-                "You need to be in a voice channel to use this command."
-            )
+            return await ctx.reply("You need to be in a voice channel to use this command.")
 
         invite = await ctx.author.voice.channel.create_invite(
             max_age=3600,
@@ -161,6 +132,64 @@ class Fun(commands.Cog):
             target_application_id=activities[activity_name],
         )
         await ctx.send(invite.url)
+
+    @commands.Cog.listener()
+    async def on_message_delete(self, message: discord.Message):
+        if message.author != self.bot.user:
+            self.snipe_message = {
+                message.guild.id: {
+                    message.channel.id: {
+                        "msg": message,
+                        "time": datetime.datetime.now(),
+                    }
+                }
+            }
+
+    @commands.command()
+    async def snipe(self, ctx: commands.Context):
+        """Snipes the last deleted message."""
+        snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
+        message = snipe["msg"]
+
+        if snipe == {}:
+            await ctx.reply("No message was deleted!")
+            return
+
+        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) > 10:
+            await ctx.reply("That message was deleted more than 10 seconds ago!")
+            return
+
+        embed = discord.Embed(
+            title=f"Message sent by {message.author.display_name} ({message.author.id})",
+            description=message.content,
+            timestamp=message.created_at,
+            colour=message.author.colour,
+        )
+        if message.reference:
+            try:
+                ref = await ctx.fetch_message(message.reference.message_id)
+                embed.add_field(
+                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:",
+                    value=ref.content,
+                )
+                embed.set_footer(text=f"React with 🚮 to delete this message.")
+            except discord.errors.NotFound:
+                embed.set_footer(
+                    text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
+                )
+
+        if not embed.footer:
+            embed.set_footer(text="React with 🚮 to delete this message.")
+
+        snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
+        self.snipe_message = None
+
+        def check(reaction, user):
+            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
+
+        await snipemsg.add_reaction("🚮")
+        await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+        await snipemsg.delete()
 
 
 async def setup(bot):

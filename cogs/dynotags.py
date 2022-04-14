@@ -9,7 +9,7 @@ class Dynotags(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases=["dynotags", "dt"])
-    async def dynotag(self, ctx, tagname=None, *, raw_args=None):
+    async def dynotag(self, ctx: commands.Context, tagname=None, *, raw_args=None):
         url = "https://raw.githubusercontent.com/minecraftdiscordsupportpeeps/dyno-tags/master/tags.json"
         tags = requests.get(url).json()
 
@@ -36,7 +36,7 @@ class Dynotags(commands.Cog):
 
     @commands.command(aliases=["dtlist"])
     @commands.is_owner()
-    async def alltags(self, ctx, channel: discord.TextChannel = None):
+    async def alltags(self, ctx: commands.Context, channel: discord.TextChannel = None):
         if not channel:
             await ctx.reply("Please specify a channel.")
             return
@@ -47,9 +47,7 @@ class Dynotags(commands.Cog):
         await ctx.reply(f"Purging and sending list of tags to {channel.mention}")
         await channel.purge(limit=None)
         for tag in tags:
-            embed = discord.Embed(
-                title=f"?t {tag}", description=tags[tag], color=0x2473C7
-            )
+            embed = discord.Embed(title=f"?t {tag}", description=tags[tag], color=0x2473C7)
             await channel.send(embed=embed)
 
 

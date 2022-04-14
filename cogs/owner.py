@@ -7,56 +7,41 @@ from assets.customfuncs.get_cogs import get_cogs
 from main import config
 
 
-class Admin(commands.Cog):
+class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command()
-    async def setstatus(self, ctx, activity, *, new_status):
+    @commands.is_owner()
+    async def setstatus(self, ctx: commands.Context, activity, *, new_status=None):
         """Sets the bots status"""
         status = new_status
 
         if activity == "watching":
             self.bot.logger.info(f'Status set to "{activity} {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.watching
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
             await ctx.reply(f'Status set to "{activity} {status}"')
 
         elif activity == "playing":
             self.bot.logger.info(f'Status set to "{activity} {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.playing
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.playing))
             await ctx.reply(f'Status set to "{activity} {status}"')
 
         elif activity == "listening":
             self.bot.logger.info(f'Status set to "{activity} to {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.listening
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.listening))
             await ctx.reply(f'Status set to "{activity} to {status}"')
 
         elif activity == "competing":
             self.bot.logger.info(f'Status set to "{activity} in {status}')
-            await self.bot.change_presence(
-                activity=discord.Activity(
-                    name=status, type=discord.ActivityType.competing
-                )
-            )
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.competing))
             await ctx.reply(f'Status set to "{activity} in {status}"')
         else:
             await ctx.reply(f"That's not a valid activity!")
 
     @commands.command()
     @commands.is_owner()
-    async def load(self, ctx, to_load=None):
+    async def load(self, ctx: commands.Context, to_load=None):
         """Loads a specified cog"""
         if to_load is None:
             await ctx.reply("Thats not a valid cog.")
@@ -78,9 +63,7 @@ class Admin(commands.Cog):
                 embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog} - {error}\n"
                 raise error
 
-        embed = discord.Embed(
-            title=f"Loaded cog(s)!", description=embed_desc, color=embed_color
-        )
+        embed = discord.Embed(title=f"Loaded cog(s)!", description=embed_desc, color=embed_color)
 
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
@@ -89,7 +72,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def unload(self, ctx, to_unload=None):
+    async def unload(self, ctx: commands.Context, to_unload=None):
         """Unloads a specified cog"""
         unloads = {"successful": [], "errored": []}
         embedcolor = 0x34EB40
@@ -117,7 +100,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx, to_reload=None):
+    async def reload(self, ctx: commands.Context, to_reload=None):
         """Restarts the bot"""
         if to_reload is None:
             await ctx.reply("Thats not a valid cog.")
@@ -142,9 +125,7 @@ class Admin(commands.Cog):
             if command in config["disabled_commands"]:
                 command.update(enabled=False)
 
-        embed = discord.Embed(
-            title=f"Reloaded cog(s)!", description=embed_desc, color=embed_color
-        )
+        embed = discord.Embed(title=f"Reloaded cog(s)!", description=embed_desc, color=embed_color)
 
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
@@ -153,7 +134,7 @@ class Admin(commands.Cog):
 
     @commands.command(aliases=["die", "shutdown"])
     @commands.is_owner()
-    async def stop(self, ctx):
+    async def stop(self, ctx: commands.Context):
         """Stops the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Ok. :(\nShutting down...")
@@ -163,7 +144,7 @@ class Admin(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def update(self, ctx):
+    async def update(self, ctx: commands.Context):
         """Updates the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Updating...")
@@ -184,4 +165,4 @@ class Admin(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Admin(bot))
+    await bot.add_cog(Owner(bot))

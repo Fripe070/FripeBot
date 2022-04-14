@@ -12,34 +12,26 @@ class Voice(commands.Cog):
         self.loop = False
 
     @commands.command(aliases=["vcjoin"])
-    async def join(self, ctx):
+    async def join(self, ctx: commands.Context):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             await channel.connect()  # Join the channel
 
     @commands.command(aliases=["vcleave"])
-    async def leave(self, ctx):
+    async def leave(self, ctx: commands.Context):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
-            server = (
-                ctx.message.guild.voice_client
-            )  # Get the server of the sender, specific VC doesn't matter.
+            server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
             await server.disconnect()  # Leave the VC
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
-    async def tts(self, ctx, *, message):
+    async def tts(self, ctx: commands.Context, *, message):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         else:
             channel = ctx.author.voice.channel  # Get the sender's voice channel
             voice = await channel.connect()
@@ -54,11 +46,9 @@ class Voice(commands.Cog):
         await voice.disconnect()
 
     @commands.command()
-    async def play(self, ctx, *, url=None):
+    async def play(self, ctx: commands.Context, *, url=None):
         if ctx.author.voice is None:
-            return await ctx.send(
-                "You need to be in a voice channel to use this command!"
-            )
+            return await ctx.send("You need to be in a voice channel to use this command!")
         channel = ctx.author.voice.channel
         try:
             voice = discord.utils.get(ctx.bot.voice_clients, guild=ctx.guild)
@@ -78,7 +68,7 @@ class Voice(commands.Cog):
         await voice.disconnect()
 
     @commands.command()
-    async def nowplaying(self, ctx):
+    async def nowplaying(self, ctx: commands.Context):
         if self.queue:
             await ctx.reply(f"Now playing: {self.queue[0]}")
         else:
@@ -86,7 +76,7 @@ class Voice(commands.Cog):
 
     # I'll get this working sometime else
     # @commands.command()
-    # async def queue(self, ctx):
+    # async def queue(self, ctx: commands.Context):
     #     if self.queue:
     #         embed = discord.Embed(
     #             title="Queue",
