@@ -7,7 +7,7 @@ import time
 import datetime
 
 from discord.ext import commands
-from assets.stuff import securestring, splitstring, getpfp
+from assets.stuff import splitstring
 
 
 class Utility(commands.Cog):
@@ -25,7 +25,7 @@ class Utility(commands.Cog):
             timestamp=ctx.message.created_at,
             title=f"{user.display_name}'s pfp",
         )
-        embed.set_image(url=getpfp(user))
+        embed.set_image(url=user.display_avatar.with_size(4096).with_static_format("png"))
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -111,7 +111,7 @@ class Utility(commands.Cog):
                 embed.description += f"""
 **Pronouns:** {pronouns[pronoun]}"""
 
-        embed.set_thumbnail(url=getpfp(user))
+        embed.set_thumbnail(url=user.display_avatar.with_size(4096).with_static_format("png"))
         embed.set_footer(text=f"Requested by {ctx.author}")
 
         await ctx.send(embed=embed)
@@ -134,7 +134,7 @@ class Utility(commands.Cog):
     @commands.is_owner()
     async def bash(self, ctx: commands.Context, *, args):
         proc = await asyncio.create_subprocess_shell(
-            args.split(), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+            args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await proc.communicate()
 

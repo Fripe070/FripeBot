@@ -8,7 +8,7 @@ import io
 import python_nbt.nbt
 
 from discord.ext import commands
-from assets.stuff import securestring, config
+from assets.stuff import config
 from gzip import BadGzipFile
 
 

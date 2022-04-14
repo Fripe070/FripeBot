@@ -3,7 +3,6 @@ import asyncio
 
 from discord.ext import commands
 from discord.ext.commands import Cog
-from assets.stuff import col
 
 
 class Error(commands.Cog):
