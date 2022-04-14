@@ -1,4 +1,5 @@
 import discord
+import sys
 
 from discord.ext import commands
 
@@ -41,7 +42,9 @@ class Meta(commands.Cog):
             description=f"The ping is **{bot_ping}ms!**",
             color=color,
         )
-        await ctx.reply(embed=embed)    @commands.command(alias=["botstatus", "botinfo"])
+        await ctx.reply(embed=embed) @ commands.command(alias=["botstatus", "botinfo"])
+
+    @commands.command()
     async def status(self, ctx: commands.Context):
         """Displays various statistics about the bot."""
         embed = discord.Embed(
