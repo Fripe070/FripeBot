@@ -42,7 +42,7 @@ class Utility(commands.Cog):
             colour=user.colour,
             timestamp=ctx.message.created_at,
         )
-        embed.description = f"**Username:** {securestring(user.name)}\n"
+        embed.description = f"**Username:** {discord.utils.escape_markdown(user.name)}\n"
 
         if user.mutual_guilds:
             if ctx.guild in user.mutual_guilds:
@@ -53,7 +53,7 @@ class Utility(commands.Cog):
             member = None
 
         if member and ctx.guild in user.mutual_guilds:
-            embed.description += f"**Nickname:** {securestring(user.display_name)}\n"
+            embed.description += f"**Nickname:** {discord.utils.escape_markdown(user.display_name)}\n"
 
         embed.description += f"""**Discriminator:** #{user.discriminator}
 **Mention:** {user.mention}
@@ -126,7 +126,7 @@ class Utility(commands.Cog):
             embed = discord.Embed(
                 timestamp=ctx.message.created_at,
                 title=f"Output:",
-                description=f"```\n{securestring(part)}```",
+                description=f"```\n{discord.utils.escape_markdown(part)}```",
             )
             await ctx.send(embed=embed)
 
@@ -144,7 +144,7 @@ class Utility(commands.Cog):
         print(stdout)
         print(stderr)
         for part in splitstring(stdout, 1993):
-            await ctx.send(f"```ansi\n{securestring(part)}```")
+            await ctx.send(f"```ansi\n{discord.utils.escape_markdown(part)}```")
 
     @commands.command(aliases=["Exec"])
     @commands.is_owner()

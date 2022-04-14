@@ -357,7 +357,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
                 desc = "\n".join(desc.split("\n")[0:2])
 
                 embed = discord.Embed(
-                    title=f"[{issue}] {securestring(r['summary'])}",
+                    title=f"[{issue}] {discord.utils.escape_markdown(r['summary'])}",
                     url=f"https://bugs.mojang.com/browse/{issue}",
                     description=desc,
                     colour=0x30CB72,

@@ -36,14 +36,3 @@ def getpfp(user: discord.User):
 
 def splitstring(message, length=2000):
     return [message[i : i + length] for i in range(0, len(message), length)]
-
-
-def securestring(oldstring):
-    newstring = ""
-    banned_chars = ["`", "*", "_", "~", "|", "<", ">"]
-    for char in oldstring:
-        if char in banned_chars:
-            newstring += f"\{char}"
-        else:
-            newstring += char
-    return newstring

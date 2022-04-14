@@ -10,7 +10,6 @@ class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.command()
     async def members(self, ctx: commands.Context):
         """Counts the amount of people in the server"""
@@ -150,6 +149,7 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         )
         embed.set_footer(text=f"{len(roles)} roles in total.")
         await ctx.reply(embed=embed)
+
 
 async def setup(bot):
     await bot.add_cog(Info(bot))
