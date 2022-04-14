@@ -16,8 +16,6 @@ class Utility(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        self.snipe_message = {}
-
     @commands.command(aliases=["pfpget", "gpfp", "pfp"])
     async def getpfp(self, ctx: commands.Context, user: discord.User = None):
         """Gets a users profile picture at a high resolution"""
