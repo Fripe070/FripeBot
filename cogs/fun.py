@@ -148,14 +148,17 @@ class Fun(commands.Cog):
     @commands.command()
     async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
-        snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
-        message = snipe["msg"]
-
-        if snipe == {}:
+        if (
+            ctx.guild.id not in self.snipe_message.keys()
+            or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
+        ):
             await ctx.reply("No message was deleted!")
             return
 
-        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) > 10:
+        snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
+        message = snipe["msg"]
+
+        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) / 1000 > 10:
             await ctx.reply("That message was deleted more than 10 seconds ago!")
             return
 
@@ -165,6 +168,7 @@ class Fun(commands.Cog):
             timestamp=message.created_at,
             colour=message.author.colour,
         )
+
         if message.reference:
             try:
                 ref = await ctx.fetch_message(message.reference.message_id)

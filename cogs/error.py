@@ -10,7 +10,7 @@ class Error(commands.Cog):
         self.bot = bot
 
     @Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error):
+    async def on_command_error(self, ctx: commands.Context, error: Exception):
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
             return await ctx.message.add_reaction("❓")
@@ -55,8 +55,8 @@ class Error(commands.Cog):
                 )
                 embed.set_footer(text=f"Caused by {ctx.author}")
                 await ctx.send(embed=embed)
-            except Exception as error:
-                self.bot.logger.error(error)
+            except Exception as e:
+                self.bot.logger.error(e)
             raise error
 
 

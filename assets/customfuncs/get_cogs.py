@@ -7,7 +7,4 @@ def get_cogs(cog_path: str) -> list[str]:
     if not cog_path.is_dir():
         return [Path(cog_path).with_suffix("").as_posix().replace("/", ".")]
 
-    return [
-        (path.with_suffix("").as_posix().replace("/", "."))
-        for path in cog_path.rglob("*.py")
-    ]
+    return [(path.with_suffix("").as_posix().replace("/", ".")) for path in cog_path.rglob("*.py")]
