@@ -44,7 +44,7 @@ class Error(commands.Cog):
         elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
             return
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.reply(error)
+            await ctx.reply(str(error))
         else:
             try:
                 embed = discord.Embed(
