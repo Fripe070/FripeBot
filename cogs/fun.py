@@ -149,7 +149,8 @@ class Fun(commands.Cog):
     async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
         if (
-            ctx.guild.id not in self.snipe_message.keys()
+            not self.snipe_message
+            or ctx.guild.id not in self.snipe_message.keys()
             or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
         ):
             await ctx.reply("No message was deleted!")
