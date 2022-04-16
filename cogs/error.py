@@ -10,7 +10,7 @@ class Error(commands.Cog):
         self.bot = bot
 
     @Cog.listener()
-    async def on_command_error(self, ctx: commands.Context, error):
+    async def on_command_error(self, ctx: commands.Context, error: Exception):
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
             return await ctx.message.add_reaction("❓")
@@ -44,7 +44,7 @@ class Error(commands.Cog):
         elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
             return
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.reply(error)
+            await ctx.reply(str(error))
         else:
             try:
                 embed = discord.Embed(
@@ -53,10 +53,10 @@ class Error(commands.Cog):
                     timestamp=ctx.message.created_at,
                     colour=0xFF0000,
                 )
-                embed.set_footer(text=f"Caused by {ctx.author}")
+                embed.set_footer(text=f"Caused by {ctx.author}", icon_url=ctx.author.display_avatar)
                 await ctx.send(embed=embed)
-            except Exception as error:
-                self.bot.logger.error(error)
+            except Exception as e:
+                self.bot.logger.error(e)
             raise error
 
 
