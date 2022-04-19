@@ -191,10 +191,11 @@ class Fun(commands.Cog):
 
         def check(reaction, user):
             return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
-
-        await snipemsg.add_reaction("🚮")
-        await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
-        await snipemsg.delete()
+        
+        if not ref.author.id in config["snipeblock"]:
+            await snipemsg.add_reaction("🚮")
+            await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+            await snipemsg.delete()
 
 
 async def setup(bot):
