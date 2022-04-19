@@ -183,7 +183,7 @@ class Fun(commands.Cog):
                 )
                 
         if not embed.footer:
-            embed.set_footer(text="You bozo, you're blocked from deleting it!" if (ref.author.id in config["snipeblock"]) else text="React with 🚮 to delete this message.")
+            embed.set_footer(text="You bozo, you're blocked from deleting it!" if (ref.author.id in config["snipeblock"]) else "React with 🚮 to delete this message.")
      
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
         self.snipe_message = None
