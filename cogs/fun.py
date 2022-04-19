@@ -183,9 +183,12 @@ class Fun(commands.Cog):
                     text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
 
-        if not embed.footer:
+        if not embed.footer and not ref.author.id in config["snipeblock"]:
             embed.set_footer(text="React with 🚮 to delete this message.")
-
+            
+        elif ref.author.id in config["snipeblock"]:
+            embed.set_footer(text="You bozo, you're blocked from deleting it!")
+          
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
         self.snipe_message = None
 
