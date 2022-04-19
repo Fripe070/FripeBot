@@ -186,7 +186,7 @@ class Fun(commands.Cog):
         if not embed.footer and not ref.author.id in config["snipeblock"]:
             embed.set_footer(text="React with 🚮 to delete this message.")
             
-        elif ref.author.id in config["snipeblock"]:
+        elif ref.author.id in config["snipeblock"] and not embed.footer:
             embed.set_footer(text="You bozo, you're blocked from deleting it!")
           
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
