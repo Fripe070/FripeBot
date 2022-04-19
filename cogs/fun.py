@@ -177,18 +177,14 @@ class Fun(commands.Cog):
                     name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:",
                     value=ref.content,
                 )
-                embed.set_footer(text=f"React with 🚮 to delete this message.")
             except discord.errors.NotFound:
                 embed.set_footer(
                     text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
-
-        if not embed.footer and not ref.author.id in config["snipeblock"]:
-            embed.set_footer(text="React with 🚮 to delete this message.")
-            
-        elif ref.author.id in config["snipeblock"] and not embed.footer:
-            embed.set_footer(text="You bozo, you're blocked from deleting it!")
-          
+                
+        if not embed.footer:
+            embed.set_footer(text="You bozo, you're blocked from deleting it!" if (ref.author.id in config["snipeblock"]) else text="React with 🚮 to delete this message.")
+     
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
         self.snipe_message = None
 
