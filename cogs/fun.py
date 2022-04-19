@@ -5,6 +5,7 @@ import datetime
 import time
 
 from discord.ext import commands
+from main import config
 
 
 class Fun(commands.Cog):
@@ -179,22 +180,28 @@ class Fun(commands.Cog):
                 )
             except discord.errors.NotFound:
                 embed.set_footer(
-                    text="Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
+                    text="Replying to a message that doesn't exist anymore."
+                    if (message.author.id in config["snipeblock"])
+                    else "Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
-                
-        if not embed.footer:
-            embed.set_footer(text="You bozo, you're blocked from deleting it!" if (ref.author.id in config["snipeblock"]) else "React with 🚮 to delete this message.")
-     
+
+        if not embed.footer and message.author.id not in config["snipeblock"]:
+            embed.set_footer(
+                text="React with 🚮 to delete this message."
+            )
+
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
-        self.snipe_message = None
+        self.snipe_message[ctx.guild.id][ctx.channel.id] = None
+
+        if message.author.id in config["snipeblock"]:
+            return
 
         def check(reaction, user):
             return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
-        
-        if not ref.author.id in config["snipeblock"]:
-            await snipemsg.add_reaction("🚮")
-            await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
-            await snipemsg.delete()
+
+        await snipemsg.add_reaction("🚮")
+        await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+        await snipemsg.delete()
 
 
 async def setup(bot):
