@@ -343,7 +343,9 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             ]
             issues = []
             for project in projects:
-                issues += re.findall(f"{project}-[0-9]+", message.content)
+                issues += re.findall(
+                    rf"{'|'.join(self.bot.command_prefix)}({project}-\d+)", message.content
+                )
             for issue in issues:
                 r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
                 if "errorMessages" in r:
