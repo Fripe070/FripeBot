@@ -343,9 +343,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             ]
             issues = []
             for project in projects:
-                issues += re.findall(
-                    rf"(?:{'|'.join(self.bot.command_prefix)})({project}-\d+)", message.content
-                )
+                issues += re.findall(rf"(?:{'|'.join(self.bot.command_prefix)})({project}-\d+)", message.content)
             for issue in issues:
                 r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
                 if "errorMessages" in r:
@@ -355,6 +353,17 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
                 desc = re.sub(r"/\s*[\r\n]/gm", "\n", r["description"])
                 desc = re.sub(r"h[1-6]\..*\n", "", desc)
                 desc = re.sub("", "", desc)
+                # Removes mod comments
+                desc = re.sub(
+                    r"""{panel:title=[a-zA-Z]
+                    |borderStyle=[a-zA-Z]
+                    |borderColor=#[a-zA-Z0-9]
+                    |titleBGColor=#[a-zA-Z0-9]
+                    |bgColor=#[a-zA-Z0-9]}""",
+                    "",
+                    desc,
+                    flags=re.VERBOSE,
+                )
                 desc = desc.replace("{noformat}", "```")
                 desc = "\n".join(desc.split("\n")[0:2])
 
