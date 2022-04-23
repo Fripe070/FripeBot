@@ -154,7 +154,7 @@ class Fun(commands.Cog):
             not self.snipe_message
             or ctx.guild.id not in self.snipe_message.keys()
             or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
-            or self.snipe_message[ctx.guild.id][ctx.channel.id] is not None
+            or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
         ):
             await ctx.reply("No message was deleted!")
             return
