@@ -4,6 +4,7 @@ import re
 import datetime
 import time
 import base64
+import requests
 
 from discord.ext import commands
 from main import config
@@ -204,6 +205,11 @@ class Fun(commands.Cog):
         await snipemsg.add_reaction("🚮")
         await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
         await snipemsg.delete()
+
+    @commands.command()
+    async def unsplash(self, ctx: commands.Context, query: str = "bread"):
+        """Searches for a random image on unsplash.com. Defaults to bread."""
+        await ctx.send(requests.get(f"https://source.unsplash.com/random/?{query}").url)
 
 
 async def setup(bot):
