@@ -242,7 +242,6 @@ class Minecraft(commands.Cog):
 
         r = requests.get(url)
         server = r.json()
-        print(json.dumps(server, indent=4))
 
         if server["online"] is False:
             if port:
@@ -255,14 +254,20 @@ class Minecraft(commands.Cog):
         for i in server["motd"]["clean"]:
             motd += i.strip() + "\n"
 
-        location = requests.get("https://geolocation-db.com/jsonp/" + server["ip"]).content.decode("utf-8")
-        location = json.loads(location.split("(")[1].strip(")"))
+        try:
+            location = requests.get(f"https://geolocation-db.com/jsonp/{server['ip']}").content.decode('utf-8')
+            location = json.loads(location.split("(")[1].strip(")"))
+        except Exception:
+            location = None
 
         embed_desc = f"""
 **Server ip:** \"{server["hostname"]}\" ({server["ip"]})
 **Port:** `{server["port"]}`
-**Location:** {location['country_name']}
+"""
+        if location:
+            embed_desc += f"\n**Location:** {location['country_name']}"
 
+        embed_desc += """
 **Version:** {server['version']}
 **Players:** {server['players']['online']}/{server['players']['max']}
 """
