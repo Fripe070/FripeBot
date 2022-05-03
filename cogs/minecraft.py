@@ -267,7 +267,7 @@ class Minecraft(commands.Cog):
         if location:
             embed_desc += f"\n**Location:** {location['country_name']}"
 
-        embed_desc += """
+        embed_desc += f"""
 **Version:** {server['version']}
 **Players:** {server['players']['online']}/{server['players']['max']}
 """
