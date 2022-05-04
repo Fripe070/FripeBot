@@ -222,17 +222,14 @@ class Utility(commands.Cog):
         if not files:
             return await ctx.reply("You need to give me a file!")
 
-        for file in files:
-            url = f"data:{file[1]};base64,{base64.b64encode(file[0]).decode('utf-8')}"
-            if len(f"```\n{url}\n```") <= 4000:
-                await ctx.reply(f"```\n{url}\n```", mention_author=bool(len(files) < 1))
-            else:
-                await ctx.reply(
-                    file=discord.File(
-                        io.BytesIO(bytes(url, "utf-8")),
-                        filename=f"{ctx.author.name}-{ctx.author.id}-{ctx.message.created_at}.txt"
-                    )
-                )
+        attachments = [
+            discord.File(
+                io.BytesIO(bytes(f"data:{file[1]};base64,{base64.b64encode(file[0]).decode('utf-8')}", "utf-8")),
+                filename=f"{ctx.author.name}-{ctx.author.id}-{ctx.message.created_at}.txt",
+            )
+            for file in files
+        ]
+        await ctx.reply(files=attachments, mention_author=bool(len(attachments) <= 1))
 
 
 async def setup(bot):
