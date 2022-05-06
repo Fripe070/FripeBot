@@ -1,4 +1,4 @@
-name: Lint
+name: flake8
 
 on: [push, pull_request]
 
@@ -13,11 +13,8 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install dependencies
-        run: pip install black
+      - name: Install flake8
+        run: pip install flake8
 
-      - name: Run black
-        run: black --line-length 120 --verbose .
-
-      - uses: stefanzweifel/git-auto-commit-action@v4
-
+      - name: Run flake8
+        run: flake8 --max-line-length 120 --extend-ignore E203,E501 --show-source --count
