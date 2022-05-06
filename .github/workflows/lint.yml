@@ -16,8 +16,11 @@ jobs:
       - name: Install dependencies
         run: pip install black flake8
 
-      - name: Lint
-        run: black --line-length 120 --diff --verbose .
+      - name: Run black
+        run: black --line-length 120 --verbose .
+
+      - name: Run flake8
+        run: flake8 --max-line-length 120 --extend-ignore E203
 
       - uses: stefanzweifel/git-auto-commit-action@v4
 
