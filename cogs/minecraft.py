@@ -255,7 +255,7 @@ class Minecraft(commands.Cog):
             motd += i.strip() + "\n"
 
         try:
-            location = requests.get(f"https://geolocation-db.com/jsonp/{server['ip']}").content.decode('utf-8')
+            location = requests.get(f"https://geolocation-db.com/jsonp/{server['ip']}").content.decode("utf-8")
             location = json.loads(location.split("(")[1].strip(")"))
         except Exception:
             location = None

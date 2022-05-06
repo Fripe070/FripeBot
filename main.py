@@ -12,9 +12,7 @@ class Bot(commands.Bot):
 
         self.logger = logging.getLogger("discord")
         self.logger.setLevel(logging.INFO)
-        formatter = logging.Formatter(
-            "[%(asctime)s %(levelname)s] %(name)s: %(message)s"
-        )
+        formatter = logging.Formatter("[%(asctime)s %(levelname)s] %(name)s: %(message)s")
         handler = logging.FileHandler("discord.log", "w", "utf-8")
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
@@ -55,9 +53,7 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
         return command.qualified_name
 
     async def send_command_help(self, command):
-        embed = discord.Embed(
-            title=f"Info about: {self.get_command_signature(command)}"
-        )
+        embed = discord.Embed(title=f"Info about: {self.get_command_signature(command)}")
         if command.help is not None:
             embed.description(value=command.help)
         else:
@@ -76,9 +72,7 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
             command_signatures = [self.get_command_signature(c) for c in filtered]
             if command_signatures:
                 cog_name = getattr(cog, "qualified_name", "No Category")
-                embed.add_field(
-                    name=cog_name, value=", ".join(command_signatures), inline=False
-                )
+                embed.add_field(name=cog_name, value=", ".join(command_signatures), inline=False)
 
         channel = self.get_destination()
         await channel.send(embed=embed)

@@ -189,9 +189,7 @@ class Fun(commands.Cog):
                 )
 
         if not embed.footer and message.author.id not in config["snipeblock"]:
-            embed.set_footer(
-                text="React with 🚮 to delete this message."
-            )
+            embed.set_footer(text="React with 🚮 to delete this message.")
 
         snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
         self.snipe_message[ctx.guild.id][ctx.channel.id] = None
