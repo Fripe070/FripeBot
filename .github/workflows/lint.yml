@@ -20,4 +20,6 @@ jobs:
         run: black --line-length 120 --verbose .
 
       - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Apply formating changes made by linter
 
