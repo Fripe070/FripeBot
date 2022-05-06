@@ -8,7 +8,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-        run: pip install black flake8 ; black --line-length 120 --diff --verbose .
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: pip install black flake8
+
+      - name: Lint
+        run: black --line-length 120 --diff --verbose .
 
       - uses: stefanzweifel/git-auto-commit-action@v4
 
