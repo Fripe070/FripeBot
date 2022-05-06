@@ -67,7 +67,7 @@ class Info(commands.Cog):
 
         embed = discord.Embed(
             title="Could not find a definition for that word!",
-            description="Do you want to use the urban dictionary instead? (Results are not filtered and can be inappropriate)",
+            description="Do you want to use the urban dictionary instead?",
             colour=ctx.author.colour,
             timestamp=ctx.message.created_at,
         )
