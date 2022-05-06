@@ -67,8 +67,8 @@ class Help(commands.HelpCommand):  # TODO Put this in a cog
 
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Help", colour=discord.Color.blue())
-        for cog, commands in mapping.items():
-            filtered = await self.filter_commands(commands, sort=True)
+        for cog, bot_commands in mapping.items():
+            filtered = await self.filter_commands(bot_commands, sort=True)
             command_signatures = [self.get_command_signature(c) for c in filtered]
             if command_signatures:
                 cog_name = getattr(cog, "qualified_name", "No Category")

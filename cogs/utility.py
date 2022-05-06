@@ -127,7 +127,7 @@ class Utility(commands.Cog):
         for part in splitstring(out):
             embed = discord.Embed(
                 timestamp=ctx.message.created_at,
-                title=f"Output:",
+                title="Output:",
                 description=f"```\n{discord.utils.escape_markdown(part)}```",
             )
             await ctx.send(embed=embed)

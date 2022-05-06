@@ -174,7 +174,7 @@ class Minecraft(commands.Cog):
             elif cape_url.endswith(mojira):
                 embed_desc += "**Cape:** [Mojira Moderator]"
             else:
-                embed_desc += f"**Cape:** [Other]"
+                embed_desc += "**Cape:** [Other]"
 
             embed_desc += f'({skincape["textures"]["CAPE"]["url"]})\n'
 
@@ -387,7 +387,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
                     if r["fixVersions"] != []:
                         embed.add_field(name="Fix version:", value=r["fixVersions"][0]["name"])
                 else:
-                    embed.add_field(name="Status:", value=f"Open")
+                    embed.add_field(name="Status:", value="Open")
                 embed.add_field(
                     name="Created:",
                     value=f"<t:{round(time.mktime(time.strptime(r['created'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",

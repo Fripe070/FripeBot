@@ -2,7 +2,7 @@ import discord
 import re
 
 from discord.ext import commands
-from discord.ext.commands import *
+from discord.ext.commands import Cog
 
 
 class Listeners(commands.Cog):
@@ -32,18 +32,11 @@ class Listeners(commands.Cog):
                     "https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4"
                 )
 
-    @Cog.listener()
-    async def on_message(self, message):
-        if message.author == self.bot.user:
-            return
-
-        colours = re.findall(r"f!#([0-9A-Fa-f]{6})", message.content)
+        colours = re.findall(r"f!#([\dA-Fa-f]{6})", message.content, flags=re.IGNORECASE)
         if not colours:
             return
 
-        print(colours)
         for colour in colours:
-            print(colour)
             url = f"https://www.colorhexa.com/{colour}.png"
 
             await message.reply(url, mention_author=False)

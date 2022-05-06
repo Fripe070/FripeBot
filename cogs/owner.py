@@ -37,7 +37,7 @@ class Owner(commands.Cog):
             await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.competing))
             await ctx.reply(f'Status set to "{activity} in {status}"')
         else:
-            await ctx.reply(f"That's not a valid activity!")
+            await ctx.reply("That's not a valid activity!")
 
     @commands.command()
     @commands.is_owner()
@@ -63,7 +63,7 @@ class Owner(commands.Cog):
                 embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog} - {error}\n"
                 raise error
 
-        embed = discord.Embed(title=f"Loaded cog(s)!", description=embed_desc, color=embed_color)
+        embed = discord.Embed(title="Loaded cog(s)!", description=embed_desc, color=embed_color)
 
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
@@ -92,7 +92,7 @@ class Owner(commands.Cog):
 
         print("\n".join(unloads))
 
-        embed = discord.Embed(title=f"Unloaded cogs!", color=embedcolor)
+        embed = discord.Embed(title="Unloaded cogs!", color=embedcolor)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -125,7 +125,7 @@ class Owner(commands.Cog):
             if command in config["disabled_commands"]:
                 command.update(enabled=False)
 
-        embed = discord.Embed(title=f"Reloaded cog(s)!", description=embed_desc, color=embed_color)
+        embed = discord.Embed(title="Reloaded cog(s)!", description=embed_desc, color=embed_color)
 
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)

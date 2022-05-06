@@ -21,14 +21,14 @@ class Info(commands.Cog):
         )
         embed.set_footer(text=f"Requested by {ctx.author.display_name}")
         embed.add_field(
-            name=f"Users:",
+            name="Users:",
             value=f"{len([member for member in ctx.guild.members if not member.bot])}",
         )
         embed.add_field(
-            name=f"Bots:",
+            name="Bots:",
             value=f"{len([member for member in ctx.guild.members if member.bot])}",
         )
-        embed.add_field(name=f"Total:", value=f"{len(ctx.guild.members)}")
+        embed.add_field(name="Total:", value=f"{len(ctx.guild.members)}")
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=["def", "definition"])

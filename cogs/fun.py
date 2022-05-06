@@ -3,7 +3,6 @@ import random
 import re
 import datetime
 import time
-import base64
 import requests
 
 from discord.ext import commands
@@ -66,7 +65,7 @@ class Fun(commands.Cog):
         animated = bool(emoji[0] == "<a")
 
         embed = discord.Embed(
-            title=f"Emoji Info",
+            title="Emoji Info",
             description=f"Emoji name: `{emoji_name}`\nEmoji ID: `{emoji_id}`\nAnimated: {animated}",
             timestamp=ctx.message.created_at,
             color=ctx.author.color,

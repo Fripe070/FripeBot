@@ -30,7 +30,7 @@ class Error(commands.Cog):
         elif isinstance(error, commands.CommandOnCooldown):
             return await ctx.reply(
                 embed=discord.Embed(
-                    title=f"Slow down!",
+                    title="Slow down!",
                     description=f"Try again in {error.retry_after:.2f}s.",
                     color=0xEB4034,
                 )
