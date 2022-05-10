@@ -100,11 +100,8 @@ class Owner(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx: commands.Context, to_reload=None):
+    async def reload(self, ctx: commands.Context, to_reload="cogs"):
         """Restarts the bot"""
-        if to_reload is None:
-            await ctx.reply("Thats not a valid cog.")
-            return
 
         embed_color = discord.Color.green()
         embed_desc = ""
