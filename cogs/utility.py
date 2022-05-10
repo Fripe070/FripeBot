@@ -142,9 +142,7 @@ class Utility(commands.Cog):
 
         try:
             embed = discord.Embed(
-                title=f"Returned with code {p.returncode}.",
-                colour=ctx.author.colour,
-                timestamp=ctx.message.created_at
+                title=f"Returned with code {p.returncode}.", colour=ctx.author.colour, timestamp=ctx.message.created_at
             )
             if stdout:
                 embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
