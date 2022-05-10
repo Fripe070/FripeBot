@@ -7,6 +7,7 @@ import time
 import datetime
 import io
 import base64
+import subprocess
 
 from discord.ext import commands
 from assets.stuff import splitstring
@@ -135,18 +136,24 @@ class Utility(commands.Cog):
     @commands.command()
     @commands.is_owner()
     async def bash(self, ctx: commands.Context, *, args):
-        proc = await asyncio.create_subprocess_shell(
-            args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await proc.communicate()
+        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+        stdout, stderr = p.communicate()
+        stdout, stderr = stdout.decode("utf-8"), stderr.decode("utf-8")
 
-        stdout = stdout.decode("utf-8")
-        stderr = stderr.decode("utf-8")
-
-        print(stdout)
-        print(stderr)
-        for part in splitstring(stdout, 1993):
-            await ctx.send(f"```ansi\n{discord.utils.escape_markdown(part)}```")
+        try:
+            embed = discord.Embed(
+                title=f"Returned with code {p.returncode}.",
+                colour=ctx.author.colour,
+                timestamp=ctx.message.created_at
+            )
+            if stdout:
+                embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+            if stderr:
+                embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+            await ctx.reply(embed=embed)
+        except discord.errors.HTTPException:
+            for part in splitstring(stdout, 1988):
+                await ctx.send(f"```ansi\n{discord.utils.escape_markdown(part)}```")
 
     @commands.command(aliases=["Exec"])
     @commands.is_owner()
