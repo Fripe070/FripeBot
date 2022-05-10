@@ -7,9 +7,41 @@ import json
 from discord.ext import commands
 
 
+class Help(commands.HelpCommand):
+    def get_command_signature(self, command):
+        return command.qualified_name
+
+    async def send_command_help(self, command):
+        embed = discord.Embed(title=f"Info about: {self.get_command_signature(command)}")
+        if command.help is not None:
+            embed.description(value=command.help)
+        else:
+            embed.description(value="This command doesnt have any further info.")
+        alias = command.aliases
+        if alias:
+            embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
+
+        channel = self.get_destination()
+        await channel.send(embed=embed)
+
+    async def send_bot_help(self, mapping):
+        embed = discord.Embed(title="Help", colour=discord.Color.blue())
+        for cog, bot_commands in mapping.items():
+            filtered = await self.filter_commands(bot_commands, sort=True)
+            command_signatures = [self.get_command_signature(c) for c in filtered]
+            if command_signatures:
+                cog_name = getattr(cog, "qualified_name", "No Category")
+                embed.add_field(name=cog_name, value=", ".join(command_signatures), inline=False)
+
+        channel = self.get_destination()
+        await channel.send(embed=embed)
+
+
 class Info(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.bot.help_command = Help()
+        bot.help_command.cog = self
 
     @commands.command()
     async def members(self, ctx: commands.Context):
