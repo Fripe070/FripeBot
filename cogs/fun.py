@@ -60,7 +60,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["jumbo", "emote"])
     async def emoji(self, ctx: commands.Context, emoji):
         """Gives you info about the emoji suplied"""
-        if not re.match(r"<a?:[a-zA-Z0-9_]+:[0-9]+>", emoji):
+        if not re.match(r"<a?:\w+:\d+>", emoji, flags=re.ASCII):
             await ctx.reply("That's not a custom emoji!")
             return
 
