@@ -15,20 +15,24 @@ class Fun(commands.Cog):
 
         self.snipe_message = {}
 
-    @commands.command(help="Gives soup")
+    @commands.command()
     async def soup(self, ctx: commands.Context):
+        """Gives you some soup"""
         await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-    @commands.command(aliases=["flip"], help="Flips a coin!")
+    @commands.command(aliases=["flip"])
     async def coinflip(self, ctx: commands.Context):
+        """Flips a coin!"""
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
 
-    @commands.command(help="Rolls a dice!")
+    @commands.command()
     async def dice(self, ctx: commands.Context, sides=6):
+        """Rolls a die with the specified number of sides"""
         await ctx.reply(f"You rolled a {random.randint(1, sides)}! :game_die:")
 
-    @commands.command(aliases=["8ball"], help="A magic eightball")
+    @commands.command(aliases=["8ball"])
     async def eightball(self, ctx: commands.Context):
+        """A magic eightball!"""
         await ctx.reply(
             random.choice(
                 [
@@ -48,8 +52,9 @@ class Fun(commands.Cog):
             )
         )
 
-    @commands.command(help="Scrambles the text supplied")
+    @commands.command()
     async def scramble(self, ctx: commands.Context, *, arg):
+        """Scrambles the text you give it"""
         await ctx.reply("".join(random.sample(arg, len(arg))))
 
     @commands.command(aliases=["jumbo", "emote"])
