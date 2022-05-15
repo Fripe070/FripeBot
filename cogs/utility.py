@@ -8,9 +8,13 @@ import datetime
 import io
 import base64
 import subprocess
+import re
+import traceback
 
 from discord.ext import commands
 from assets.stuff import splitstring
+
+from contextlib import redirect_stdout, redirect_stderr
 
 
 class Utility(commands.Cog):
@@ -153,29 +157,32 @@ class Utility(commands.Cog):
             for part in splitstring(stdout, 1988):
                 await ctx.send(f"```ansi\n{discord.utils.escape_markdown(part)}```")
 
-    @commands.command(aliases=["Exec"])
+    @commands.command(aliases=["exec", "py", "python"])
     @commands.is_owner()
     async def execute(self, ctx: commands.Context, *, code):
         """Executes python code"""
-        code = code.replace("```py", "").replace("```", "").strip()
-        code = "\n".join([f"\t{line}" for line in code.splitlines()])
-        if len(code) == 0:
-            await ctx.reply("I cant execute nothing")
-            return
-        function_code = "async def __exec_code(self, ctx: commands.Context):\n" f"{code}"
+        code = re.sub(r"^```(py(thon)?)?|```$", "\t", code, flags=re.IGNORECASE).strip()
+        code = "\t" + code.replace("\n", "\n\t")
+        function_code = f"async def __exec_code(self, ctx):\n{code}"
+        with redirect_stdout(io.StringIO()) as out:
+            with redirect_stderr(io.StringIO()) as err:
+                exec(function_code)
+                await locals()["__exec_code"](self, ctx)
+        stdout = out.getvalue()
+        stderr = err.getvalue()
 
-        exec(function_code)
-        output = await locals()["__exec_code"](self, ctx)
-        if output:
-            formatted_output = "\n    ".join(output) if len(code.splitlines()) > 1 else output
-            await ctx.reply(
-                embed=discord.Embed(
-                    colour=0xFF0000,
-                    timestamp=ctx.message.created_at,
-                    title="Your code ran successfully!",
-                    description=f"```\n{formatted_output}\n```",
-                )
-            )
+        embed = discord.Embed(
+            title="Executed:",
+            description=f"```py\n{discord.utils.escape_markdown(code)}\n```".replace('\n\t','\n'),
+            timestamp=ctx.message.created_at,
+            colour=ctx.author.colour,
+        )
+        if stdout:
+            embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+        if stderr:
+            embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+
+        await ctx.reply(embed=embed)
         await ctx.message.add_reaction("<:yes:823202605123502100>")
 
     @commands.command(aliases=["Eval"])
