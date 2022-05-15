@@ -173,7 +173,7 @@ class Utility(commands.Cog):
 
         embed = discord.Embed(
             title="Executed:",
-            description=f"```py\n{discord.utils.escape_markdown(code)}\n```".replace('\n\t','\n'),
+            description=f"```py\n{discord.utils.escape_markdown(code)}\n```".replace("\n\t", "\n"),
             timestamp=ctx.message.created_at,
             colour=ctx.author.colour,
         )
