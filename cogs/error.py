@@ -53,7 +53,7 @@ class Error(commands.Cog):
                     timestamp=ctx.message.created_at,
                     colour=0xFF0000,
                 )
-                embed.set_footer(text=f"Caused by {ctx.author}", icon_url=ctx.author.display_avatar)
+                embed.set_footer(text=f"Caused by {ctx.author} • That's not good!", icon_url=ctx.author.display_avatar)
 
                 await ctx.send(embed=embed)
             except Exception as e:
