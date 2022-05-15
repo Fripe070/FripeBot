@@ -137,21 +137,23 @@ class Utility(commands.Cog):
             )
             await ctx.send(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=["bash", "batch"])
     @commands.is_owner()
-    async def bash(self, ctx: commands.Context, *, args):
+    async def terminal(self, ctx: commands.Context, *, args):
         p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdout, stderr = p.communicate()
         stdout, stderr = stdout.decode("utf-8"), stderr.decode("utf-8")
 
         try:
             embed = discord.Embed(
-                title=f"Returned with code {p.returncode}.", colour=ctx.author.colour, timestamp=ctx.message.created_at
+                title=f"Exited with code {p.returncode}.",
+                colour=discord.Colour.green() if p.returncode == 0 else discord.Colour.red(),
+                timestamp=ctx.message.created_at,
             )
             if stdout:
-                embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+                embed.add_field(name="stdout:", value=f"```ansi\n{stdout}```", inline=False)
             if stderr:
-                embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+                embed.add_field(name="stderr:", value=f"```ansi\n{stderr}```", inline=False)
             await ctx.reply(embed=embed)
         except discord.errors.HTTPException:
             for part in splitstring(stdout, 1988):
