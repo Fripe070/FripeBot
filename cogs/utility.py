@@ -9,7 +9,6 @@ import io
 import base64
 import subprocess
 import re
-import traceback
 
 from discord.ext import commands
 from assets.stuff import splitstring
