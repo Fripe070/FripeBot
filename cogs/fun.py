@@ -26,9 +26,13 @@ class Fun(commands.Cog):
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
 
     @commands.command()
-    async def dice(self, ctx: commands.Context, sides=6):
+    async def dice(self, ctx: commands.Context, sides: int = 6, sides2: int = None):
         """Rolls a die with the specified number of sides"""
-        await ctx.reply(f"You rolled a {random.randint(1, sides)}! :game_die:")
+        number = random.randint(
+            1 if sides2 is None else sides,
+            sides if sides2 is None else sides2
+        )
+        await ctx.reply(f"You rolled a {number}! :game_die:")
 
     @commands.command(aliases=["8ball"])
     async def eightball(self, ctx: commands.Context):
