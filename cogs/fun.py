@@ -28,10 +28,7 @@ class Fun(commands.Cog):
     @commands.command()
     async def dice(self, ctx: commands.Context, sides: int = 6, sides2: int = None):
         """Rolls a die with the specified number of sides"""
-        number = random.randint(
-            1 if sides2 is None else sides,
-            sides if sides2 is None else sides2
-        )
+        number = random.randint(1 if sides2 is None else sides, sides if sides2 is None else sides2)
         await ctx.reply(f"You rolled a {number}! :game_die:")
 
     @commands.command(aliases=["8ball"])
