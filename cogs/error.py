@@ -48,12 +48,13 @@ class Error(commands.Cog):
         else:
             try:
                 embed = discord.Embed(
-                    title="An error occurred! Please notify Fripe if necessary.",
-                    description=f"```\n{error}```",
+                    title="An error occurred! Please notify my owner if necessary.",
+                    description=f"**{type(error).__name__}**```\n{discord.utils.escape_markdown(str(error))}\n```",
                     timestamp=ctx.message.created_at,
                     colour=0xFF0000,
                 )
                 embed.set_footer(text=f"Caused by {ctx.author}", icon_url=ctx.author.display_avatar)
+
                 await ctx.send(embed=embed)
             except Exception as e:
                 self.bot.logger.error(e)
