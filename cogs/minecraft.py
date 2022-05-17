@@ -211,16 +211,15 @@ class Minecraft(commands.Cog):
 
             url = f"https://api.slothpixel.me/api/players/{uuid}/status"
             playing = requests.get(url).json()["game"]["type"] if hypixel["online"] else None
-
             embed.add_field(
                 name="Hypixel:",
                 value=f"""**Status:** {status}
 **Currectly playing:** {playing if hypixel['online'] and playing is not None else 'Nothing'}
 **Rank:** {hypixel['rank'].replace('_PLUS', '+') if hypixel['rank'] else ''}
-**Level:** {int(hypixel['level']):,}
-**Exp:** {hypixel['exp']:,}
-**Total coins:** {hypixel['total_coins']:,}
-**Karma:** {hypixel['karma']:,}
+**Level:** {int(hypixel['level'])}
+**Exp:** {hypixel['exp']}
+**Total coins:** {hypixel['total_coins']}
+**Karma:** {hypixel['karma']}
 **Mc version:** {hypixel['mc_version'] if hypixel['mc_version'] else 'Unknown'}""",
             )
         except KeyError:
