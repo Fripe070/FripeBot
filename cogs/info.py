@@ -73,26 +73,26 @@ class Info(commands.Cog):
             print(json.dumps(r, indent=4))
             embed = discord.Embed(
                 title=f"Definition of the word: {r['word']}",
-                description="",
                 color=ctx.author.colour,
             )
             for meaning in r["meanings"]:
-                embed_desc = ""
+                tmp = ""
                 if "partOfSpeech" in meaning:
-                    embed_desc += f"{meaning['partOfSpeech']}\n"
+                    tmp += f"{meaning['partOfSpeech']}\n"
 
                 # if "phonetic" in r:
                 #     embed_desc += f"**Pronunciation:** {r['phonetic']}\n"
 
                 if "origin" in r:
-                    embed_desc += f"**Origin:** {r['origin']}\n"
+                    tmp += f"**Origin:** {r['origin']}\n"
 
                 if "definition" in r["meanings"][0]["definitions"][0]:
-                    embed_desc += f"**Definition:** {r['meanings'][0]['definitions'][0]['definition']}\n"
+                    tmp += f"**Definition:** {r['meanings'][0]['definitions'][0]['definition']}\n"
 
                 if "example" in r["meanings"][0]["definitions"][0]:
-                    embed_desc += f"**Example:** {r['meanings'][0]['definitions'][0]['example']}\n"
-                embed.add_field(name="Meaning:", value=embed_desc, inline=False)
+                    tmp += f"**Example:** {r['meanings'][0]['definitions'][0]['example']}\n"
+                embed.add_field(name="Meaning:", value=tmp, inline=False)
+                embed.set_footer(text=f"Source: {r['sourceUrls'][0]}")
 
             await ctx.reply(embed=embed)
             return
