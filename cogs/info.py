@@ -168,7 +168,22 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         await askmessage.delete()
 
     @commands.command(aliases=["wiki"])
-    async def wikipedia(self, ctx, *, word):
+    async def wikipedia(self, ctx, flag=None, articles=None, *, query=None):
+        """Searches on Wikipedia."""
+        if flag is None:
+            return await ctx.reply("You need to specify a search query!")
+
+        if flag == "-n":
+            if articles.isdigit():
+                if query is None:
+                    return await ctx.reply("You need to specify a search query!")
+                articles = int(articles)
+            else:
+                return await ctx.reply("You need to specify a number of articles!")
+        else:
+            query = f"{flag} {articles} {query}"
+            articles = 5
+
         url = "http://en.wikipedia.org"
         data = requests.get(
             f"{url}/w/api.php",
@@ -176,18 +191,18 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
                 "action": "query",
                 "format": "json",
                 "list": "search",
-                "srsearch": word,
+                "srsearch": query,
             },
         )
         if data.status_code != 200:
-            return await ctx.reply("Could not connect to the wiktionary api!")
-        embed = discord.Embed(title=f'Wikipedia search results for "{word}"', colour=ctx.author.colour)
+            return await ctx.reply("Could not connect to the wikipedia api!")
+        embed = discord.Embed(title=f'Wikipedia search results for "{query}"', colour=ctx.author.colour)
         embed.set_footer(text=f"Results from {url}")
-        for wiki in data.json()["query"]["search"][:5]:
+        for wiki in data.json()["query"]["search"][:articles]:
             embed.add_field(
                 name=wiki["title"],
                 value=f"[link]({url}?curid={wiki['pageid']})\n"
-                + re.sub(r"{\\displaystyle (.*?)}", r"\1", re.sub(r"<.*?>(.*?)<.*?>", r"\1", wiki["snippet"])),
+                      + re.sub(r"{\\displaystyle (.*?)}", r"\1", re.sub(r"<.*?>(.*?)<.*?>", r"\1", wiki["snippet"])),
                 inline=False,
             )
         await ctx.reply(embed=embed)
