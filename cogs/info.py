@@ -1,9 +1,8 @@
-import discord
-import requests
 import random
 import re
-import json
 
+import discord
+import requests
 from discord.ext import commands
 
 
@@ -68,31 +67,37 @@ class Info(commands.Cog):
     async def define(self, ctx: commands.Context, *, word):
         """Gets the definition for a word"""
         r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
+        fields = []
         if r.status_code == 200 and isinstance(r.json(), list):
-            r = r.json()[0]
-            print(json.dumps(r, indent=4))
+            r = r.json()
             embed = discord.Embed(
-                title=f"Definition of the word: {r['word']}",
+                title=f"Definition of the word: {r[0]['word']}",
                 color=ctx.author.colour,
             )
-            for meaning in r["meanings"]:
-                tmp = ""
-                if "partOfSpeech" in meaning:
-                    tmp += f"{meaning['partOfSpeech']}\n"
+            for i in r:
+                for meaning in i["meanings"]:
+                    for definition in meaning["definitions"][:2]:
+                        if len(fields) >= 6:
+                            break
+                        synonyms = [synonym for synonym in meaning["synonyms"]]
+                        for defs in meaning["definitions"]:
+                            for synonym in defs["synonyms"]:
+                                synonyms.append(synonym)
+                        field = [
+                            meaning["partOfSpeech"],
+                            f"""
+{'**Pronunciation:** ' + meaning['phonetic'] if 'phonetic' in meaning else ''}
+**Definition:** {definition['definition']}
+{'**Example:** ' + definition['example'] if 'example' in definition else ''}
+{'**Synonyms:** ' + ', '.join(synonyms) if synonyms else ''}""".replace(
+                                "\n\n", "\n"
+                            ),
+                        ]
+                        if field not in fields:
+                            fields.append(field)
 
-                # if "phonetic" in r:
-                #     embed_desc += f"**Pronunciation:** {r['phonetic']}\n"
-
-                if "origin" in r:
-                    tmp += f"**Origin:** {r['origin']}\n"
-
-                if "definition" in r["meanings"][0]["definitions"][0]:
-                    tmp += f"**Definition:** {r['meanings'][0]['definitions'][0]['definition']}\n"
-
-                if "example" in r["meanings"][0]["definitions"][0]:
-                    tmp += f"**Example:** {r['meanings'][0]['definitions'][0]['example']}\n"
-                embed.add_field(name="Meaning:", value=tmp, inline=False)
-                embed.set_footer(text=f"Source: {r['sourceUrls'][0]}")
+            for field in fields:
+                embed.add_field(name=field[0], value=field[1])
 
             await ctx.reply(embed=embed)
             return
