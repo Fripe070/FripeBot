@@ -1,6 +1,6 @@
-import discord
 import asyncio
 
+import discord
 from discord.ext import commands
 from discord.ext.commands import Cog
 
@@ -48,7 +48,9 @@ class Error(commands.Cog):
         else:
             try:
                 embed = discord.Embed(
-                    title="An error occurred! Please notify the bot owner if necessary.",
+                    title="An error occurred!",
+                    description="Please notify the bot owner "
+                    "or [make an issue](https://github.com/Fripe070/FripeBot/issues/new) on its GitHub.",
                     timestamp=ctx.message.created_at,
                     colour=0xFF0000,
                 )
