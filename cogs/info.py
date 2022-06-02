@@ -207,7 +207,9 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             embed.add_field(
                 name=wiki["title"],
                 value=f"[link]({url}?curid={wiki['pageid']})\n"
-                + re.sub(r"{\\displaystyle (.*?)}", r"\1", re.sub(r"<.*?>(.*?)<.*?>", r"\1", wiki["snippet"])),
+                + re.sub(r"{\\displaystyle (.*?)}", r"\1", re.sub(r"<.*?>(.*?)<.*?>", r"\1", wiki["snippet"])).replace(
+                    "&quot;", '"'
+                ),
                 inline=False,
             )
         await ctx.reply(embed=embed)
