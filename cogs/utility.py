@@ -1,19 +1,19 @@
-import discord
-import requests
-import os
 import asyncio
-import random
-import time
+import base64
 import datetime
 import io
-import base64
-import subprocess
+import os
+import random
 import re
-
-from discord.ext import commands
-from assets.stuff import splitstring
-
+import subprocess
+import time
 from contextlib import redirect_stdout, redirect_stderr
+
+import discord
+import requests
+from discord.ext import commands
+
+from assets.stuff import splitstring
 
 
 class Utility(commands.Cog):
@@ -237,7 +237,7 @@ class Utility(commands.Cog):
 
         attachments = [
             discord.File(
-                io.BytesIO(bytes(f"data:{file[1]};base64,{base64.b64encode(file[0]).decode('utf-8')}", "utf-8")),
+                io.BytesIO(bytes(f"data:{file[1]}base64,{base64.b64encode(file[0]).decode('utf-8')}", "utf-8")),
                 filename=f"{ctx.author.name}-{ctx.author.id}-{ctx.message.created_at}.txt",
             )
             for file in files
