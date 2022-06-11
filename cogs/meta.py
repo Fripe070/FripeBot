@@ -1,3 +1,4 @@
+import os
 import sys
 
 import discord
@@ -57,7 +58,8 @@ class Meta(commands.Cog):
 
         embed.description = f"""
 Python Version: {pyver.major}.{pyver.minor}.{pyver.micro}
-Discord.py Version: {discord.__version__}"""
+Discord.py Version: {discord.__version__}
+Running on: {os.name}"""
         await ctx.reply(embed=embed)
 
 
