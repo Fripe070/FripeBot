@@ -1,6 +1,6 @@
-import discord
 import asyncio
 
+import discord
 from discord.ext import commands
 
 
@@ -15,26 +15,23 @@ class Voice(commands.Cog):
     async def join(self, ctx: commands.Context):
         if ctx.author.voice is None:
             return await ctx.send("You need to be in a voice channel to use this command!")
-        else:
-            channel = ctx.author.voice.channel  # Get the sender's voice channel
-            await channel.connect()  # Join the channel
+        channel = ctx.author.voice.channel  # Get the sender's voice channel
+        await channel.connect()  # Join the channel
 
     @commands.command(aliases=["vcleave"])
     async def leave(self, ctx: commands.Context):
         if ctx.author.voice is None:
             return await ctx.send("You need to be in a voice channel to use this command!")
-        else:
-            server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
-            await server.disconnect()  # Leave the VC
+        server = ctx.message.guild.voice_client  # Get the server of the sender, specific VC doesn't matter.
+        await server.disconnect()  # Leave the VC
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def tts(self, ctx: commands.Context, *, message):
         if ctx.author.voice is None:
             return await ctx.send("You need to be in a voice channel to use this command!")
-        else:
-            channel = ctx.author.voice.channel  # Get the sender's voice channel
-            voice = await channel.connect()
+        channel = ctx.author.voice.channel  # Get the sender's voice channel
+        voice = await channel.connect()
 
         voice.play(
             discord.FFmpegPCMAudio(

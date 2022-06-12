@@ -1,11 +1,12 @@
-import discord
+import datetime
 import random
 import re
-import datetime
 import time
-import requests
 
+import discord
+import requests
 from discord.ext import commands
+
 from main import config
 
 
@@ -68,7 +69,7 @@ class Fun(commands.Cog):
         emoji = emoji.split(":")
         emoji_id = int(emoji[2][:-1])
         emoji_name = emoji[1]
-        animated = bool(emoji[0] == "<a")
+        animated = emoji[0] == "<a"
 
         embed = discord.Embed(
             title="Emoji Info",

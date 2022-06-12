@@ -16,8 +16,7 @@ class Help(commands.HelpCommand):
             embed.description(value=command.help)
         else:
             embed.description(value="This command doesnt have any further info.")
-        alias = command.aliases
-        if alias:
+        if alias := command.aliases:
             embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
 
         channel = self.get_destination()
@@ -27,8 +26,7 @@ class Help(commands.HelpCommand):
         embed = discord.Embed(title="Help", colour=discord.Color.blue())
         for cog, bot_commands in mapping.items():
             filtered = await self.filter_commands(bot_commands, sort=True)
-            command_signatures = [self.get_command_signature(c) for c in filtered]
-            if command_signatures:
+            if command_signatures := [self.get_command_signature(c) for c in filtered]:
                 cog_name = getattr(cog, "qualified_name", "No Category")
                 embed.add_field(name=cog_name, value=", ".join(command_signatures), inline=False)
 
@@ -179,12 +177,11 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             return await ctx.reply("You need to specify a search query!")
 
         if flag == "-n":
-            if articles.isdigit():
-                if query is None:
-                    return await ctx.reply("You need to specify a search query!")
-                articles = int(articles)
-            else:
+            if not articles.isdigit():
                 return await ctx.reply("You need to specify a number of articles!")
+            if query is None:
+                return await ctx.reply("You need to specify a search query!")
+            articles = int(articles)
         else:
             query = f"{flag} {articles} {query}"
             articles = 5

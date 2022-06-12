@@ -1,15 +1,16 @@
-import discord
-import requests
-import json
 import base64
+import io
+import json
 import re
 import time
-import io
-import python_nbt.nbt
-
-from discord.ext import commands
-from assets.stuff import config
 from gzip import BadGzipFile
+
+import discord
+import python_nbt.nbt
+import requests
+from discord.ext import commands
+
+from assets.stuff import config
 
 
 class Minecraft(commands.Cog):
@@ -249,10 +250,7 @@ class Minecraft(commands.Cog):
                 await ctx.reply("Server is currently offline.")
             return
 
-        motd = ""
-        for i in server["motd"]["clean"]:
-            motd += i.strip() + "\n"
-
+        motd = "".join(i.strip() + "\n" for i in server["motd"]["clean"])
         try:
             location = requests.get(f"https://geolocation-db.com/jsonp/{server['ip']}").content.decode("utf-8")
             location = json.loads(location.split("(")[1].strip(")"))
@@ -296,22 +294,21 @@ class Minecraft(commands.Cog):
         await ctx.reply(embed=embed)
 
     @commands.command()
-    async def mcinfo(self, ctx: commands.Context, version=None):
+    async def mcinfo(self, ctx: commands.Context):
         url = "https://launchermeta.mojang.com/mc/game/version_manifest.json"
         r = requests.get(url)
 
         mcversion = r.json()
 
-        if version is None:
-            embed = discord.Embed(
-                title="Minecraft info",
-                description=f"""
+        embed = discord.Embed(
+            title="Minecraft info",
+            description=f"""
 Latest release: {mcversion["latest"]['release']}
 Latest snapshot: {mcversion["latest"]['snapshot']}
 Full release date: <t:1321614000:D> (<t:1321614000:R>)
 First went public: <t:1242554400:D> (<t:1242554400:R>)
 """,
-            )
+        )
 
         await ctx.reply(embed=embed)
 
@@ -332,67 +329,68 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.author != self.bot.user:
-            if not config["mojira"]:
+        if message.author == self.bot.user:
+            return
+        if not config["mojira"]:
+            return
+        projects = [
+            "BDS",  # Bedrock Dedicated Server
+            "MCPE",  # Minecraft (Bedrock codebase)
+            "MCCE",  # Minecraft Console Edition
+            "MCD",  # Minecraft Dungeons
+            "MCL",  # Minecraft Launcher
+            "REALMS",  # Minecraft Realms
+            "MC",  # Minecraft: Java Edition
+            "WEB",  # Mojang Web Services
+        ]
+        issues = []
+        for project in projects:
+            issues += re.findall(rf"(?:{'|'.join(self.bot.command_prefix)})({project}-\d+)", message.content)
+        for issue in issues:
+            r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
+            if "errorMessages" in r:
                 return
-            projects = [
-                "BDS",  # Bedrock Dedicated Server
-                "MCPE",  # Minecraft (Bedrock codebase)
-                "MCCE",  # Minecraft Console Edition
-                "MCD",  # Minecraft Dungeons
-                "MCL",  # Minecraft Launcher
-                "REALMS",  # Minecraft Realms
-                "MC",  # Minecraft: Java Edition
-                "WEB",  # Mojang Web Services
-            ]
-            issues = []
-            for project in projects:
-                issues += re.findall(rf"(?:{'|'.join(self.bot.command_prefix)})({project}-\d+)", message.content)
-            for issue in issues:
-                r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
-                if "errorMessages" in r:
-                    return
-                r = r["fields"]
+            r = r["fields"]
 
-                desc = re.sub(r"/\s*[\r\n]/gm", "\n", r["description"])
-                desc = re.sub(r"h[1-6]\..*\n", "", desc)
-                desc = re.sub("", "", desc)
-                # Removes mod comments
-                desc = re.sub(
-                    r"""{panel:title=[a-zA-Z]
+            desc = re.sub(r"/\s*[\r\n]/gm", "\n", r["description"])
+            desc = re.sub(r"h[1-6]\..*\n", "", desc)
+            desc = re.sub("", "", desc)
+            # Removes mod comments
+            desc = re.sub(
+                r"""{panel:title=[a-zA-Z]
                     |borderStyle=[a-zA-Z]
                     |borderColor=#[a-zA-Z0-9]
                     |titleBGColor=#[a-zA-Z0-9]
                     |bgColor=#[a-zA-Z0-9]}""",
-                    "",
-                    desc,
-                    flags=re.VERBOSE,
-                )
-                desc = desc.replace("{noformat}", "```")
-                desc = "\n".join(desc.split("\n")[0:2])
+                "",
+                desc,
+                flags=re.VERBOSE,
+            )
+            desc = desc.replace("{noformat}", "```")
+            desc = "\n".join(desc.split("\n")[:2])
 
-                embed = discord.Embed(
-                    title=f"[{issue}] {discord.utils.escape_markdown(r['summary'])}",
-                    url=f"https://bugs.mojang.com/browse/{issue}",
-                    description=desc,
-                    colour=0x30CB72,
-                )
+            embed = discord.Embed(
+                title=f"[{issue}] {discord.utils.escape_markdown(r['summary'])}",
+                url=f"https://bugs.mojang.com/browse/{issue}",
+                description=desc,
+                colour=0x30CB72,
+            )
 
-                if r["resolution"] is not None:
-                    embed.add_field(
-                        name="Status:",
-                        value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
-                    )
-                    if r["fixVersions"] != []:
-                        embed.add_field(name="Fix version:", value=r["fixVersions"][0]["name"])
-                else:
-                    embed.add_field(name="Status:", value="Open")
+            if r["resolution"] is not None:
                 embed.add_field(
-                    name="Created:",
-                    value=f"<t:{round(time.mktime(time.strptime(r['created'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
+                    name="Status:",
+                    value=f"Resolved as **{r['resolution']['name']}** <t:{round(time.mktime(time.strptime(r['resolutiondate'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
                 )
+                if r["fixVersions"]:
+                    embed.add_field(name="Fix version:", value=r["fixVersions"][0]["name"])
+            else:
+                embed.add_field(name="Status:", value="Open")
+            embed.add_field(
+                name="Created:",
+                value=f"<t:{round(time.mktime(time.strptime(r['created'], '%Y-%m-%dT%H:%M:%S.%f%z')))}:R>",
+            )
 
-                await message.reply(embed=embed)
+            await message.reply(embed=embed)
 
 
 async def setup(bot):

@@ -90,30 +90,30 @@ class Utility(commands.Cog):
             params={"id": user.id, "platform": "discord"},
         )
         if r.status_code == 200:
-            pronouns = {
-                "hh": "he / him",
-                "hi": "he / it",
-                "hs": "he / she",
-                "ht": "he / they",
-                "ih": "it / him",
-                "ii": "it / its",
-                "is": "it / she",
-                "it": "it / they",
-                "shh": "she / he",
-                "sh": "she / her",
-                "si": "she / it",
-                "st": "she / they",
-                "th": "they / he",
-                "ti": "they / it",
-                "ts": "they / she",
-                "tt": "they / them",
-                "any": "Any pronouns",
-                "other": "Other pronouns",
-                "ask": "Ask me my pronouns",
-                "avoid": "Avoid pronouns, use my name",
-            }
             pronoun = r.json()["pronouns"]
-            if not pronoun == "unspecified":
+            if pronoun != "unspecified":
+                pronouns = {
+                    "hh": "he / him",
+                    "hi": "he / it",
+                    "hs": "he / she",
+                    "ht": "he / they",
+                    "ih": "it / him",
+                    "ii": "it / its",
+                    "is": "it / she",
+                    "it": "it / they",
+                    "shh": "she / he",
+                    "sh": "she / her",
+                    "si": "she / it",
+                    "st": "she / they",
+                    "th": "they / he",
+                    "ti": "they / it",
+                    "ts": "they / she",
+                    "tt": "they / them",
+                    "any": "Any pronouns",
+                    "other": "Other pronouns",
+                    "ask": "Ask me my pronouns",
+                    "avoid": "Avoid pronouns, use my name",
+                }
                 embed.description += f"""
 **Pronouns:** {pronouns[pronoun]}"""
 
@@ -241,7 +241,7 @@ class Utility(commands.Cog):
             )
             for file in files
         ]
-        await ctx.reply(files=attachments, mention_author=bool(len(attachments) <= 1))
+        await ctx.reply(files=attachments, mention_author=len(attachments) <= 1)
 
 
 async def setup(bot):
