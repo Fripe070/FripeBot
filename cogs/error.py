@@ -11,7 +11,7 @@ class Error(commands.Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
-        if ctx.message.content.lower().startswith("f!#"): 
+        if ctx.message.content.lower().startswith("f!#"):
             return
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
