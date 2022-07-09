@@ -1,9 +1,9 @@
 name: Lint
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
-  lint:
+  format:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -16,11 +16,32 @@ jobs:
       - name: Install dependencies
         run: pip install black
 
+      - name: python-isort
+        uses: isort/isort-action@master
+        with:
+            requirementsFiles: "requirements.txt"
+
       - name: Run black
         run: black --line-length 120 --verbose .
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Lint code using Black.
+          commit_message: Format code using Black.
           commit_user_name: Black [bot]
+
+  flake8:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install flake8
+        run: pip install flake8
+
+      - name: Run flake8
+        run: flake8 --max-line-length 120 --extend-ignore E203,E501 --show-source --count
 
