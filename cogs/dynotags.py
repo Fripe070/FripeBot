@@ -1,6 +1,5 @@
 import discord
 import requests
-
 from discord.ext import commands
 
 
