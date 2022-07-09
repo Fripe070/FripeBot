@@ -7,7 +7,7 @@ import random
 import re
 import subprocess
 import time
-from contextlib import redirect_stdout, redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 
 import discord
 import requests
