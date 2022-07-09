@@ -1,4 +1,5 @@
 import base64
+import contextlib
 import io
 import json
 import re
@@ -86,7 +87,7 @@ class Minecraft(commands.Cog):
         pastnames = []
         for name in tmprequest:
             if "changedToAt" in name:
-                pastnames.append(f"{name['name']} (<t:{int(int(name['changedToAt']) / 1000)}:R>)")
+                pastnames.append(f"{name['name']} (<t:{int(name['changedToAt']) // 1000}:R>)")
             else:
                 pastnames.append(name["name"])
 
@@ -186,15 +187,12 @@ class Minecraft(commands.Cog):
         )
 
         await msg.edit(content="Applying embed thumbnail... (this might take a while)")
-        try:
+        with contextlib.suppress(KeyError):
             embed.set_thumbnail(url=f"https://crafatar.com/renders/body/{uuid}?overlay")
-        except KeyError:
-            pass
-
         embed.add_field(name="Name history:", value=pastnamesstring)
 
         await msg.edit(content="Fetching player info from the hypixel API... (this might take a while)")
-        try:
+        with contextlib.suppress(KeyError):
             # HYPIXEL
             url = f"https://api.slothpixel.me/api/players/{uuid}"
             hypixel = requests.get(url).json()
@@ -202,29 +200,23 @@ class Minecraft(commands.Cog):
             if hypixel["online"]:
                 last_seen = "Now"
             else:
-                if hypixel["last_logout"]:
-                    last_seen = f"<t:{round(hypixel['last_logout'] / 1000)}:R>"
-                else:
-                    last_seen = None
+                last_seen = f"<t:{round(hypixel['last_logout'] / 1000)}:R>" if hypixel["last_logout"] else None
 
             status = f"""{'Online' if hypixel['online'] else 'Offline'} \
-    {'since ' + last_seen if last_seen is not None and not hypixel['online'] else ''}"""
+    {f'since {last_seen}' if last_seen is not None and not hypixel['online'] else ''}"""
+
 
             url = f"https://api.slothpixel.me/api/players/{uuid}/status"
             playing = requests.get(url).json()["game"]["type"] if hypixel["online"] else None
-            embed.add_field(
-                name="Hypixel:",
-                value=f"""**Status:** {status}
+            embed.add_field(name="Hypixel:", value=f"""**Status:** {status}
 **Currectly playing:** {playing if hypixel['online'] and playing is not None else 'Nothing'}
 **Rank:** {hypixel['rank'].replace('_PLUS', '+') if hypixel['rank'] else ''}
 **Level:** {int(hypixel['level'])}
 **Exp:** {hypixel['exp']}
 **Total coins:** {hypixel['total_coins']}
 **Karma:** {hypixel['karma']}
-**Mc version:** {hypixel['mc_version'] if hypixel['mc_version'] else 'Unknown'}""",
-            )
-        except KeyError:
-            pass
+**Mc version:** {hypixel['mc_version'] or 'Unknown'}""")
+
         await msg.delete()
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
         await ctx.reply(embed=embed)

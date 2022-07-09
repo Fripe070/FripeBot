@@ -28,7 +28,7 @@ jobs:
 
       - uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          commit_message: Format code using Black.
+          commit_message: Automatically format code.
           commit_user_name: Black [bot]
 
   flake8:
