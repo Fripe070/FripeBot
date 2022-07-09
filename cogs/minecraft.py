@@ -205,17 +205,19 @@ class Minecraft(commands.Cog):
             status = f"""{'Online' if hypixel['online'] else 'Offline'} \
     {f'since {last_seen}' if last_seen is not None and not hypixel['online'] else ''}"""
 
-
             url = f"https://api.slothpixel.me/api/players/{uuid}/status"
             playing = requests.get(url).json()["game"]["type"] if hypixel["online"] else None
-            embed.add_field(name="Hypixel:", value=f"""**Status:** {status}
+            embed.add_field(
+                name="Hypixel:",
+                value=f"""**Status:** {status}
 **Currectly playing:** {playing if hypixel['online'] and playing is not None else 'Nothing'}
 **Rank:** {hypixel['rank'].replace('_PLUS', '+') if hypixel['rank'] else ''}
 **Level:** {int(hypixel['level'])}
 **Exp:** {hypixel['exp']}
 **Total coins:** {hypixel['total_coins']}
 **Karma:** {hypixel['karma']}
-**Mc version:** {hypixel['mc_version'] or 'Unknown'}""")
+**Mc version:** {hypixel['mc_version'] or 'Unknown'}""",
+            )
 
         await msg.delete()
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
