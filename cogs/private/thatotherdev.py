@@ -15,7 +15,6 @@ class ThatOtherDev(commands.Cog):
     @commands.command(alliases=["bpcheat"])
     async def bombpartycheat(self, ctx: commands.Context, prompt: str):
         answers = [word for word in self.word_list if prompt.lower() in word.lower()]
-        print(answers)
         shortest = ""
         for word in answers:
             if len(word) < len(shortest) or shortest == "":

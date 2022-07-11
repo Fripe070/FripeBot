@@ -15,6 +15,7 @@ class Fun(commands.Cog):
         self.bot = bot
 
         self.snipe_message = {}
+        self.snipe_message_edits = {}
 
     @commands.command()
     async def soup(self, ctx: commands.Context):
@@ -153,7 +154,6 @@ class Fun(commands.Cog):
                     }
                 }
             }
-            print(self.snipe_message)
 
     @commands.command()
     async def snipe(self, ctx: commands.Context):
@@ -186,8 +186,7 @@ class Fun(commands.Cog):
             try:
                 ref = await ctx.fetch_message(message.reference.message_id)
                 embed.add_field(
-                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:",
-                    value=ref.content
+                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:", value=ref.content
                 )
             except discord.errors.NotFound:
                 embed.set_footer(

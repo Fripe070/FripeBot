@@ -52,7 +52,6 @@ class Owner(commands.Cog):
         embed_desc = ""
 
         self.bot.logger.info("Loading cogs...")
-        print(get_cogs(to_load))
         for cog in get_cogs(to_load):
             try:
                 await self.bot.load_extension(cog)
@@ -91,8 +90,6 @@ class Owner(commands.Cog):
                 self.bot.logger.error(error)
                 unloads["errored"].append(cog)
 
-        print("\n".join(unloads))
-
         embed = discord.Embed(title="Unloaded cogs!", color=embedcolor)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
@@ -108,7 +105,6 @@ class Owner(commands.Cog):
         embed_desc = ""
 
         self.bot.logger.info("Reloading cogs...")
-        print(get_cogs(to_reload))
         for cog in get_cogs(to_reload):
             try:
                 await self.bot.reload_extension(cog)
@@ -136,8 +132,7 @@ class Owner(commands.Cog):
         """Stops the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Ok. :(\nShutting down...")
-        print(f"{ctx.author.name} Told me to stop.")
-        self.bot.logger.info(f"{ctx.author.name} Told me to stop.")
+        self.bot.logger.info(f"{ctx.author.name} Told me to shut down.")
         await self.bot.close()
 
     @commands.command()
@@ -146,7 +141,6 @@ class Owner(commands.Cog):
         """Updates the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Updating...")
-        print(f"{ctx.author.name} Told me to update.")
         self.bot.logger.info(f"{ctx.author.name} Told me to update.")
         shellscript = subprocess.Popen(
             ["sh", "update.sh"],
