@@ -149,10 +149,11 @@ class Fun(commands.Cog):
                 message.guild.id: {
                     message.channel.id: {
                         "msg": message,
-                        "time": datetime.datetime.now(),
+                        "time": time.mktime(datetime.datetime.now().timetuple()),
                     }
                 }
             }
+            print(self.snipe_message)
 
     @commands.command()
     async def snipe(self, ctx: commands.Context):
@@ -167,11 +168,12 @@ class Fun(commands.Cog):
             return
 
         snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
-        message = snipe["msg"]
 
-        if (time.mktime(ctx.message.created_at.timetuple()) - time.mktime(snipe["time"].timetuple())) / 1000 > 10:
-            await ctx.reply("That message was deleted more than 10 seconds ago!")
+        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > 10:
+            await ctx.reply("The message you are tryingto snipe deleted more than 10 seconds ago!")
             return
+
+        message = snipe["msg"]
 
         embed = discord.Embed(
             title=f"Message sent by {message.author.display_name} ({message.author.id})",
@@ -185,7 +187,7 @@ class Fun(commands.Cog):
                 ref = await ctx.fetch_message(message.reference.message_id)
                 embed.add_field(
                     name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:",
-                    value=ref.content,
+                    value=ref.content
                 )
             except discord.errors.NotFound:
                 embed.set_footer(
