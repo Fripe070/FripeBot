@@ -32,14 +32,12 @@ class Listeners(commands.Cog):
                     "https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4"
                 )
 
-        colours = re.findall(r"f!#([\dA-Fa-f]{6})", message.content, flags=re.IGNORECASE)
-        if not colours:
-            return
+            colours = re.findall(r"f!#([\dA-Fa-f]{6})", message.content, flags=re.IGNORECASE)
+            if colours:
+                for colour in colours:
+                    url = f"https://www.colorhexa.com/{colour}.png"
 
-        for colour in colours:
-            url = f"https://www.colorhexa.com/{colour}.png"
-
-            await message.reply(url, mention_author=False)
+                    await message.reply(url, mention_author=False)
 
 
 async def setup(bot):
