@@ -164,13 +164,13 @@ class Fun(commands.Cog):
             or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
             or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
         ):
-            await ctx.reply("No message was deleted!")
+            await ctx.reply("No message was deleted.")
             return
 
         snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
 
         if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > 10:
-            await ctx.reply("The message you are tryingto snipe deleted more than 10 seconds ago!")
+            await ctx.reply("The message you are trying to snipe was deleted more than 10 seconds ago.")
             return
 
         message = snipe["msg"]
