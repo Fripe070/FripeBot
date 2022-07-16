@@ -12,10 +12,12 @@ class Voice(commands.Cog):
         self.loop = False
 
     @commands.command(aliases=["vcjoin"])
-    async def join(self, ctx: commands.Context):
-        if ctx.author.voice is None:
-            return await ctx.send("You need to be in a voice channel to use this command!")
-        channel = ctx.author.voice.channel  # Get the sender's voice channel
+    async def join(self, ctx: commands.Context, channel: discord.VoiceChannel = None):
+        if not channel:
+            if ctx.author.voice is None:
+                return await ctx.send("You need to be in a voice channel to use this command!")
+            else:
+                channel = ctx.author.voice.channel  # Get the sender's voice channel
         await channel.connect()  # Join the channel
 
     @commands.command(aliases=["vcleave"])
@@ -64,12 +66,12 @@ class Voice(commands.Cog):
             await asyncio.sleep(1)
         await voice.disconnect()
 
-    @commands.command()
-    async def nowplaying(self, ctx: commands.Context):
-        if self.queue:
-            await ctx.reply(f"Now playing: {self.queue[0]}")
-        else:
-            return await ctx.send("There is nothing playing!")
+    # @commands.command()
+    # async def nowplaying(self, ctx: commands.Context):
+    #     if self.queue:
+    #         await ctx.reply(f"Now playing: {self.queue[0]}")
+    #     else:
+    #         return await ctx.send("There is nothing playing!")
 
     # I'll get this working sometime else
     # @commands.command()
