@@ -24,12 +24,20 @@ class Utility(commands.Cog):
         if not user:
             user = ctx.message.author
 
+        avatar = user.display_avatar.with_size(4096).with_static_format("png")
+
+        # This is here in case the profile picture doesn't exist, but stil gets returned by discord's api
+        try:
+            await avatar.read()
+        except discord.errors.NotFound:
+            avatar = user.default_avatar
+
         embed = discord.Embed(
             colour=user.colour,
             timestamp=ctx.message.created_at,
             title=f"{user.display_name}'s pfp",
         )
-        embed.set_image(url=user.display_avatar.with_size(4096).with_static_format("png"))
+        embed.set_image(url=avatar)
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
@@ -39,49 +47,33 @@ class Utility(commands.Cog):
         if not user:
             user = ctx.message.author
         user = await self.bot.fetch_user(user.id)
+        # Member object for the current guild, this should be used for stuff like nicknames
+        memberhere = ctx.guild.get_member(user.id)
+        # Member object for some guild, this should be used for things such as the users status
+        member = user.mutual_guilds[0].get_member(user.id)
 
         embed = discord.Embed(
             title=f"User Info - {user}",
-            description="",
             colour=user.colour,
             timestamp=ctx.message.created_at,
         )
         embed.description = f"**Username:** {discord.utils.escape_markdown(user.name)}\n"
-
-        if user.mutual_guilds:
-            if ctx.guild in user.mutual_guilds:
-                member = ctx.guild.get_member(user.id)
-            else:
-                member = user.mutual_guilds[0].get_member(user.id)
-        else:
-            member = None
-
-        if member and ctx.guild in user.mutual_guilds:
-            embed.description += f"**Nickname:** {discord.utils.escape_markdown(user.display_name)}\n"
-
-        embed.description += f"""**Discriminator:** #{user.discriminator}
-**Mention:** {user.mention}
-**ID:** {user.id}"""
-
+        embed.description += f"**Discriminator:** {user.discriminator}\n"
+        if memberhere and memberhere.display_name != user.name:
+            embed.description += f"**Nickname:** {memberhere.display_name}\n"
+        embed.description += f"**Mention:** {user.mention}\n"
+        embed.description += f"**ID:** {user.id}\n"
         if member:
             for activity in member.activities:
                 if isinstance(activity, discord.CustomActivity):
-                    embed.description += f"\n**Status:** {activity}"
+                    embed.description += f"**Status:** {activity.emoji} {activity.name}\n"
+        embed.description += f"**Is bot:** {user.bot}\n"
+        embed.description += f"**Account created at:** <t:{round(user.created_at.timestamp())}> (<t:{round(user.created_at.timestamp())}:R>)\n"
 
-        embed.description += f"""
-**Is user a bot:** {user.bot}
-**Created at:** <t:{round(user.created_at.timestamp())}> (<t:{round(user.created_at.timestamp())}:R>)"""
-
-        if member and ctx.guild in user.mutual_guilds:
-            roles = [role.mention for role in member.roles[1:]]
-            roles.reverse()
-            embed.description += f"""
-**Joined server at:** <t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)
-**Highest Role:** {member.top_role.mention}
-**Roles:** {" ".join(roles)}"""
-
-        if user.banner:
-            embed.set_image(url=user.banner.url)
+        if memberhere:
+            embed.description += f"**Joined server at:** <t:{round(member.joined_at.timestamp())}> (<t:{round(member.joined_at.timestamp())}:R>)\n"
+            embed.description += f"**Top role:**  {[role.mention for role in memberhere.roles][1:][-1]}\n"
+            embed.description += f"**Roles:**  {', '.join(reversed([role.mention for role in memberhere.roles][1:]))}\n"
 
         r = requests.get(
             "https://pronoundb.org/api/v1/lookup",
@@ -91,31 +83,40 @@ class Utility(commands.Cog):
             pronoun = r.json()["pronouns"]
             if pronoun != "unspecified":
                 pronouns = {
-                    "hh": "he / him",
-                    "hi": "he / it",
-                    "hs": "he / she",
-                    "ht": "he / they",
-                    "ih": "it / him",
-                    "ii": "it / its",
-                    "is": "it / she",
-                    "it": "it / they",
-                    "shh": "she / he",
-                    "sh": "she / her",
-                    "si": "she / it",
-                    "st": "she / they",
-                    "th": "they / he",
-                    "ti": "they / it",
-                    "ts": "they / she",
-                    "tt": "they / them",
+                    "hh": "he/him",
+                    "hi": "he/it",
+                    "hs": "he/she",
+                    "ht": "he/they",
+                    "ih": "it/him",
+                    "ii": "it/its",
+                    "is": "it/she",
+                    "it": "it/they",
+                    "shh": "she/he",
+                    "sh": "she/her",
+                    "si": "she/it",
+                    "st": "she/they",
+                    "th": "they/he",
+                    "ti": "they/it",
+                    "ts": "they/she",
+                    "tt": "they/them",
                     "any": "Any pronouns",
                     "other": "Other pronouns",
                     "ask": "Ask me my pronouns",
                     "avoid": "Avoid pronouns, use my name",
                 }
-                embed.description += f"""
-**Pronouns:** {pronouns[pronoun]}"""
+                embed.description += f"**Pronouns:** {pronouns[pronoun]}\n"
 
-        embed.set_thumbnail(url=user.display_avatar.with_size(4096).with_static_format("png"))
+        if user.banner:
+            embed.set_image(url=user.banner.url)
+
+        avatar = user.display_avatar.with_size(4096).with_static_format("png")
+        # This is here in case the profile picture doesn't exist, but stil gets returned by discord's api
+        try:
+            await avatar.read()
+        except discord.errors.NotFound:
+            avatar = user.default_avatar
+
+        embed.set_thumbnail(url=avatar)
         embed.set_footer(text=f"Requested by {ctx.author}")
 
         await ctx.send(embed=embed)
