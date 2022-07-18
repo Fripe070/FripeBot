@@ -2,12 +2,10 @@ import asyncio
 import base64
 import datetime
 import io
-import os
-import random
 import re
 import subprocess
 import time
-from contextlib import redirect_stderr, redirect_stdout
+from contextlib import redirect_stdout
 
 import discord
 import requests
@@ -162,15 +160,19 @@ class Utility(commands.Cog):
     @commands.is_owner()
     async def execute(self, ctx: commands.Context, *, code):
         """Executes python code"""
-        code = re.sub(r"^```(py(thon)?)?|```$", "\t", code, flags=re.IGNORECASE).strip()
+        code = re.sub(r"^```(py(thon)?\n)?|```$", "\t", code, flags=re.IGNORECASE).strip()
         code = "\t" + code.replace("\n", "\n\t")
         function_code = f"async def __exec_code(self, ctx):\n{code}"
+
         with redirect_stdout(io.StringIO()) as out:
-            with redirect_stderr(io.StringIO()) as err:
+            try:
                 exec(function_code)
                 await locals()["__exec_code"](self, ctx)
+            except Exception as e:
+                stderr = e
+            else:
+                stderr = None
         stdout = out.getvalue()
-        stderr = err.getvalue()
 
         embed = discord.Embed(
             title="Code executed.",
@@ -187,29 +189,35 @@ class Utility(commands.Cog):
 
     @commands.command(aliases=["Eval"])
     @commands.is_owner()
-    async def evaluate(self, ctx: commands.Context, *, arg=None):
-        """Evaluates stuff"""
-        if arg is None:
-            await ctx.reply("I cant evaluate nothing")
-            return
-        # Checks if the bots token is in the output
-        # This is not perfect and can easily be fooled
-        # This can be done for example through encoding the token in base64
-        # Or an even simpler way would be to insert a character in the middle of the token
-        # Needless to say, this should not be relied on.
-        if os.getenv("TOKEN") in str(eval(arg)):
-            # Sends a randomly generated string that looks like a token
-            await ctx.reply(
-                "".join(
-                    random.choices(
-                        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_",
-                        k=59,
-                    )
-                )
-            )
-        else:
-            await ctx.reply(eval(arg))  # Actually Evaluates
-            await ctx.message.add_reaction("<:yes:823202605123502100>")
+    async def evaluate(self, ctx: commands.Context, *, code):
+        """Evaluates one line python code"""
+        code = re.sub(r"^```(py(thon)?\n)?|```$", "", code, flags=re.IGNORECASE).strip()
+        code = code.split("\n")
+        if len(code) > 1:
+            await ctx.reply("Your code has more than one line, I will only evaluate the first line.")
+        code = code[0]
+
+        with redirect_stdout(io.StringIO()) as out:
+            try:
+                print(eval(code))
+            except Exception as e:
+                stderr = e
+            else:
+                stderr = None
+        stdout = out.getvalue()
+
+        embed = discord.Embed(
+            title="Code evaluated.",
+            timestamp=ctx.message.created_at,
+            colour=ctx.author.colour,
+        )
+        if stdout:
+            embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+        if stderr:
+            embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+
+        await ctx.reply(embed=embed)
+        await ctx.message.add_reaction("<:yes:823202605123502100>")
 
     @commands.command()
     async def remind(self, ctx: commands.Context, ae: str, *, message=None):
