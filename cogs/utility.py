@@ -50,7 +50,7 @@ class Utility(commands.Cog):
         # Member object for the current guild, this should be used for stuff like nicknames
         memberhere = ctx.guild.get_member(user.id)
         # Member object for some guild, this should be used for things such as the users status
-        member = user.mutual_guilds[0].get_member(user.id)
+        member = user.mutual_guilds[0].get_member(user.id) if user.mutual_guilds else None
 
         embed = discord.Embed(
             title=f"User Info - {user}",
