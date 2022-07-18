@@ -1,3 +1,4 @@
+import contextlib
 import datetime
 import random
 import re
@@ -89,7 +90,7 @@ class Fun(commands.Cog):
     @commands.is_owner()
     async def echo(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
-        if not isinstance(ctx.channel, discord.channel.DMChannel):
+        with contextlib.suppress(discord.errors.Forbidden):
             await ctx.message.delete()
         await ctx.send(msg)
 
