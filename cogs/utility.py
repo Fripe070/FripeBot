@@ -252,6 +252,66 @@ class Utility(commands.Cog):
         ]
         await ctx.reply(files=attachments, mention_author=len(attachments) <= 1)
 
+    @commands.command(aliases=["serverinfo"])
+    async def guildinfo(self, ctx: commands.Context):
+        """Shows info about the current guild"""
+        guild = ctx.guild
+
+        humans = [member for member in guild.members if not member.bot]
+        bots = [member for member in guild.members if member.bot]
+
+        embed = discord.Embed(title="Guild info", colour=ctx.author.colour, timestamp=ctx.message.created_at)
+        embed.description = f"**Name:** {guild.name}\n"
+
+        # Done like this since it might be None
+        if guild.description:
+            embed.description += f"**Description:** ```\n{guild.description}```\n"
+
+        embed.description += f"""**ID:** {guild.id}
+**Created at:** <t:{round(guild.created_at.timestamp())}> (<t:{round(guild.created_at.timestamp())}:R>)
+**Owner:** {guild.owner.mention}
+**Verification level:** {guild.verification_level}
+**2FA required:** {guild.mfa_level == discord.MFALevel.require_2fa}
+**Message content filter:** {str(guild.explicit_content_filter).replace('_', ' ')}
+**Filesize limit:** {round(guild.filesize_limit / (1024 * 1024))}MB
+**Bost level:** {guild.premium_tier} ({guild.premium_subscription_count} boosts)
+"""
+        # Done like this since it might be None
+        if guild.premium_subscriber_role:
+            embed.description += f"**Server booster role:** {guild.premium_subscriber_role.mention}\n"
+        if guild.public_updates_channel:
+            f"**Public updates channel:** {guild.public_updates_channel.mention}\n"
+        if guild.system_channel:
+            f"**System channel:** {guild.system_channel.mention}\n"
+        if guild.rules_channel:
+            f"**Rules channel:** {guild.rules_channel.mention}\n"
+
+        embed.description += f"""**Prefered locale:** {guild.preferred_locale}
+
+**Channels:** {len(guild.channels) - len(guild.categories)
+        } (⌨ {len(guild.text_channels)
+        } | 🔈 {len(guild.voice_channels)
+        } | 🎭 {len(guild.stage_channels)
+        } | 💬 {len(guild.forums)})
+**Members:** {guild.member_count}/{guild.max_members} (👤 {len(humans)} | 🤖 {len(bots)})
+**Emojis:** {len(guild.emojis)}/{guild.emoji_limit * 2} (🖼️ {len([
+            emoji for emoji in guild.emojis if not emoji.animated
+        ])}/{guild.emoji_limit} | 🎞️ {len([
+            emoji for emoji in guild.emojis if emoji.animated
+        ])}/{guild.emoji_limit})
+**Stickers:** {len(guild.stickers)}/{guild.sticker_limit}
+**Roles:** {len(guild.roles)}
+**Features:** {', '.join(["`" + feature + "`" for feature in guild.features])}
+"""
+
+
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon.url)
+
+        if guild.banner:
+            embed.set_image(url=guild.banner.url)
+        await ctx.reply(embed=embed)
+
 
 async def setup(bot):
     await bot.add_cog(Utility(bot))
