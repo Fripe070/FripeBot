@@ -304,7 +304,6 @@ class Utility(commands.Cog):
 **Features:** {', '.join(["`" + feature + "`" for feature in guild.features])}
 """
 
-
         if guild.icon:
             embed.set_thumbnail(url=guild.icon.url)
 
