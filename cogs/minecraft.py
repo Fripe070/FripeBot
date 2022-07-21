@@ -43,7 +43,7 @@ class Minecraft(commands.Cog):
             title="Responses from the different minecraft related websites.",
             description="",
             colour=ctx.author.colour,
-            timestamp=ctx.message.created_at
+            timestamp=ctx.message.created_at,
         )
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
 
@@ -55,12 +55,16 @@ class Minecraft(commands.Cog):
                 if r.ok:
                     embed.description += f"**{url}:**\n✅ {r.status_code} {r.reason}.\n"
                 else:
-                    embed.description += f"**{url}:**\n<:YellowCheckmark:999549006495629372> {r.status_code} {r.reason}.\n"
+                    embed.description += (
+                        f"**{url}:**\n<:YellowCheckmark:999549006495629372> {r.status_code} {r.reason}.\n"
+                    )
 
             except requests.exceptions.Timeout:
                 embed.description += f"**{url}:**\n<:RedX:999549005342187620> Timed out.\n"
             except requests.exceptions.RequestException as error:
-                embed.description += f"**{url}:**\n<:RedX:999549005342187620> There was an error. Error: {error.response}\n"
+                embed.description += (
+                    f"**{url}:**\n<:RedX:999549005342187620> There was an error. Error: {error.response}\n"
+                )
 
             await msg.edit(embed=embed)
         await msg.edit(content=None)
