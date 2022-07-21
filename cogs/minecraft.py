@@ -23,21 +23,15 @@ class Minecraft(commands.Cog):
     async def mcstatus(self, ctx: commands.Context):
         msg = await ctx.reply("Geting statuses from the websites... <a:loading:894950036964782141>")
 
-        mc_sites = [
-            "minecraft.net",  # Main website
-            "mojang.com",  # Mojang website, used to change information about mojang accounts
-            "session.minecraft.net",  # Possibly deprecated
-            "authserver.mojang.com",
-            "account.mojang.com",
-            "api.mojang.com",
-            "textures.minecraft.net",  # Texture assets
-            "launchermeta.mojang.com",  # Stores hashes in a json file, to use later to get assets
-            "libraries.minecraft.net",  # Used for minecraft libraries
-            "sessionserver.mojang.com",
-            "api.minecraftservices.com",
-            "resources.download.minecraft.net",  # Used to get minecraft resources
-            "launcher.mojang.com",  # Used to get version.jar (does not get assets?)
-        ]
+        mc_sites = {
+            "Auth server": "authserver.mojang.com",
+            "Session server": "sessionserver.mojang.com/session/minecraft/profile/8667ba71b85a4004af54457a9734eed7",
+            "Xbox Live": "xnotify.xboxlive.com/servicestatusv6/US/en-US",
+            "Mojang API": "api.mojang.com/users/profiles/minecraft/steve",
+            "Libraries": "libraries.minecraft.net",
+            "Piston Meta": "piston-meta.mojang.com/mc/game/version_manifest.json",
+            "Launcher Meta": "launchermeta.mojang.com/mc/game/version_manifest.json",
+        }
 
         embed = discord.Embed(
             title="Responses from the different minecraft related websites.",
@@ -47,16 +41,16 @@ class Minecraft(commands.Cog):
         )
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
 
-        for url in mc_sites:
+        for name, url in mc_sites.items():
             try:
-                await msg.edit(content=f"Getting status from `{url}` <a:loading:894950036964782141>")
-                r = requests.head(f"https://{url}", timeout=2)
+                await msg.edit(content=f"Getting {name.lower()} status <a:loading:894950036964782141>")
+                r = requests.get(f"https://{url}", timeout=2)
 
                 if r.ok:
-                    embed.description += f"**{url}:**\n✅ {r.status_code} {r.reason}.\n"
+                    embed.description += f"**{name}:** ✅\n"
                 else:
                     embed.description += (
-                        f"**{url}:**\n<:YellowCheckmark:999549006495629372> {r.status_code} {r.reason}.\n"
+                        f"**{name}:**\n<:YellowCheckmark:999549006495629372> {r.status_code} {r.reason}.\n"
                     )
 
             except requests.exceptions.Timeout:
