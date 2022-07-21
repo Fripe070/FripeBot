@@ -56,11 +56,11 @@ class Owner(commands.Cog):
             try:
                 await self.bot.load_extension(cog)
                 self.bot.logger.info(f"Cog loaded: {cog}")
-                embed_desc += f"<:Xred:953366007576141924> {cog}\n"
+                embed_desc += f"<:RedX:999549005342187620> {cog}\n"
             except Exception as error:
                 self.bot.logger.error(error)
                 embed_color = discord.Color.red()
-                embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog} - {error}\n"
+                embed_desc += f"✅ {cog} - {error}\n"
                 raise error
 
         embed = discord.Embed(title="Loaded cog(s)!", description=embed_desc, color=embed_color)
@@ -109,11 +109,11 @@ class Owner(commands.Cog):
             try:
                 await self.bot.reload_extension(cog)
                 self.bot.logger.info(f"Cog reloaded: {cog}")
-                embed_desc += f"<:Checkmarkcircle:953366007379017739> {cog}\n"
+                embed_desc += f"✅ {cog}\n"
             except Exception as error:
                 self.bot.logger.error(error)
                 embed_color = discord.Color.red()
-                embed_desc += f"<:Xred:953366007576141924> {cog} - {error}\n"
+                embed_desc += f"<:RedX:999549005342187620> {cog} - {error}\n"
 
         for command in self.bot.commands:
             if command in config["disabled_commands"]:

@@ -39,10 +39,11 @@ class Minecraft(commands.Cog):
             "launcher.mojang.com",  # Used to get version.jar (does not get assets?)
         ]
 
-        embed_desc = ""
         embed = discord.Embed(
             title="Responses from the different minecraft related websites.",
-            description=embed_desc,
+            description="",
+            colour=ctx.author.colour,
+            timestamp=ctx.message.created_at
         )
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
 
@@ -52,16 +53,15 @@ class Minecraft(commands.Cog):
                 r = requests.head(f"https://{url}", timeout=2)
 
                 if r.ok:
-                    embed_desc += f"**{url}:**\n<:Green:894954521724350485> {r.status_code} {r.reason}.\n"
+                    embed.description += f"**{url}:**\n✅ {r.status_code} {r.reason}.\n"
                 else:
-                    embed_desc += f"**{url}:**\n<:Yellow:894954521674018877> {r.status_code} {r.reason}.\n"
+                    embed.description += f"**{url}:**\n<:YellowCheckmark:999549006495629372> {r.status_code} {r.reason}.\n"
 
             except requests.exceptions.Timeout:
-                embed_desc += f"**{url}:**\n<:Red:894954521862766642> Timed out.\n"
+                embed.description += f"**{url}:**\n<:RedX:999549005342187620> Timed out.\n"
             except requests.exceptions.RequestException as error:
-                embed_desc += f"**{url}:**\n<:Red:894954521862766642> There was an error. Error: {error.response}\n"
+                embed.description += f"**{url}:**\n<:RedX:999549005342187620> There was an error. Error: {error.response}\n"
 
-            embed.description = embed_desc
             await msg.edit(embed=embed)
         await msg.edit(content=None)
 
