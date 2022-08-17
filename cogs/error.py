@@ -43,16 +43,19 @@ class Error(commands.Cog):
             return await ctx.send("Did you delete your message? ")
         elif isinstance(error, TimeoutError):
             return
-        elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
-            return
+        elif isinstance(error, commands.CommandInvokeError):
+            if isinstance(error.original, asyncio.TimeoutError):
+                return
+            if isinstance(error.original, discord.errors.HTTPException) and error.original.code == 50035:
+                return await ctx.send("Too long message.")
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(str(error))
         else:
             try:
                 embed = discord.Embed(
                     title="An error occurred!",
-                    description="Please notify the bot owner "
-                    "or [make an issue](https://github.com/Fripe070/FripeBot/issues/new) on its GitHub.",
+                    description="Please notify the bot owner by "
+                                "[making an issue](https://github.com/Fripe070/FripeBot/issues/new) on GitHub.",
                     timestamp=ctx.message.created_at,
                     colour=0xFF0000,
                 )
