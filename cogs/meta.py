@@ -62,6 +62,11 @@ Discord.py Version: {discord.__version__}
 Running on: {os.name}"""
         await ctx.reply(embed=embed)
 
+    @commands.command()
+    async def issue(self, ctx: commands.Context):
+        await ctx.message.delete()
+        await ctx.send("Having an issue? [Report it on github!](https://github.com/Fripe070/FripeBot/issues/new)")
+
 
 async def setup(bot):
     await bot.add_cog(Meta(bot))

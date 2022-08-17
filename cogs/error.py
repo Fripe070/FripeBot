@@ -55,7 +55,7 @@ class Error(commands.Cog):
                 embed = discord.Embed(
                     title="An error occurred!",
                     description="Please notify the bot owner by "
-                                "[making an issue](https://github.com/Fripe070/FripeBot/issues/new) on GitHub.",
+                    "[making an issue](https://github.com/Fripe070/FripeBot/issues/new) on GitHub.",
                     timestamp=ctx.message.created_at,
                     colour=0xFF0000,
                 )
