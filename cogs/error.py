@@ -11,6 +11,7 @@ class Error(commands.Cog):
 
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
+        self.bot.logger.error(error)
         if ctx.message.content.lower().startswith("f!#"):
             return
         # If the command does not exist/is not found.
@@ -43,11 +44,14 @@ class Error(commands.Cog):
             return await ctx.send("Did you delete your message? ")
         elif isinstance(error, TimeoutError):
             return
-        elif isinstance(error, commands.CommandInvokeError):
-            if isinstance(error.original, asyncio.TimeoutError):
-                return
-            if isinstance(error.original, discord.errors.HTTPException) and error.original.code == 50035:
-                return await ctx.send("Too long message.")
+        elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
+            return
+        elif (
+            isinstance(error, commands.CommandInvokeError)
+            and isinstance(error.original, discord.errors.HTTPException)
+            and error.original.code == 50035
+        ):
+            return await ctx.send("Too long message.")
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(str(error))
         else:
