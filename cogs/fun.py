@@ -26,7 +26,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["flip"])
     async def coinflip(self, ctx: commands.Context):
         """Flips a coin!"""
-        await ctx.reply(random.choice(["Heads!", "Tails!"]) + ":coin:")
+        await ctx.reply(random.choice(["Heads!", "Tails!"]) + " :coin:")
 
     @commands.command()
     async def dice(self, ctx: commands.Context, sides: int = 6, sides2: int = None):
@@ -97,7 +97,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["esay", "embedsay", "eecho"])
     async def embedecho(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
-        if not isinstance(ctx.channel, discord.channel.DMChannel):
+        with contextlib.suppress(discord.errors.Forbidden):
             await ctx.message.delete()
         embed = discord.Embed(
             title=msg.split(" ")[0],

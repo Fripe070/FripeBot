@@ -1,4 +1,4 @@
-import os
+import platform
 import sys
 
 import discord
@@ -59,13 +59,19 @@ class Meta(commands.Cog):
         embed.description = f"""
 Python Version: {pyver.major}.{pyver.minor}.{pyver.micro}
 Discord.py Version: {discord.__version__}
-Running on: {os.name}"""
+Running on: {platform.system()} {platform.release()}"""
         await ctx.reply(embed=embed)
 
     @commands.command()
     async def issue(self, ctx: commands.Context):
         await ctx.message.delete()
-        await ctx.send("Having an issue? [Report it on github!](https://github.com/Fripe070/FripeBot/issues/new)")
+        embed = discord.Embed(
+            title="Foud an issue?",
+            description="[Report it on github!](https://github.com/Fripe070/FripeBot/issues/new)",
+            colour=ctx.author.colour,
+            timestamp=ctx.message.created_at,
+        )
+        await ctx.send(embed=embed)
 
 
 async def setup(bot):
