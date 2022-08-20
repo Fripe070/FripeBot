@@ -2,7 +2,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, AsyncIterator, Union
+from typing import AsyncIterator, Optional, Union
 
 import discord
 from discord import Object, utils
@@ -188,7 +188,7 @@ class Scraping(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def scrape(self, ctx: commands.Context, limit: int=None):
+    async def scrape(self, ctx: commands.Context, limit: int = None):
         self.bot.logger.info(f"Scraping the content of {ctx.guild.name} ({ctx.guild.id})")
         scrape_msg = await ctx.send("Scraping guild!")
         guildpath = Path(f"scraped guilds/{ctx.guild.name}")
