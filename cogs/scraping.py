@@ -188,7 +188,7 @@ class Scraping(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def scrape(self, ctx: commands.Context, limit=None):
+    async def scrape(self, ctx: commands.Context, limit: int=None):
         self.bot.logger.info(f"Scraping the content of {ctx.guild.name} ({ctx.guild.id})")
         scrape_msg = await ctx.send("Scraping guild!")
         guildpath = Path(f"scraped guilds/{ctx.guild.name}")
@@ -215,8 +215,7 @@ class Scraping(commands.Cog):
                 # noinspection PyUnresolvedReferences
                 async for message in channel.raw_history(limit=limit):
                     messages.append(message)
-            except Exception as e:
-                print(f"AAAAAAAAAAAAAAAAAAAAAAA, ERROR LMAOOOOOOOOO {type(e)}")
+            except discord.errors.Forbidden:
                 continue
 
             with open(f"{channelpath}.json", "w") as f:
