@@ -32,6 +32,7 @@ class Help(commands.HelpCommand):
         channel = self.get_destination()
         await channel.send(embed=embed)
 
+
 class Meta(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
