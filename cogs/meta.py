@@ -7,7 +7,7 @@ from discord.ext import commands
 
 class Help(commands.HelpCommand):
     async def send_command_help(self, command):
-        embed = discord.Embed(title=f"Info about the {command.name} command:", description=command.callback.__doc__)
+        embed = discord.Embed(title=f"Info about the {command.name} command:", description=command.help)
         command_signature = self.get_command_signature(command)
         embed.add_field(name="Command Signature", value=command_signature, inline=False)
         if command.aliases:
