@@ -34,7 +34,7 @@ class Meta(commands.Cog):
         bot.help_command.cog = self
 
     @commands.command(aliases=["source", "git"], help="Links my GitHub profile")
-    async def github(self, ctx: commands.Context, user: discord.User = None):
+    async def github(self, ctx: commands.Context, user: discord.Member = None):
         """Links the bots GitHub repository"""
         await ctx.message.delete()
         embed = discord.Embed(
@@ -46,10 +46,7 @@ class Meta(commands.Cog):
         )
         embed.set_thumbnail(url="https://avatars.githubusercontent.com/u/72686066")
         embed.set_footer(text=f"Requested by: {ctx.author.display_name}", icon_url=ctx.author.avatar)
-        if user is None:
-            await ctx.send(embed=embed)
-        else:
-            await ctx.send(f"{user.mention} Please take a look at my github", embed=embed)
+        await ctx.send(f"{user.mention} Please take a look at my github." if user else "", embed=embed)
 
     @commands.command()
     async def ping(self, ctx: commands.Context):
@@ -87,7 +84,7 @@ Running on: {platform.system()} {platform.release()}"""
         await ctx.reply(embed=embed)
 
     @commands.command()
-    async def issue(self, ctx: commands.Context):
+    async def issue(self, ctx: commands.Context, user: discord.Member = None):
         await ctx.message.delete()
         embed = discord.Embed(
             title="Foud an issue?",
@@ -95,7 +92,7 @@ Running on: {platform.system()} {platform.release()}"""
             colour=ctx.author.colour,
             timestamp=ctx.message.created_at,
         )
-        await ctx.send(embed=embed)
+        await ctx.send(user.mention if user else "", embed=embed)
 
 
 async def setup(bot):
