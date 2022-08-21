@@ -27,6 +27,8 @@ class Error(commands.Cog):
 
             if await self.bot.wait_for("reaction_add", timeout=60.0, check=check):
                 new_ctx = ctx
+                # Not really sure why it complains, but it works (I hope)
+                # noinspection PyPropertyAccess
                 new_ctx.author = owner
                 await self.bot.invoke(new_ctx)
             return
