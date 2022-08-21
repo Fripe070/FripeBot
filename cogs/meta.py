@@ -6,26 +6,20 @@ from discord.ext import commands
 
 
 class Help(commands.HelpCommand):
-    def get_command_signature(self, command):
-        return command.qualified_name
-
     async def send_command_help(self, command):
-        embed = discord.Embed(title=f"Info about: {self.get_command_signature(command)}")
-        if command.help is not None:
-            embed.description(value=command.help)
-        else:
-            embed.description(value="This command doesnt have any further info.")
-        if alias := command.aliases:
-            embed.add_field(name="Aliases", value=", ".join(alias), inline=False)
-
-        channel = self.get_destination()
-        await channel.send(embed=embed)
+        embed = discord.Embed(title=f"Info about the {command.name} command:", description=command.callback.__doc__)
+        command_signature = self.get_command_signature(command)
+        embed.add_field(name='Command Signature', value=command_signature, inline=False)
+        if command.aliases:
+            embed.add_field(name='Aliases', value=', '.join(command.aliases))
+        destination = self.get_destination()
+        await destination.send(embed=embed)
 
     async def send_bot_help(self, mapping):
         embed = discord.Embed(title="Help", colour=discord.Color.blue())
         for cog, bot_commands in mapping.items():
             filtered = await self.filter_commands(bot_commands, sort=True)
-            if command_signatures := [self.get_command_signature(c) for c in filtered]:
+            if command_signatures := [c.qualified_name for c in filtered]:
                 cog_name = getattr(cog, "qualified_name", "No Category")
                 embed.add_field(name=cog_name, value=", ".join(command_signatures), inline=False)
 

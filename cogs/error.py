@@ -50,10 +50,13 @@ class Error(commands.Cog):
             isinstance(error, commands.CommandInvokeError)
             and isinstance(error.original, discord.errors.HTTPException)
             and error.original.code == 50035
+            and "or fewer in length." in error.original.text
         ):
             return await ctx.send("Too long message.")
         elif isinstance(error, commands.MissingPermissions):
             await ctx.reply(str(error))
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send_help(ctx.command)
         else:
             try:
                 embed = discord.Embed(
