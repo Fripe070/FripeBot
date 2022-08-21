@@ -36,10 +36,7 @@ class Fun(commands.Cog):
         if sides2 and sides2 < sides:
             return await ctx.reply("The first argument must be lower than the second.")
 
-        number = random.randint(
-            1 if sides2 is None else sides,
-            sides if sides2 is None else sides2
-        )
+        number = random.randint(1 if sides2 is None else sides, sides if sides2 is None else sides2)
         await ctx.reply(f"You rolled a {number}! :game_die:")
 
     @commands.command(aliases=["8ball"])
@@ -168,10 +165,10 @@ class Fun(commands.Cog):
     async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
         if (
-                not self.snipe_message
-                or ctx.guild.id not in self.snipe_message.keys()
-                or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
-                or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
+            not self.snipe_message
+            or ctx.guild.id not in self.snipe_message.keys()
+            or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
+            or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
         ):
             await ctx.reply("No message was deleted.")
             return
@@ -232,7 +229,7 @@ class Fun(commands.Cog):
         i = True  # capitalize
         for char in msg:
             varied += char.upper() if i else char.lower()
-            if char != ' ':
+            if char != " ":
                 i = not i
 
         await ctx.reply(varied)
@@ -241,15 +238,17 @@ class Fun(commands.Cog):
     async def leet(self, ctx: commands.Context, *, msg: str):
         """Converts a string into leetspeak"""
         msg = msg.lower()
-        l33t = msg.maketrans({
-            "a": "4",
-            "e": "3",
-            "i": "1",
-            "l": "1",
-            "o": "0",
-            "z": "2",
-            "b": "8",
-        })
+        l33t = msg.maketrans(
+            {
+                "a": "4",
+                "e": "3",
+                "i": "1",
+                "l": "1",
+                "o": "0",
+                "z": "2",
+                "b": "8",
+            }
+        )
 
         await ctx.reply(msg.translate(l33t))
 
