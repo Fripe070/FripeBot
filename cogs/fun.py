@@ -23,7 +23,7 @@ class Fun(commands.Cog):
         """Gives you some soup"""
         await ctx.reply("Here's your soup! <:soup:823158453022228520>")
 
-    @commands.command(aliases=["flip"])
+    @commands.command()
     async def coinflip(self, ctx: commands.Context):
         """Flips a coin!"""
         await ctx.reply(random.choice(["Heads!", "Tails!"]) + " :coin:")
@@ -31,7 +31,15 @@ class Fun(commands.Cog):
     @commands.command()
     async def dice(self, ctx: commands.Context, sides: int = 6, sides2: int = None):
         """Rolls a die with the specified number of sides"""
-        number = random.randint(1 if sides2 is None else sides, sides if sides2 is None else sides2)
+        if sides == 0 or sides2 == 0:
+            return await ctx.reply("Sides cannot be 0.")
+        if sides2 and sides2 < sides:
+            return await ctx.reply("The first argument must be lower than the second.")
+
+        number = random.randint(
+            1 if sides2 is None else sides,
+            sides if sides2 is None else sides2
+        )
         await ctx.reply(f"You rolled a {number}! :game_die:")
 
     @commands.command(aliases=["8ball"])
@@ -160,10 +168,10 @@ class Fun(commands.Cog):
     async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
         if (
-            not self.snipe_message
-            or ctx.guild.id not in self.snipe_message.keys()
-            or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
-            or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
+                not self.snipe_message
+                or ctx.guild.id not in self.snipe_message.keys()
+                or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
+                or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
         ):
             await ctx.reply("No message was deleted.")
             return
@@ -216,6 +224,39 @@ class Fun(commands.Cog):
     async def unsplash(self, ctx: commands.Context, query: str = "bread"):
         """Searches for a random image on unsplash.com. Defaults to bread."""
         await ctx.send(requests.get(f"https://source.unsplash.com/random/?{query}").url)
+
+    @commands.command(aliases=["mock"])
+    async def varied(self, ctx: commands.Context, *, msg: str):
+        """MaKeS a StRiNgS cApItAlIsAtIoN vArIeD"""
+        varied = ""
+        i = True  # capitalize
+        for char in msg:
+            varied += char.upper() if i else char.lower()
+            if char != ' ':
+                i = not i
+
+        await ctx.reply(varied)
+
+    @commands.command(aliases=["l33t", "leetspeak"])
+    async def leet(self, ctx: commands.Context, *, msg: str):
+        """Converts a string into leetspeak"""
+        msg = msg.lower()
+        l33t = msg.maketrans({
+            "a": "4",
+            "e": "3",
+            "i": "1",
+            "l": "1",
+            "o": "0",
+            "z": "2",
+            "b": "8",
+        })
+
+        await ctx.reply(msg.translate(l33t))
+
+    @commands.command(aliases=["reverse", "reversed", "flipped"])
+    async def flip(self, ctx: commands.Context, *, msg: str):
+        """Flips a string"""
+        await ctx.reply(msg[::-1])
 
 
 async def setup(bot):

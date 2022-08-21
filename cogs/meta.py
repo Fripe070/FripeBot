@@ -33,7 +33,7 @@ class Meta(commands.Cog):
         self.bot.help_command = Help()
         bot.help_command.cog = self
 
-    @commands.command(aliases=["source", "git"], help="Links my GitHub profile")
+    @commands.command(aliases=["source", "git", "code"])
     async def github(self, ctx: commands.Context, user: discord.Member = None):
         """Links the bots GitHub repository"""
         await ctx.message.delete()
