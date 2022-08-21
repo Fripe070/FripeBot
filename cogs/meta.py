@@ -9,9 +9,9 @@ class Help(commands.HelpCommand):
     async def send_command_help(self, command):
         embed = discord.Embed(title=f"Info about the {command.name} command:", description=command.callback.__doc__)
         command_signature = self.get_command_signature(command)
-        embed.add_field(name='Command Signature', value=command_signature, inline=False)
+        embed.add_field(name="Command Signature", value=command_signature, inline=False)
         if command.aliases:
-            embed.add_field(name='Aliases', value=', '.join(command.aliases))
+            embed.add_field(name="Aliases", value=", ".join(command.aliases))
         destination = self.get_destination()
         await destination.send(embed=embed)
 
