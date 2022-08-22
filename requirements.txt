@@ -1,5 +1,4 @@
 discord.py[voice]
-python-dotenv
 PyNaCl
 requests
 Python-NBT
