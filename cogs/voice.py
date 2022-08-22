@@ -37,7 +37,7 @@ class Voice(commands.Cog):
 
         voice.play(
             discord.FFmpegPCMAudio(
-                f"http://translate.google.com/translate_tts?total=1&idx=0&textlen=32&client=tw-ob&q={message}&tl=En-gb"
+                f"http://translate.google.com/translate_tts?total=1&idx=0&textlen=32&client=tw-ob&q={'+'.join(message.split())}&tl=En-gb"
             )
         )
         while voice.is_playing():
