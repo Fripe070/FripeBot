@@ -1,5 +1,7 @@
+import base64
 import contextlib
 import datetime
+import math
 import random
 import re
 import time
@@ -8,6 +10,7 @@ import discord
 import requests
 from discord.ext import commands
 
+from assets.customfuncs import randomstring
 from main import config
 
 
@@ -256,6 +259,19 @@ class Fun(commands.Cog):
     async def flip(self, ctx: commands.Context, *, msg: str):
         """Flips a string"""
         await ctx.reply(msg[::-1])
+
+    @commands.command()
+    async def token(self, ctx: commands.Context):
+        """Gets a (very real) token!!!"""
+        tokenid = randomstring(18, "0123456789").encode("ascii")
+
+        if random.random() < 0.15:
+            return f"mfa.{randomstring(math.floor(random.random() * (68 - 20)) + 20)}"
+        encodedid = base64.b64encode(bytes(tokenid)).decode("utf-8")
+        timestamp = randomstring(math.floor(random.random() * (7 - 6) + 6))
+        hmac = randomstring(27)
+
+        await ctx.reply(f"{encodedid}.{timestamp}.{hmac}")
 
 
 async def setup(bot):

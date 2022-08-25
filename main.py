@@ -4,7 +4,7 @@ import logging
 import discord
 from discord.ext import commands
 
-from assets.customfuncs.get_cogs import get_cogs
+from assets.customfuncs import get_cogs
 
 
 class Bot(commands.Bot):

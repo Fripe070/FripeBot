@@ -11,7 +11,7 @@ import python_nbt.nbt
 import requests
 from discord.ext import commands
 
-from assets.stuff import config
+from main import config
 
 
 class Minecraft(commands.Cog):

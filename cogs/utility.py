@@ -11,7 +11,7 @@ import discord
 import requests
 from discord.ext import commands
 
-from assets.stuff import splitstring
+from assets.customfuncs import splitstring
 
 
 class Utility(commands.Cog):
