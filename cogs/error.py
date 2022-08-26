@@ -4,6 +4,8 @@ import discord
 from discord.ext import commands
 from discord.ext.commands import Cog
 
+from main import config
+
 
 class Error(commands.Cog):
     def __init__(self, bot):
@@ -12,7 +14,7 @@ class Error(commands.Cog):
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
         self.bot.logger.error(error)
-        if ctx.message.content.lower().startswith("f!#"):
+        if ctx.message.content.lower().startswith(tuple(config["prefixes"])):
             return
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
