@@ -3,6 +3,8 @@ import re
 import discord
 from discord.ext import commands
 
+from main import config
+
 
 class Listeners(commands.Cog):
     def __init__(self, bot):
@@ -27,12 +29,19 @@ class Listeners(commands.Cog):
                 files = None
             await channel.send(f"{message.content}", files=files)
 
+        def check(reaction, user):
+            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == msg
+
         if message.content == "🤡":
-            await message.reply(
+            msg = await message.reply(
                 "https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4"
             )
+            await msg.add_reaction("🚮")
+            await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+            await msg.delete()
 
-        if colours := re.findall(r"f!#([\dA-Fa-f]{6})", message.content, flags=re.IGNORECASE):
+        prefixes = config["prefixes"]  # doesn't work when i put this directly inside the regex for some reason
+        if colours := re.findall(rf"(?:{'|'.join(prefixes)})#([\dA-Fa-f]{{6}})", message.content, flags=re.IGNORECASE):
             for colour in colours:
                 url = f"https://www.colorhexa.com/{colour}.png"
 
