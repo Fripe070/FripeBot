@@ -5,6 +5,6 @@
   "logging_level": 1,
   "disabled_cogs": ["cogs.example", "cogs.example2"],
   "disabled_commands": ["example_command", "example_command2"],
-  "token": ExampleToken
+  "token": "ExampleToken",
   "snipeblock": [000000000000000000]
 }
