@@ -14,7 +14,7 @@ class Error(commands.Cog):
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
         self.bot.logger.error(error)
-        if ctx.message.content.lower().startswith(tuple(config["prefixes"])):
+        if ctx.message.content.lower().startswith(tuple([f"#{p}" for p in config["prefixes"]])):
             return
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
