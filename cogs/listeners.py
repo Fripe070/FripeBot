@@ -40,7 +40,7 @@ class Listeners(commands.Cog):
             await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
             await msg.delete()
 
-        prefixes = config["prefixes"]  # doesnt when i put this directly inside the regex for some reason
+        prefixes = config["prefixes"]  # doesn't work when i put this directly inside the regex for some reason
         if colours := re.findall(rf"(?:{'|'.join(prefixes)})#([\dA-Fa-f]{{6}})", message.content, flags=re.IGNORECASE):
             for colour in colours:
                 url = f"https://www.colorhexa.com/{colour}.png"
