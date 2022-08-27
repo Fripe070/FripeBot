@@ -22,9 +22,7 @@ class Listeners(commands.Cog):
         if message.channel.type == discord.ChannelType.private:
             channel = self.bot.get_channel(920014770206294129)
             if message.attachments:
-                files = []
-                for file in message.attachments:
-                    files.append(await file.to_file())
+                files = [await file.to_file() for file in message.attachments]
             else:
                 files = None
             await channel.send(f"{message.content}", files=files)
