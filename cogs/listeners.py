@@ -17,7 +17,7 @@ class Listeners(commands.Cog):
         # Detect if the bot is mentioned in the message
         if f"<@{self.bot.user.id}>" in message.content or f"<@!{self.bot.user.id}>" in message.content:
             await message.add_reaction("<:ping_gun:823948139504861225>")
-            await message.reply("My prefix is `f!`", delete_after=5, mention_author=False)
+            await message.reply(f"My prefix is `{config['prefixes'][0]}`", delete_after=5, mention_author=False)
 
         if message.channel.type == discord.ChannelType.private:
             channel = self.bot.get_channel(920014770206294129)
@@ -38,7 +38,7 @@ class Listeners(commands.Cog):
             await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
             await msg.delete()
 
-        prefixes = config["prefixes"]  # doesn't work when i put this directly inside the regex for some reason
+        prefixes = config["prefixes"]  # doesn't work when I put this directly inside the regex for some reason
         if colours := re.findall(rf"(?:{'|'.join(prefixes)})#([\dA-Fa-f]{{6}})", message.content, flags=re.IGNORECASE):
             for colour in colours:
                 url = f"https://www.colorhexa.com/{colour}.png"
