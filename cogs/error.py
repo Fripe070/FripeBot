@@ -16,6 +16,17 @@ class Error(commands.Cog):
         self.bot.logger.error(error)
         if ctx.message.content.lower().startswith(tuple([f"{p}#" for p in config["prefixes"]])):
             return
+
+        if isinstance(error, commands.CommandInvokeError):
+            if isinstance(error.original, asyncio.TimeoutError) or isinstance(error.original, TimeoutError):
+                return
+            elif (
+                isinstance(error.original, discord.errors.HTTPException)
+                and error.original.code == 50035
+                and "or fewer in length." in error.original.text
+            ):
+                return await ctx.send("Too long message.")
+
         # If the command does not exist/is not found.
         if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
             return await ctx.message.add_reaction("❓")
@@ -48,19 +59,10 @@ class Error(commands.Cog):
             return await ctx.send("Did you delete your message? ")
         elif isinstance(error, TimeoutError):
             return
-        elif isinstance(error, commands.CommandInvokeError) and isinstance(error.original, asyncio.TimeoutError):
-            return
-        elif (
-            isinstance(error, commands.CommandInvokeError)
-            and isinstance(error.original, discord.errors.HTTPException)
-            and error.original.code == 50035
-            and "or fewer in length." in error.original.text
-        ):
-            return await ctx.send("Too long message.")
         elif isinstance(error, commands.MissingPermissions):
-            await ctx.reply(str(error))
+            return await ctx.reply(str(error))
         elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send_help(ctx.command)
+            return await ctx.send_help(ctx.command)
         else:
             try:
                 embed = discord.Embed(
@@ -76,7 +78,7 @@ class Error(commands.Cog):
                 await ctx.send(embed=embed)
             except Exception as e:
                 self.bot.logger.error(e)
-            raise error
+        raise error
 
 
 async def setup(bot):

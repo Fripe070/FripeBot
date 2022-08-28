@@ -234,7 +234,7 @@ class Fun(commands.Cog):
             return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
 
         await snipemsg.add_reaction("🚮")
-        await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+        await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
         await snipemsg.delete()
 
     @commands.command()
