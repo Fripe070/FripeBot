@@ -23,6 +23,7 @@ class Fun(commands.Cog):
         self.snipe_message_edits = {}
 
     @commands.command(aliases=["tc"])
+    @commands.is_owner()
     async def tagcreate(self, ctx: commands.Context, name: str, *, content: str):
         config["tags"][name] = content
         with open("config.json", "w") as f:
@@ -30,6 +31,9 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=["t"])
     async def tag(self, ctx: commands.Context, name: str):
+        if name not in config["tags"]:
+            return await ctx.reply("There is no tag with that name.")
+
         with contextlib.suppress(discord.errors.Forbidden):
             await ctx.message.delete()
         await ctx.send(config["tags"][name])
