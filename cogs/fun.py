@@ -28,6 +28,7 @@ class Fun(commands.Cog):
         config["tags"][name] = content
         with open("config.json", "w") as f:
             json.dump(config, f, indent=4)
+        await ctx.reply("Tag added.")
 
     @commands.command(aliases=["t"])
     async def tag(self, ctx: commands.Context, name: str):
