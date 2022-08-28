@@ -1,6 +1,7 @@
 import base64
 import contextlib
 import datetime
+import json
 import math
 import random
 import re
@@ -20,6 +21,18 @@ class Fun(commands.Cog):
 
         self.snipe_message = {}
         self.snipe_message_edits = {}
+
+    @commands.command(aliases=["tc"])
+    async def tagcreate(self, ctx: commands.Context, name: str, *, content: str):
+        config["tags"][name] = content
+        with open("config.json", "w") as f:
+            json.dump(config, f, indent=4)
+
+    @commands.command(aliases=["t"])
+    async def tag(self, ctx: commands.Context, name: str):
+        with contextlib.suppress(discord.errors.Forbidden):
+            await ctx.message.delete()
+        await ctx.send(config["tags"][name])
 
     @commands.command()
     async def soup(self, ctx: commands.Context):
