@@ -196,8 +196,8 @@ class Fun(commands.Cog):
 
         snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
 
-        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > 10:
-            await ctx.reply("The message you are trying to snipe was deleted more than 10 seconds ago.")
+        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
+            await ctx.reply(f"The message you are trying to snipe was deleted more than {config['snipetimeout']} seconds ago.")
             return
 
         message = snipe["msg"]
@@ -238,6 +238,63 @@ class Fun(commands.Cog):
         await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
         await snipemsg.delete()
 
+    @commands.Cog.listener()
+    async def on_message_edit(self, old_message: discord.Message, new_message: discord.Message):
+        if old_message.author != self.bot.user:
+            self.snipe_message_edits = {
+                old_message.guild.id: {
+                    old_message.channel.id: {
+                        "old_msg": old_message,
+                        "new_msg": new_message,
+                        "time": time.mktime(datetime.datetime.now().timetuple()),
+                    }
+                }
+            }
+
+    @commands.command()
+    async def editsnipe(self, ctx: commands.Context) -> None:
+        if (
+            not self.snipe_message_edits
+            or ctx.guild.id not in self.snipe_message_edits.keys()
+            or ctx.channel.id not in self.snipe_message_edits[ctx.guild.id].keys()
+            or self.snipe_message_edits[ctx.guild.id][ctx.channel.id] is None
+        ):
+            await ctx.reply("No message was deleted.")
+            return
+
+        snipe = self.snipe_message_edits.get(ctx.guild.id, {}).get(ctx.channel.id, {})
+
+        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
+            await ctx.reply(f"The message you are trying to snipe was edited more than {config['snipetimeout']} seconds ago.")
+            return
+        
+        old_message = snipe["old_msg"]
+        new_message = snipe["new_msg"]
+
+        embed = discord.Embed(
+            title=f"Message edited by {new_message.author.display_name} ({new_message.author.id})",
+            description= new_message.content,
+            timestamp= new_message.created_at,
+            colour= new_message.author.colour,
+        )
+        embed.add_field(name="Orignal", value= old_message.content, inline=False)
+
+        if not embed.footer and new_message.author.id not in config["snipeblock"]:
+            embed.set_footer(text="React with 🚮 to delete this message.")
+
+        snipemsg = await ctx.reply(f"Sniped message by {new_message.author.mention}", embed=embed)
+        self.snipe_message_edits[ctx.guild.id][ctx.channel.id] = None
+
+        if new_message.author.id in config["snipeblock"]:
+            return
+
+        def check(reaction, user):
+            return user == new_message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
+
+        await snipemsg.add_reaction("🚮")
+        await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
+        await snipemsg.delete()      
+        
     @commands.command()
     async def unsplash(self, ctx: commands.Context, query: str = "bread"):
         """Searches for a random image on unsplash.com. Defaults to bread."""
