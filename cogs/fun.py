@@ -176,7 +176,23 @@ class Fun(commands.Cog):
             self.snipe_message = {
                 message.guild.id: {
                     message.channel.id: {
-                        "msg": message,
+                        "old_msg": message,
+                        "new_msg": None,
+                        "type": "delete",
+                        "time": time.mktime(datetime.datetime.now().timetuple()),
+                    }
+                }
+            }
+
+    @commands.Cog.listener()
+    async def on_message_edit(self, old_message: discord.Message, new_message: discord.Message):
+        if old_message.author != self.bot.user:
+            self.snipe_message = {
+                old_message.guild.id: {
+                    old_message.channel.id: {
+                        "old_msg": old_message,
+                        "new_msg": new_message,
+                        "type": "edit",
                         "time": time.mktime(datetime.datetime.now().timetuple()),
                     }
                 }
@@ -191,48 +207,58 @@ class Fun(commands.Cog):
             or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
             or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
         ):
-            await ctx.reply("No message was deleted.")
+            await ctx.reply("No message was deleted/edited.")
             return
 
         snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
 
-        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > 10:
-            await ctx.reply("The message you are trying to snipe was deleted more than 10 seconds ago.")
+        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
+            await ctx.reply(
+                f"The message you are trying to snipe was {'deleted' if snipe['type'] == 'delete' else 'edited'} more than {config['snipetimeout']} seconds ago."
+            )
             return
 
-        message = snipe["msg"]
+        old_message = snipe["old_msg"]
+        new_message = snipe["new_msg"]
 
         embed = discord.Embed(
-            title=f"Message sent by {message.author.display_name} ({message.author.id})",
-            description=message.content,
-            timestamp=message.created_at,
-            colour=message.author.colour,
+            title=f"Message sent by {old_message.author.display_name} ({old_message.author.id})",
+            description=old_message.content,
+            timestamp=old_message.created_at,
+            colour=old_message.author.colour,
         )
 
-        if message.reference:
+        if old_message.reference:
             try:
-                ref = await ctx.fetch_message(message.reference.message_id)
+                ref = await ctx.fetch_message(old_message.reference.message_id)
                 embed.add_field(
                     name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:", value=ref.content
                 )
+
             except discord.errors.NotFound:
                 embed.set_footer(
                     text="Replying to a message that doesn't exist anymore."
-                    if (message.author.id in config["snipeblock"])
+                    if old_message.author.id in config["snipeblock"]
                     else "Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
+        if snipe["type"] == "edit":
+            embed.add_field(name="Orignal", value=new_message.content, inline=False)
 
-        if not embed.footer and message.author.id not in config["snipeblock"]:
+        if not embed.footer and old_message.author.id not in config["snipeblock"]:
             embed.set_footer(text="React with 🚮 to delete this message.")
 
-        snipemsg = await ctx.reply(f"Sniped message by {message.author.mention}", embed=embed)
+        snipemsg = await ctx.reply(
+            f"Sniped {'deleted' if snipe['type'] == 'delete' else 'edited'} message by {old_message.author.mention}",
+            embed=embed,
+        )
+
         self.snipe_message[ctx.guild.id][ctx.channel.id] = None
 
-        if message.author.id in config["snipeblock"]:
+        if old_message.author.id in config["snipeblock"]:
             return
 
         def check(reaction, user):
-            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
+            return user == old_message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
 
         await snipemsg.add_reaction("🚮")
         await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
