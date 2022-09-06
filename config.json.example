@@ -5,5 +5,6 @@
     "disabled_commands": ["example_command", "example_command2"],
     "token": "ExampleToken",
     "snipeblock": [000000000000000000],
-    "tags": {}
+    "tags": {},
+    "snipetimeout" : 10
 }
