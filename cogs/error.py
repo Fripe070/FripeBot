@@ -14,11 +14,11 @@ class Error(commands.Cog):
     @Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
         self.bot.logger.error(error)
-        if ctx.message.content.lower().startswith(tuple([f"{p}#" for p in config["prefixes"]])):
+        if ctx.message.content.lower().startswith(tuple(f"{p}#" for p in config["prefixes"])):
             return
 
         if isinstance(error, commands.CommandInvokeError):
-            if isinstance(error.original, asyncio.TimeoutError) or isinstance(error.original, TimeoutError):
+            if isinstance(error.original, (asyncio.TimeoutError, TimeoutError)):
                 return
             elif (
                 isinstance(error.original, discord.errors.HTTPException)
@@ -28,7 +28,7 @@ class Error(commands.Cog):
                 return await ctx.send("Too long message.")
 
         # If the command does not exist/is not found.
-        if isinstance(error, commands.CommandNotFound) or isinstance(error, commands.DisabledCommand):
+        if isinstance(error, (commands.CommandNotFound, commands.DisabledCommand)):
             return await ctx.message.add_reaction("❓")
         elif isinstance(error, commands.NotOwner):
             await ctx.message.add_reaction("🔐")
@@ -53,7 +53,7 @@ class Error(commands.Cog):
                     color=0xEB4034,
                 )
             )
-        elif isinstance(error, commands.MemberNotFound) or isinstance(error, commands.UserNotFound):
+        elif isinstance(error, (commands.MemberNotFound, commands.UserNotFound)):
             return await ctx.reply("That's not a valid user!")
         elif isinstance(error, commands.MessageNotFound):
             return await ctx.send("Did you delete your message? ")
