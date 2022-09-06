@@ -218,8 +218,7 @@ class Fun(commands.Cog):
             return
 
         embed = discord.Embed(
-            title=f"Message sent by {old_message.author.display_name} ({old_message.author.id})",
-            description=old_message.content,
+            title=f"Message {'edited' if new_message else 'deleted'} <t:{round(snipe['time'])}:R>",
             timestamp=old_message.created_at,
             colour=old_message.author.colour,
         )
@@ -238,7 +237,10 @@ class Fun(commands.Cog):
                     else "Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
         if new_message is not None:
-            embed.add_field(name="Orignal:", value=new_message.content, inline=False)
+            embed.add_field(name="Orignal:", value=old_message.content, inline=False)
+            embed.add_field(name="New:", value=new_message.content, inline=False)
+        else:
+            embed.description = old_message.content
 
         if not embed.footer and old_message.author.id not in config["snipeblock"]:
             embed.set_footer(text="React with 🚮 to delete this message.")
