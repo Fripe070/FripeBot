@@ -17,7 +17,6 @@ class Listeners(commands.Cog):
         # Detect if the bot is mentioned in the message
         if f"<@{self.bot.user.id}>" in message.content or f"<@!{self.bot.user.id}>" in message.content:
             await message.add_reaction("<:ping_gun:823948139504861225>")
-            await message.reply(f"My prefix is `{config['prefixes'][0]}`", delete_after=5, mention_author=False)
 
         if message.channel.type == discord.ChannelType.private:
             channel = self.bot.get_channel(920014770206294129)
