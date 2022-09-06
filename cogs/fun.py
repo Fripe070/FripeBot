@@ -208,14 +208,14 @@ class Fun(commands.Cog):
 
         snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
 
-        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
-            await ctx.reply(
-                f"The message you are trying to snipe was {'edited' if snipe['new_msg'] else 'deleted'} more than {config['snipetimeout']} seconds ago. "
-            )
-            return
-
         old_message = snipe["old_msg"]
         new_message = snipe["new_msg"]
+
+        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
+            await ctx.reply(
+                f"The message you are trying to snipe was {'edited' if new_message else 'deleted'} more than {config['snipetimeout']} seconds ago. "
+            )
+            return
 
         embed = discord.Embed(
             title=f"Message sent by {old_message.author.display_name} ({old_message.author.id})",
@@ -237,14 +237,14 @@ class Fun(commands.Cog):
                     if old_message.author.id in config["snipeblock"]
                     else "Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
-        if snipe["new_msg"]:
-            embed.add_field(name="Orignal", value=new_message.content, inline=False)
+        if new_message is not None:
+            embed.add_field(name="Orignal:", value=new_message.content, inline=False)
 
         if not embed.footer and old_message.author.id not in config["snipeblock"]:
             embed.set_footer(text="React with 🚮 to delete this message.")
 
         snipemsg = await ctx.reply(
-            f"Sniped {'edited' if snipe['new_msg'] else 'deleted'} message by {old_message.author.mention}",
+            f"Sniped {'edited' if new_message else 'deleted'} message by {old_message.author.mention}",
             embed=embed,
         )
 
