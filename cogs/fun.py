@@ -12,7 +12,7 @@ import requests
 from discord.ext import commands
 
 from assets.customfuncs import randomstring
-from main import config, bot
+from main import config
 
 
 class Fun(commands.Cog):
@@ -315,19 +315,6 @@ class Fun(commands.Cog):
         hmac = randomstring(27)
 
         await ctx.reply(f"{encodedid}.{timestamp}.{hmac}")
-
-    @commands.command()
-    @commands.is_owner()
-    async def sync(self, ctx: commands.Context):
-        MY_GUILD = discord.Object(id=764981968579461130)
-        self.bot.tree.copy_global_to(guild=MY_GUILD)
-        await self.bot.tree.sync(guild=MY_GUILD)
-        await ctx.send("Synced!")
-
-    @bot.hybrid_command()
-    async def test(self, ctx):
-        # this will create a global slash command 'ping' and a message command 'ping'
-        await ctx.send("poggers")
 
 
 async def setup(bot):
