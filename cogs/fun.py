@@ -20,7 +20,6 @@ class Fun(commands.Cog):
         self.bot = bot
 
         self.snipe_message = {}
-        self.snipe_message_edits = {}
 
     @commands.command(aliases=["tc"])
     async def tagcreate(self, ctx: commands.Context, name: str, *, content: str):
@@ -177,7 +176,6 @@ class Fun(commands.Cog):
                     message.channel.id: {
                         "old_msg": message,
                         "new_msg": None,
-                        "type": "delete",
                         "time": time.mktime(datetime.datetime.now().timetuple()),
                     }
                 }
@@ -191,7 +189,6 @@ class Fun(commands.Cog):
                     old_message.channel.id: {
                         "old_msg": old_message,
                         "new_msg": new_message,
-                        "type": "edit",
                         "time": time.mktime(datetime.datetime.now().timetuple()),
                     }
                 }
@@ -213,7 +210,7 @@ class Fun(commands.Cog):
 
         if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
             await ctx.reply(
-                f"The message you are trying to snipe was {'deleted' if snipe['type'] == 'delete' else 'edited'} more than {config['snipetimeout']} seconds ago."
+                f"The message you are trying to snipe was {'edited' if snipe['new_msg'] else 'deleted'} more than {config['snipetimeout']} seconds ago. "
             )
             return
 
@@ -240,14 +237,14 @@ class Fun(commands.Cog):
                     if old_message.author.id in config["snipeblock"]
                     else "Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
                 )
-        if snipe["type"] == "edit":
+        if snipe["new_msg"]:
             embed.add_field(name="Orignal", value=new_message.content, inline=False)
 
         if not embed.footer and old_message.author.id not in config["snipeblock"]:
             embed.set_footer(text="React with 🚮 to delete this message.")
 
         snipemsg = await ctx.reply(
-            f"Sniped {'deleted' if snipe['type'] == 'delete' else 'edited'} message by {old_message.author.mention}",
+            f"Sniped {'edited' if snipe['new_msg'] else 'deleted'} message by {old_message.author.mention}",
             embed=embed,
         )
 
