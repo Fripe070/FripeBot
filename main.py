@@ -32,7 +32,7 @@ with open("config.json") as f:
     config = json.load(f)
 
 bot = Bot(
-    command_prefix=config["prefixes"],
+    command_prefix=commands.when_mentioned_or(config["prefixes"]),
     case_insensitive=True,
     intents=discord.Intents.all(),
     strip_after_prefix=True,
