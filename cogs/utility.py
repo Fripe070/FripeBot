@@ -155,7 +155,7 @@ class Utility(commands.Cog):
             await ctx.reply(embed=embed)
         except discord.errors.HTTPException:
             for part in splitstring(stdout, 1988):
-                await ctx.send(f"```ansi\n{discord.utils.escape_markdown(part)}```")
+                await ctx.send(f"```ansi\n{part}```")
 
     @commands.command(aliases=["exec", "py", "python"])
     @commands.is_owner()
