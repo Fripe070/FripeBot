@@ -165,6 +165,8 @@ class Utility(commands.Cog):
         code = "\t" + code.replace("\n", "\n\t")
         function_code = f"async def __exec_code(self, ctx):\n{code}"
 
+        await ctx.message.add_reaction("<a:loading:894950036964782141>")
+
         with redirect_stdout(io.StringIO()) as out:
             try:
                 exec(function_code)
@@ -172,21 +174,29 @@ class Utility(commands.Cog):
             except Exception as e:
                 stderr = e
             else:
-                stderr = None
-        stdout = out.getvalue()
+                stderr = ""
+        stdout = out.getvalue() or ""
+
+        await ctx.message.remove_reaction("<a:loading:894950036964782141>", self.bot.user)
+        await ctx.message.add_reaction("<:yes:823202605123502100>")
+
 
         embed = discord.Embed(
             title="Code executed.",
             timestamp=ctx.message.created_at,
             colour=ctx.author.colour,
         )
-        if stdout:
-            embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
-        if stderr:
-            embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
 
-        await ctx.reply(embed=embed)
-        await ctx.message.add_reaction("<:yes:823202605123502100>")
+        if len(splitstring(stdout + stderr)) <= 1:
+            if stdout != "":
+                embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+            if stderr != "":
+                embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+
+            await ctx.reply(embed=embed)
+        else:
+            pass
+
 
     @commands.command(aliases=["Eval"])
     @commands.is_owner()
@@ -236,7 +246,7 @@ class Utility(commands.Cog):
 
     @commands.command(aliases=["tourl"])
     async def to_url(self, ctx: commands.Context):
-        """Converts attached files into urls"""
+        """Converts attached files into base64 encoded data:// urls"""
         files = [
             [await attachment.read(), attachment.content_type.split()[0]] for attachment in ctx.message.attachments
         ]

@@ -81,14 +81,14 @@ class Fun(commands.Cog):
         )
 
     @commands.command()
-    async def scramble(self, ctx: commands.Context, *, arg):
+    async def scramble(self, ctx: commands.Context, *, arg: str):
         """Scrambles the text you give it"""
         await ctx.reply("".join(random.sample(arg, len(arg))))
 
     @commands.command(aliases=["jumbo", "emote"])
-    async def emoji(self, ctx: commands.Context, emoji):
+    async def emoji(self, ctx: commands.Context, emoji: str):
         """Gives you info about the emoji suplied"""
-        if not re.match(r"<a?:\w+:\d+>", emoji, flags=re.ASCII):
+        if not re.match(r"\\?<a?:\w+:\d+>", emoji, flags=re.ASCII):
             await ctx.reply("That's not a custom emoji!")
             return
 
