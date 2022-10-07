@@ -180,7 +180,6 @@ class Utility(commands.Cog):
         await ctx.message.remove_reaction("<a:loading:894950036964782141>", self.bot.user)
         await ctx.message.add_reaction("<:yes:823202605123502100>")
 
-
         embed = discord.Embed(
             title="Code executed.",
             timestamp=ctx.message.created_at,
@@ -196,7 +195,6 @@ class Utility(commands.Cog):
             await ctx.reply(embed=embed)
         else:
             pass
-
 
     @commands.command(aliases=["Eval"])
     @commands.is_owner()
