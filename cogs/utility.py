@@ -163,7 +163,7 @@ class Utility(commands.Cog):
         """Executes python code"""
         code = re.sub(r"^```(py(thon)?\n)?|```$", "\t", code, flags=re.IGNORECASE).strip()
         code = "\t" + code.replace("\n", "\n\t")
-        function_code = f"async def __exec_code(self, ctx):\n{code}"
+        function_code = f"async def __exec_code(self, ctx):\n\tbot = self.bot\n{code}"
 
         await ctx.message.add_reaction("<a:loading:894950036964782141>")
 
@@ -186,15 +186,12 @@ class Utility(commands.Cog):
             colour=ctx.author.colour,
         )
 
-        if len(splitstring(stdout + stderr)) <= 1:
-            if stdout != "":
-                embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
-            if stderr != "":
-                embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+        if stdout != "":
+            embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+        if stderr != "":
+            embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
 
-            await ctx.reply(embed=embed)
-        else:
-            pass
+        await ctx.reply(embed=embed)
 
     @commands.command(aliases=["Eval"])
     @commands.is_owner()
