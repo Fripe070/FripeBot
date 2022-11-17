@@ -203,7 +203,8 @@ class Scraping(commands.Cog):
 
             await scrape_msg.edit(content=f"Scraping: {channel.mention} ({channel.name})")
 
-            channelpath = guildpath
+            channelpath = guildpath / "channels"
+            ensuredir(channelpath)
             if channel.category:
                 channelpath = channelpath / str(channel.category.name)
                 ensuredir(channelpath)
