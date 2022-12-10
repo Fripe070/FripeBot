@@ -309,6 +309,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
         ]
         issues = []
         for project in projects:
+            # noinspection RegExpUnnecessaryNonCapturingGroup
             issues += re.findall(rf"(?:{'|'.join(config['prefixes'])})({project}-\d+)", message.content)
         for issue in issues:
             r = requests.get(f"https://bugs.mojang.com/rest/api/latest/issue/{issue}").json()
