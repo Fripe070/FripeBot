@@ -17,7 +17,7 @@ class Info(commands.Cog):
         bots = len([member for member in ctx.guild.members if member.bot])
         embed = discord.Embed(
             title="Member Info",
-            description=f"Bot/user ratio: {round(bots/users, 2)} bots for each human",
+            description=f"**Bot/user ratio:** {round(bots/users, 2)} bots for each human",
             colour=ctx.author.colour,
             timestamp=ctx.message.created_at,
         )
