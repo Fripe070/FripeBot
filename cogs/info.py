@@ -13,19 +13,22 @@ class Info(commands.Cog):
     @commands.command()
     async def members(self, ctx: commands.Context):
         """Counts the amount of people in the server"""
+        users = len([member for member in ctx.guild.members if not member.bot])
+        bots = len([member for member in ctx.guild.members if member.bot])
         embed = discord.Embed(
+            title="Member Info",
+            description=f"Bot/user ratio: {round(bots/users, 2)} bots for each human",
             colour=ctx.author.colour,
             timestamp=ctx.message.created_at,
-            title="Member Info",
         )
         embed.set_footer(text=f"Requested by {ctx.author.display_name}")
         embed.add_field(
             name="Users:",
-            value=f"{len([member for member in ctx.guild.members if not member.bot])}",
+            value=f"{users}",
         )
         embed.add_field(
             name="Bots:",
-            value=f"{len([member for member in ctx.guild.members if member.bot])}",
+            value=f"{bots}",
         )
         embed.add_field(name="Total:", value=f"{len(ctx.guild.members)}")
         await ctx.reply(embed=embed)
