@@ -34,8 +34,10 @@ class Utility(commands.Cog):
 
     @commands.command(aliases=["bash", "batch"])
     @commands.is_owner()
-    async def terminal(self, ctx: commands.Context, *, args):
-        p = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
+    async def terminal(self, ctx: commands.Context, *, args: str):
+        parsed_args = re.sub(r"^```(\S+)?|```$", "", args).strip()
+
+        p = subprocess.Popen(parsed_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         stdout, stderr = p.communicate()
         stdout, stderr = stdout.decode("utf-8"), stderr.decode("utf-8")
 
