@@ -8,7 +8,7 @@ from assets.customfuncs import get_cogs
 
 
 class Bot(commands.Bot):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
         self.logger = logging.getLogger("discord")
@@ -26,6 +26,11 @@ class Bot(commands.Bot):
                 bot.logger.info(f"Cog loaded: {cog}")
             except Exception as error:
                 bot.logger.error(error)
+
+    # Allows other bots to run commands with my bot, because why not
+    async def process_commands(self, message: discord.Message, /) -> None:
+        ctx = await self.get_context(message)
+        await self.invoke(ctx)
 
 
 with open("config.json") as f:
