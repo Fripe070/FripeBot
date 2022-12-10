@@ -77,16 +77,20 @@ class Utility(commands.Cog):
         await ctx.message.remove_reaction("<a:loading:894950036964782141>", self.bot.user)
         await ctx.message.add_reaction("<:yes:823202605123502100>")
 
+        title = "Code executed "
+        if stderr is not None:
+            title += f"with an exeption: `{type(stderr).__name__}`"
+
         embed = discord.Embed(
-            title="Code executed.",
+            title=title,
             timestamp=ctx.message.created_at,
             colour=discord.Colour.red() if stderr else discord.Colour.green(),
         )
 
         if stdout is not None:
-            embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+            embed.add_field(name="stdout:", value=f"```ansi\n{stdout}```", inline=False)
         if stderr is not None:
-            embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+            embed.add_field(name="stderr:", value=f"```ansi\n{stderr}```", inline=False)
 
         await ctx.reply(embed=embed)
 
@@ -109,15 +113,18 @@ class Utility(commands.Cog):
                 stderr = None
         stdout = out.getvalue()
 
+        title = "Code evaluated "
+        if stderr is not None:
+            title += f"with an exeption: `{type(stderr).__name__}`"
         embed = discord.Embed(
-            title="Code evaluated.",
+            title=title,
             timestamp=ctx.message.created_at,
             colour=discord.Colour.red() if stderr else discord.Colour.green(),
         )
         if stdout:
-            embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
+            embed.add_field(name="stdout:", value=f"```ansi\n{stdout}```", inline=False)
         if stderr:
-            embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
+            embed.add_field(name="stderr:", value=f"```ansi\n{stderr}```", inline=False)
 
         await ctx.reply(embed=embed)
         await ctx.message.add_reaction("<:yes:823202605123502100>")
