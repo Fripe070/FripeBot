@@ -47,7 +47,7 @@ class Info(commands.Cog):
                     for definition in meaning["definitions"][:2]:
                         if len(fields) >= 6:
                             break
-                        synonyms = [synonym for synonym in meaning["synonyms"]]
+                        synonyms = list(meaning["synonyms"])
                         for defs in meaning["definitions"]:
                             for synonym in defs["synonyms"]:
                                 synonyms.append(synonym)
@@ -194,6 +194,15 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         )
         embed.set_footer(text=f"{len(roles)} roles in total.")
         await ctx.reply(embed=embed)
+
+    @commands.command()
+    async def pep(self, ctx: commands.Context, pep: int = 0):
+        """Send the link to the specified python pep."""
+        url = f"https://peps.python.org/pep-{pep:04d}"
+        r = requests.head(url)
+        if r.status_code == 404:
+            return await ctx.reply("That PEP doesn't exist.")
+        await ctx.reply(url)
 
 
 async def setup(bot: commands.Bot) -> None:
