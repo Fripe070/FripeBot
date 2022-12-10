@@ -30,11 +30,7 @@ class Fun(commands.Cog):
     @commands.command(aliases=["t", "tags"])
     async def tag(self, ctx: commands.Context, name: str = None):
         if name is None:
-            embed = discord.Embed(
-                title="Tags:",
-                description=", ".join(config["tags"].keys()),
-                colour=ctx.author.colour
-            )
+            embed = discord.Embed(title="Tags:", description=", ".join(config["tags"].keys()), colour=ctx.author.colour)
             return await ctx.send(embed=embed)
         if name not in config["tags"]:
             return await ctx.reply("There is no tag with that name.")
