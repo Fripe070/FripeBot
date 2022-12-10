@@ -41,6 +41,28 @@ class Utility(commands.Cog):
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["bannerget", "banner"])
+    async def getbanner(self, ctx: commands.Context, user: discord.User = None):
+        """Gets a users banner picture at a high resolution"""
+        if user is None:
+            user = ctx.message.author
+
+        user = await self.bot.fetch_user(user.id)
+
+        banner = user.banner
+        if banner is None:
+            return await ctx.reply("That user doesn't have a banner.")
+        banner = banner.with_size(4096).with_static_format("png")
+
+        embed = discord.Embed(
+            colour=user.colour,
+            timestamp=ctx.message.created_at,
+            title=f"{user.display_name}'s banner",
+        )
+        embed.set_image(url=banner)
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.send(embed=embed)
+
     @commands.command()
     async def whois(self, ctx: commands.Context, user: discord.User = None):
         """Displays information about a discord user"""
