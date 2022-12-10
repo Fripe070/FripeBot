@@ -4,7 +4,6 @@ import datetime
 import json
 import math
 import random
-import re
 import time
 
 import discord
@@ -84,31 +83,6 @@ class Fun(commands.Cog):
     async def scramble(self, ctx: commands.Context, *, arg: str):
         """Scrambles the text you give it"""
         await ctx.reply("".join(random.sample(arg, len(arg))))
-
-    @commands.command(aliases=["jumbo", "emote"])
-    async def emoji(self, ctx: commands.Context, emoji: str):
-        """Gives you info about the emoji suplied"""
-        if not re.match(r"\\?<a?:\w+:\d+>", emoji, flags=re.ASCII):
-            await ctx.reply("That's not a custom emoji!")
-            return
-
-        emoji = emoji.split(":")
-        emoji_id = int(emoji[2][:-1])
-        emoji_name = emoji[1]
-        animated = emoji[0] == "<a"
-
-        embed = discord.Embed(
-            title="Emoji Info",
-            description=f"Emoji name: `{emoji_name}`\nEmoji ID: `{emoji_id}`\nAnimated: {animated}",
-            timestamp=ctx.message.created_at,
-            color=ctx.author.color,
-        )
-
-        file_ext = "gif" if animated else "png"
-
-        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096")
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.reply(embed=embed)
 
     @commands.command(aliases=["Say"])
     @commands.is_owner()

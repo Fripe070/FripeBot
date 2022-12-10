@@ -421,6 +421,32 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
+    @commands.command(aliases=["jumbo", "emote"])
+    async def emoji(self, ctx: commands.Context, emoji: str):
+        """Gives you info about the emoji suplied"""
+        if not re.match(r"`?\\?<a?:\w+:\d+>`?", emoji, flags=re.ASCII):
+            await ctx.reply("That's not a custom emoji!")
+            return
+
+        emoji = emoji.split(":")
+        emoji_id = re.search("[0-9]+", emoji[2])[0]
+        print(emoji_id)
+        emoji_name = emoji[1]
+        animated = emoji[0] == "<a"
+
+        embed = discord.Embed(
+            title="Emoji Info",
+            description=f"Emoji name: `{emoji_name}`\nEmoji ID: `{emoji_id}`\nAnimated: {animated}",
+            timestamp=ctx.message.created_at,
+            color=ctx.author.color,
+        )
+
+        file_ext = "gif" if animated else "png"
+
+        embed.set_image(url=f"https://cdn.discordapp.com/emojis/{emoji_id}.{file_ext}?size=4096")
+        embed.set_footer(text=f"Requested by {ctx.author}")
+        await ctx.reply(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Info(bot))
