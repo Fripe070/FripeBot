@@ -45,5 +45,5 @@ class Listeners(commands.Cog):
                 await message.reply(url, mention_author=False)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Listeners(bot))

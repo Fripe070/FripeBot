@@ -156,5 +156,5 @@ class Owner(commands.Cog):
         await ctx.reply(respnse)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Owner(bot))

@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 
 import discord
 from discord.ext import commands
@@ -38,12 +39,12 @@ class Error(commands.Cog):
             def check(reaction, user):
                 return user == owner and str(reaction.emoji) == "🔐" and reaction.message == ctx.message
 
-            if await self.bot.wait_for("reaction_add", timeout=60.0, check=check):
-                new_ctx = ctx
-                # Not really sure why it complains, but it works (I hope)
-                # noinspection PyPropertyAccess
-                new_ctx.author = owner
-                await self.bot.invoke(new_ctx)
+            with contextlib.suppress(asyncio.exceptions.TimeoutError):
+                if await self.bot.wait_for("reaction_add", timeout=60.0, check=check):
+                    new_ctx = ctx
+                    # Not really sure why it complains, but it works (I hope)
+                    new_ctx.author = owner
+                    await self.bot.invoke(new_ctx)
             return
         elif isinstance(error, commands.CommandOnCooldown):
             return await ctx.reply(
@@ -81,5 +82,5 @@ class Error(commands.Cog):
         raise error
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Error(bot))

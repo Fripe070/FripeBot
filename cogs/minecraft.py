@@ -385,5 +385,5 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
             await message.reply(embed=embed)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Minecraft(bot))

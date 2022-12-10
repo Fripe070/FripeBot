@@ -196,5 +196,5 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         await ctx.reply(embed=embed)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Info(bot))

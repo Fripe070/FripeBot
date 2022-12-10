@@ -95,5 +95,5 @@ Running on: {platform.system()} {platform.release()}"""
         await ctx.send(user.mention if user else "", embed=embed)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Meta(bot))

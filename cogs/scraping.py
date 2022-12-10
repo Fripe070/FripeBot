@@ -119,11 +119,7 @@ async def raw_history(
     if isinstance(around, datetime):
         around = Object(id=utils.time_snowflake(around))
 
-    if oldest_first is None:
-        reverse = after is not None
-    else:
-        reverse = oldest_first
-
+    reverse = after is not None if oldest_first is None else oldest_first
     after = after or OLDEST_OBJECT
     predicate = None
 
@@ -229,5 +225,5 @@ class Scraping(commands.Cog):
         await scrape_msg.reply(f"{ctx.author.mention}")
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Scraping(bot))

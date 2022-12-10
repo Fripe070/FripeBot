@@ -316,5 +316,5 @@ class Fun(commands.Cog):
         await ctx.reply(f"{encodedid}.{timestamp}.{hmac}")
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Fun(bot))

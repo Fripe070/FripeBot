@@ -22,5 +22,5 @@ class ThatOtherDev(commands.Cog):
         await ctx.reply(shortest)
 
 
-async def setup(bot):
+async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(ThatOtherDev(bot))
