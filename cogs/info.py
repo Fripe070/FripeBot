@@ -272,7 +272,14 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         if user.banner:
             embed.set_image(url=user.banner.url)
 
-        avatar = user.display_avatar.with_size(4096).with_static_format("png")
+        if memberhere is not None:
+            avatar_user = memberhere
+        elif member is not None:
+            avatar_user = member
+        else:
+            avatar_user = user
+        avatar = avatar_user.display_avatar.with_size(4096).with_static_format("png")
+
         # This is here in case the profile picture doesn't exist, but stil gets returned by discord's api
         try:
             await avatar.read()
@@ -349,22 +356,48 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         if not user:
             user = ctx.message.author
 
-        avatar = user.display_avatar.with_size(4096).with_static_format("png")
+        global_avatar = user.avatar.with_size(4096).with_static_format("png")
 
         # This is here in case the profile picture doesn't exist, but stil gets returned by discord's api
         try:
-            await avatar.read()
+            await global_avatar.read()
         except discord.errors.NotFound:
-            avatar = user.default_avatar
+            global_avatar = user.default_avatar
 
-        embed = discord.Embed(
+        global_avatar_embed = discord.Embed(
             colour=user.colour,
             timestamp=ctx.message.created_at,
             title=f"{user.display_name}'s pfp",
         )
-        embed.set_image(url=avatar)
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.send(embed=embed)
+        global_avatar_embed.set_image(url=global_avatar)
+        global_avatar_embed.set_footer(text=f"Requested by {ctx.author}")
+        embeds = [global_avatar_embed]
+
+        memberhere = ctx.guild.get_member(user.id)
+        member = user.mutual_guilds[0].get_member(user.id) if user.mutual_guilds else None
+        if memberhere is not None:
+            new_user = memberhere
+        elif member is not None:
+            new_user = member
+        else:
+            new_user = user
+        local_avatar = new_user.display_avatar.with_size(4096).with_static_format("png")
+        try:
+            await local_avatar.read()
+        except discord.errors.NotFound:
+            local_avatar = user.default_avatar
+
+        if global_avatar != local_avatar:
+            local_avatar_embed = discord.Embed(
+                colour=user.colour,
+                timestamp=ctx.message.created_at,
+                title=f"{new_user.display_name}'s server specific pfp",
+            )
+            local_avatar_embed.set_image(url=local_avatar)
+            local_avatar_embed.set_footer(text=f"Requested by {ctx.author}")
+            embeds.append(local_avatar_embed)
+
+        await ctx.send(embeds=embeds)
 
     @commands.command(aliases=["bannerget", "banner"])
     async def getbanner(self, ctx: commands.Context, user: discord.User = None):
