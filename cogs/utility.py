@@ -71,8 +71,8 @@ class Utility(commands.Cog):
             except Exception as e:
                 stderr = e
             else:
-                stderr = ""
-        stdout = out.getvalue() or ""
+                stderr = None
+        stdout = out.getvalue() or None
 
         await ctx.message.remove_reaction("<a:loading:894950036964782141>", self.bot.user)
         await ctx.message.add_reaction("<:yes:823202605123502100>")
@@ -80,12 +80,12 @@ class Utility(commands.Cog):
         embed = discord.Embed(
             title="Code executed.",
             timestamp=ctx.message.created_at,
-            colour=ctx.author.colour,
+            colour=discord.Colour.red() if stderr else discord.Colour.green(),
         )
 
-        if stdout != "":
+        if stdout is not None:
             embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
-        if stderr != "":
+        if stderr is not None:
             embed.add_field(name="stderr", value=f"```ansi\n{stderr}```", inline=False)
 
         await ctx.reply(embed=embed)
@@ -112,7 +112,7 @@ class Utility(commands.Cog):
         embed = discord.Embed(
             title="Code evaluated.",
             timestamp=ctx.message.created_at,
-            colour=ctx.author.colour,
+            colour=discord.Colour.red() if stderr else discord.Colour.green(),
         )
         if stdout:
             embed.add_field(name="stdout", value=f"```ansi\n{stdout}```", inline=False)
