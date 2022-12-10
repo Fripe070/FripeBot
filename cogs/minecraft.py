@@ -189,7 +189,7 @@ class Minecraft(commands.Cog):
         embed.set_footer(text=f"Command executed by: {ctx.author.display_name}")
         await ctx.reply(embed=embed)
 
-    @commands.command()
+    @commands.command(aliases=["mcsrvr"])
     async def mcserver(self, ctx: commands.Context, ip=None, port=None):
         if ip is None:
             await ctx.reply("You have to specify a server ip.")
@@ -274,12 +274,15 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 
     @commands.command(aliases=["nbt", "nbttojson", "jsonnbt", "nbtjson"])
     async def nbtread(self, ctx: commands.Context):
-        file = await ctx.message.attachments[0].to_file()
+        try:
+            file = await ctx.message.attachments[0].to_file()
+        except IndexError:
+            return await ctx.reply("You need to attach an NBT file")
         try:
             nbt = python_nbt.nbt.read_from_nbt_file(file.fp)
         except BadGzipFile:
-            await ctx.reply("This file is not a valid NBT file.")
-            return
+            return await ctx.reply("This file is not a valid NBT file.")
+
         nbt = json.loads(str(nbt).replace('"', '\\"').replace("'", '"'))
         nbt = json.dumps(nbt, indent=4)
         if len(str(nbt)) > 3988:
