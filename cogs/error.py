@@ -3,7 +3,6 @@ import contextlib
 
 import discord
 from discord.ext import commands
-from discord.ext.commands import Cog
 
 from main import config
 
@@ -12,7 +11,7 @@ class Error(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @Cog.listener()
+    @commands.Cog.listener()
     async def on_command_error(self, ctx: commands.Context, error: Exception):
         self.bot.logger.error(error)
         if ctx.message.content.lower().startswith(tuple(f"{p}#" for p in config["prefixes"])):
@@ -40,10 +39,13 @@ class Error(commands.Cog):
                 return user == owner and str(reaction.emoji) == "🔐" and reaction.message == ctx.message
 
             with contextlib.suppress(asyncio.exceptions.TimeoutError):
-                if await self.bot.wait_for("reaction_add", timeout=60.0, check=check):
+                if await self.bot.wait_for("reaction_add", timeout=120.0, check=check):
                     new_ctx = ctx
-                    # Not really sure why it complains, but it works (I hope)
-                    new_ctx.author = owner
+                    # Replaces the ctx message author with the bot owner, thus allowing the command to execute
+                    new_ctx.__setattr__("author", owner)
+
+                    with contextlib.suppress(discord.Forbidden):
+                        await ctx.message.clear_reaction("🔐")
                     await self.bot.invoke(new_ctx)
             return
         elif isinstance(error, commands.CommandOnCooldown):
