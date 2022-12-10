@@ -131,43 +131,6 @@ class Fun(commands.Cog):
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.send(embed=embed)
 
-    @commands.command()
-    async def activity(self, ctx: commands.Context, *, activity_name=None):
-        """Starts a discord activity, this requires invite permissions"""
-        activities = {
-            "poker night": "755827207812677713",
-            "betrayal.io": "773336526917861400",
-            "fishington": "814288819477020702",
-            "chess in the park": "832012774040141894",
-            "checkers in the park": "832013003968348200",
-            "blazing 8s": "832025144389533716",
-            "watch together": "880218394199220334",
-            "doodle crew": "878067389634314250",
-            "letter league": "879863686565621790",
-            "word snacks": "879863976006127627",
-            "sketch heads": "902271654783242291",
-            "spellcast": "852509694341283871",
-            "land-io": "903769130790969345",
-            "putt party": "945737671223947305",
-        }
-
-        if not activity_name:
-            return await ctx.reply(
-                "You need to give me an activity to launch!\nPossible activities: " + ", ".join(activities.keys())
-            )
-        activity_name = activity_name.lower()
-        if activity_name not in activities.keys():
-            return await ctx.reply("That's not a valid activity.\nPossible activities: " + ", ".join(activities.keys()))
-        if ctx.author.voice is None:
-            return await ctx.reply("You need to be in a voice channel to use this command.")
-
-        invite = await ctx.author.voice.channel.create_invite(
-            max_age=3600,
-            target_type=discord.InviteTarget.embedded_application,
-            target_application_id=activities[activity_name],
-        )
-        await ctx.send(invite.url)
-
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
         if message.author != self.bot.user:
