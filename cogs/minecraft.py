@@ -292,6 +292,7 @@ First went public: <t:1242554400:D> (<t:1242554400:R>)
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        """Listens to mojira tickets being mentioned in messages"""
         if message.author == self.bot.user:
             return
         if not config["mojira"]:
