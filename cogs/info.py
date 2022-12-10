@@ -447,7 +447,7 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=["getrawmsg", "raw", "rawmsg", "rawmessage", ])
+    @commands.command(aliases=["getmsg", "raw", "rawmsg"])
     async def getraw(self, ctx: commands.Context, msg: int | str = None):
         """Returns the raw message being linked"""
         if isinstance(msg, int):

@@ -64,7 +64,7 @@ class Minecraft(commands.Cog):
         await msg.edit(content=None)
 
     @commands.command(aliases=["mcplayer", "mcuser", "mcusr"])
-    async def playerinfo(self, ctx: commands.Context, player):
+    async def playerinfo(self, ctx: commands.Context, player: str):
         await ctx.message.add_reaction("<a:loading:894950036964782141>")
         msg = await ctx.send("Fetching player UUID... (this might take a while)")
         url = f"https://api.mojang.com/users/profiles/minecraft/{player}"
@@ -78,37 +78,6 @@ class Minecraft(commands.Cog):
                 await ctx.reply("That username is not taken.")
                 await msg.delete()
                 return
-
-        await msg.edit(content="Fetching player names... (this might take a while)")
-        url = f"https://api.mojang.com/user/profiles/{uuid}/names"
-        tmprequest = requests.get(url).json()
-        pastnames = []
-        for name in tmprequest:
-            if "changedToAt" in name:
-                pastnames.append(f"{name['name']} (<t:{int(name['changedToAt']) // 1000}:R>)")
-            else:
-                pastnames.append(name["name"])
-
-        oldestname = pastnames[0]
-        pastnames.reverse()
-        pastnamesstring = ""
-
-        i = 0
-        for name in pastnames:
-            i += 1
-            if name != oldestname:
-                if (
-                    len(
-                        f"{pastnamesstring}{name}\n{oldestname} and {len(pastnames[i:])} more\n\n**Original:**\n{oldestname}"
-                    )
-                    < 1020
-                ):
-                    pastnamesstring += f"{name}\n"
-                else:
-                    pastnamesstring += f"and {len(pastnames[i:])} more\n"
-                    break
-
-        pastnamesstring += f"\n**Original name:**\n{oldestname}"
 
         await msg.edit(content="Fetching player model info... (this might take a while)")
 
@@ -180,14 +149,13 @@ class Minecraft(commands.Cog):
 
         await msg.edit(content="Applying embed description... (this might take a while)")
         embed = discord.Embed(
-            title=f'Minecraft user information for player "{username}"',
+            title=f"Minecraft user information for player: `{username}`",
             description=embed_desc,
         )
 
         await msg.edit(content="Applying embed thumbnail... (this might take a while)")
         with contextlib.suppress(KeyError):
             embed.set_thumbnail(url=f"https://crafatar.com/renders/body/{uuid}?overlay")
-        embed.add_field(name="Name history:", value=pastnamesstring)
 
         await msg.edit(content="Fetching player info from the hypixel API... (this might take a while)")
         with contextlib.suppress(KeyError):
