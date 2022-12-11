@@ -322,9 +322,12 @@ class Fun(commands.Cog):
         await msg.edit(embed=embed, attachments=[file])
 
         def check(reaction, user):
-            trash = list(filter(lambda x: x.emoji == "🚮", reaction.message.reactions))
-            # We do greater than because the bot always reacts, so the number will be 1 higher than we might expect
-            return trash[0].count > 2 and reaction.message == msg
+            try:
+                trash = list(filter(lambda x: x.emoji == "🚮", reaction.message.reactions))
+                # We do greater than because the bot always reacts, so the number will be 1 higher than we might expect
+                return trash[0].count > 2 and reaction.message == msg
+            except IndexError:
+                return False
 
         await msg.add_reaction("🚮")
         with contextlib.suppress(asyncio.TimeoutError):
