@@ -6,5 +6,6 @@
     "token": "ExampleToken",
     "snipeblock": [000000000000000000],
     "tags": {},
-    "snipetimeout" : 10
+    "snipetimeout" : 10,
+    "stable_horde": "0000000000"
 }

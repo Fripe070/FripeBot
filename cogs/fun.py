@@ -1,6 +1,8 @@
+import asyncio
 import base64
 import contextlib
 import datetime
+import io
 import json
 import math
 import random
@@ -254,6 +256,72 @@ class Fun(commands.Cog):
         hmac = randomstring(27)
 
         await ctx.reply(f"{encodedid}.{timestamp}.{hmac}")
+
+    @commands.command(aliases=["aigen", "aiimg", "imggen"])
+    async def stablehorde(self, ctx: commands.Context, seed: int | str, *, prompt: str = ""):
+        """Uses AI to generate an image with the stable horde API."""
+        if isinstance(seed, str):
+            prompt = f"{seed} {prompt}"
+            seed = None
+        if prompt == "":
+            return await ctx.reply("You need to provide a prompt.")
+
+        base_url = "https://stablehorde.net/api"
+        r = requests.post(
+            f"{base_url}/v2/generate/async",
+            headers={"apikey": config["stable_horde"]},
+            json={
+                "prompt": prompt,
+                "nsfw": False,
+                "trusted_workers": False,
+            },
+        )
+        if r.status_code != 202:
+            return await ctx.reply(f"API returned status code {r.status_code}")
+
+        generation_id = r.json()["id"]
+
+        embed = discord.Embed(
+            title="Generating image...",
+            description=f"**Prompt:** {discord.utils.escape_markdown(prompt)}\n**Seed:** {seed if seed is not None else 'random'}",
+            colour=ctx.author.colour,
+        )
+        embed.add_field(name="Status", value="Initialising...")
+        msg = await ctx.reply(embed=embed)
+
+        done = False
+        while not done:
+            await asyncio.sleep(2)
+            r = requests.get(f"{base_url}/v2/generate/check/{generation_id}").json()
+            done = r["done"]
+            embed.remove_field(0)
+            embed.add_field(
+                name="Status",
+                value=f"""
+**Images finished:** {r["finished"]}
+**Estimated to be done:**: <t:{round(time.time()) + r["wait_time"]}:R>
+**Queue position:** {r["queue_position"]}
+**State:** {"Processing" if r["processing"] else "Waiting"}
+""",
+            )
+            await msg.edit(embed=embed)
+
+        r = requests.get(f"{base_url}/v2/generate/status/{generation_id}").json()["generations"]
+        r = r[0]  # only one image is generated with this command
+        embed = discord.Embed(
+            title="Image generated.",
+            colour=ctx.author.colour
+        )
+        embed.description = f"""
+**Prompt:** {discord.utils.escape_markdown(prompt)}
+**Seed:** `{r["seed"]}` {"(random)" if seed is None else ""}
+**Model:** {r["model"].replace("_", " ").title()}
+"""
+
+        file = discord.File(io.BytesIO(base64.b64decode(r["img"])), filename="image.webp")
+        embed.set_image(url="attachment://image.webp")
+
+        await msg.edit(embed=embed, attachments=[file])
 
 
 async def setup(bot: commands.Bot) -> None:
