@@ -317,6 +317,7 @@ class Fun(commands.Cog):
 
         file = discord.File(io.BytesIO(base64.b64decode(r["img"])), filename="image.webp")
         embed.set_image(url="attachment://image.webp")
+        embed.set_footer(text="React with 🚮 to delete this image.")
 
         await msg.edit(embed=embed, attachments=[file])
 
