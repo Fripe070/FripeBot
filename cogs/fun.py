@@ -308,10 +308,7 @@ class Fun(commands.Cog):
 
         r = requests.get(f"{base_url}/v2/generate/status/{generation_id}").json()["generations"]
         r = r[0]  # only one image is generated with this command
-        embed = discord.Embed(
-            title="Image generated.",
-            colour=ctx.author.colour
-        )
+        embed = discord.Embed(title="Image generated.", colour=ctx.author.colour)
         embed.description = f"""
 **Prompt:** {discord.utils.escape_markdown(prompt)}
 **Seed:** `{r["seed"]}` {"(random)" if seed is None else ""}
@@ -322,6 +319,18 @@ class Fun(commands.Cog):
         embed.set_image(url="attachment://image.webp")
 
         await msg.edit(embed=embed, attachments=[file])
+
+        def check(reaction, user):
+            trash = list(filter(lambda x: x.emoji == "🚮", reaction.message.reactions))
+            # We do greater than because the bot always reacts, so the number will be 1 higher than we might expect
+            return trash[0].count > 2 and reaction.message == msg
+
+        await msg.add_reaction("🚮")
+        with contextlib.suppress(asyncio.TimeoutError):
+            await self.bot.wait_for("reaction_add", timeout=60 * 10, check=check)
+            embed.title = "Image deleted."
+            await msg.edit(embed=embed, attachments=[])
+            return
 
 
 async def setup(bot: commands.Bot) -> None:
