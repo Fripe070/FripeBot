@@ -140,10 +140,10 @@ class Fun(commands.Cog):
     async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
         if (
-            not self.snipe_message
-            or ctx.guild.id not in self.snipe_message.keys()
-            or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
-            or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
+                not self.snipe_message
+                or ctx.guild.id not in self.snipe_message.keys()
+                or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
+                or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
         ):
             await ctx.reply("No message was deleted/edited.")
             return
@@ -289,11 +289,10 @@ class Fun(commands.Cog):
         embed.add_field(name="Status", value="Initialising...")
         msg = await ctx.reply(embed=embed)
 
-        done = False
-        while not done:
-            await asyncio.sleep(2)
+        # Using a for loop here rather than a while loop, so it aborts after 5 minutes of no img being returned
+        for _ in range(60 * 5):
             r = requests.get(f"{base_url}/v2/generate/check/{generation_id}").json()
-            done = r["done"]
+
             embed.remove_field(0)
             embed.add_field(
                 name="Status",
@@ -305,6 +304,11 @@ class Fun(commands.Cog):
 """,
             )
             await msg.edit(embed=embed)
+
+            # Stop if the image is ready
+            if r["done"]:
+                break
+            await asyncio.sleep(1)
 
         r = requests.get(f"{base_url}/v2/generate/status/{generation_id}").json()["generations"]
         r = r[0]  # only one image is generated with this command
