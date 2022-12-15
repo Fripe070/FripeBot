@@ -1,3 +1,5 @@
+import asyncio
+import contextlib
 import random
 import re
 
@@ -89,7 +91,10 @@ class Info(commands.Cog):
             )
 
         await askmessage.add_reaction("<:yes:823202605123502100>")
-        await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
+        try:
+            await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
+        except asyncio.exceptions.TimeoutError:
+            return
 
         r = requests.get(f"https://api.urbandictionary.com/v0/define?term={word}")
         r = r.json()
@@ -140,8 +145,9 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             return user == ctx.message.author and str(reaction.emoji) == "🚮"
 
         await askmessage.add_reaction("🚮")
-        await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
-        await askmessage.delete()
+        with contextlib.suppress(asyncio.exceptions.TimeoutError):
+            await self.bot.wait_for("reaction_add", timeout=30.0, check=check)
+            await askmessage.delete()
 
     @commands.command(aliases=["wiki"])
     async def wikipedia(self, ctx, flag=None, articles=None, *, query=None):

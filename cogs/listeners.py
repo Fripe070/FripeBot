@@ -1,3 +1,5 @@
+import asyncio
+import contextlib
 import re
 
 import discord
@@ -34,8 +36,9 @@ class Listeners(commands.Cog):
                 "https://cdn.discordapp.com/attachments/776166607448965133/862286194422710272/argument.mp4"
             )
             await msg.add_reaction("🚮")
-            await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
-            await msg.delete()
+            with contextlib.suppress(asyncio.exceptions.TimeoutError):
+                await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
+                await msg.delete()
 
         prefixes = config["prefixes"]  # doesn't work when I put this directly inside the regex for some reason
         if colours := re.findall(rf"(?:{'|'.join(prefixes)})#([\dA-Fa-f]{{6}})", message.content, flags=re.IGNORECASE):

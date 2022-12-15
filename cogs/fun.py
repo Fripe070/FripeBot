@@ -201,8 +201,9 @@ class Fun(commands.Cog):
             return user == old_message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
 
         await snipemsg.add_reaction("🚮")
-        await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
-        await snipemsg.delete()
+        with contextlib.suppress(asyncio.exceptions.TimeoutError):
+            await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
+            await snipemsg.delete()
 
     @commands.command()
     async def unsplash(self, ctx: commands.Context, query: str = "bread"):
