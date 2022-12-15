@@ -182,6 +182,12 @@ class Scraping(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    async def get_messages(self, channel, limit=100):
+        messages = []
+        async for message in channel.history(limit=limit):
+            messages.append(message)
+        return messages
+
     @commands.command()
     @commands.is_owner()
     async def scrape(self, ctx: commands.Context, limit: int = None):
@@ -209,6 +215,7 @@ class Scraping(commands.Cog):
             self.bot.logger.info(f"Started scraping {channel.name}.")
             messages = []
             try:
+                # Trust me PyCharm, this exists :)
                 # noinspection PyUnresolvedReferences
                 async for message in channel.raw_history(limit=limit):
                     messages.append(message)
