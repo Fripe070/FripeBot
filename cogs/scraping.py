@@ -373,7 +373,6 @@ class Scraping(commands.Cog):
         guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
         await log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id}), saving...", self.bot.logger, msg)
 
-        print(json.dumps(guild_dict["channels"][796492337789403156], indent=4))
         guild_dir = Path("scraped guilds/")
         guild_dir.mkdir(exist_ok=True)
         file_name = "".join(char for char in ctx.guild.name if char.isalnum() or char in "-_ .") + ".json"
