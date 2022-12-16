@@ -129,7 +129,9 @@ async def log_and_send(content: str, logger: logging.Logger, message: discord.Me
     return msg
 
 
-async def get_messages(channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None) -> list:
+async def get_messages(
+    channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None
+) -> list:
     # If this ever errors, I blame future fripe.
     self_perms = channel.permissions_for(channel.guild.me)
     if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
@@ -328,8 +330,6 @@ class Scraping(commands.Cog):
         msg = await log_and_send(
             f"Scraping general metadata of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, ctx
         )
-
-        guild_path = Path(f"scraped guilds/{ctx.guild.name}")
 
         guild_dict = await get_object_atrs(ctx.guild)
         guild_dict["premium_subscribers"] = [member.id for member in ctx.guild.premium_subscribers]
