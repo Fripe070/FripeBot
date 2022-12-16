@@ -207,6 +207,24 @@ async def get_guild_data(guild: discord.Guild) -> dict:
     return atrs
 
 
+async def get_audit_log(guild: discord.Guild) -> list:
+    audit_log = []
+    async for entry in guild.audit_logs(limit=1):
+
+        async def check(name, value):
+            if isinstance(value, (discord.AuditLogAction, discord.AuditLogActionCategory)):
+                # noinspection PyUnresolvedReferences
+                return value.name
+            return None
+
+        atrs = await get_object_atrs(entry, check=check)
+        print(atrs)
+
+        audit_log.append(atrs)
+
+    return audit_log
+
+
 async def get_emojis(guild: discord.Guild) -> list:
     emojis = []
     for emoji in guild.emojis:
@@ -348,8 +366,11 @@ class Scraping(commands.Cog):
         await log_and_send(f"Scraping roles in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
         guild_dict["roles"] = await get_roles(ctx.guild)
 
-        guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
+        await log_and_send(f"Scraping audit logs of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["audit_logs"] = await get_audit_log(ctx.guild)
 
+        # Logging is done within the get_channels method
+        guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
         await log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id}), saving...", self.bot.logger, msg)
 
         print(json.dumps(guild_dict["channels"][796492337789403156], indent=4))
