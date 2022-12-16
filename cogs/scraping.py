@@ -4,7 +4,7 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncIterator, Optional, Union, Any
+from typing import Any, AsyncIterator, Optional, Union
 
 import discord
 from discord import Object, utils
@@ -129,7 +129,9 @@ async def log_and_send(content: str, logger: logging.Logger, message: discord.Me
     return msg
 
 
-async def get_messages(channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None) -> list:
+async def get_messages(
+    channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None
+) -> list:
     # If this ever errors, I blame future fripe.
     self_perms = channel.permissions_for(channel.guild.me)
     if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
