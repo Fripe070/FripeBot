@@ -146,7 +146,7 @@ class Utility(commands.Cog):
         await ctx.send(f"Hey! {ctx.author.mention}!\n{message}")
 
     @commands.command(aliases=["tourl"])
-    async def to_url(self, ctx: commands.Context):
+    async def tourl(self, ctx: commands.Context):
         """Converts attached files into base64 encoded data:// urls"""
         files = [
             [await attachment.read(), attachment.content_type.split()[0]] for attachment in ctx.message.attachments
