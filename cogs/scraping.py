@@ -4,7 +4,7 @@ import logging
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncIterator, Optional, Union, Any
+from typing import Any, AsyncIterator, Optional, Union
 
 import discord
 from discord import Object, utils
