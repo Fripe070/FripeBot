@@ -1,17 +1,21 @@
+import contextlib
 import json
-import os
+import logging
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import AsyncIterator, Optional, Union
+from typing import AsyncIterator, Optional, Union, Any
 
 import discord
 from discord import Object, utils
 from discord.abc import Snowflake
 from discord.ext import commands
+from discord.ext.commands import Context
 from discord.object import OLDEST_OBJECT
 
 
-# This is cursed. I wish I could do this differently. If you know how to make this not terrible, PLEASE contact me
+# Code from the discord.py source code, but with a singular line changed :D
+# danny pls add to d.py :)
 async def raw_history(
     self,
     *,
@@ -21,64 +25,6 @@ async def raw_history(
     around: Optional[Union["Snowflake", datetime]] = None,
     oldest_first: Optional[bool] = None,
 ) -> AsyncIterator[dict]:
-    """Returns an :term:`asynchronous iterator` that enables receiving the destination's message history.
-
-    You must have :attr:`~discord.Permissions.read_message_history` permissions to use this.
-
-    Examples
-    ---------
-
-    Usage ::
-
-        counter = 0
-        async for message in channel.history(limit=200):
-            if message.author == client.user:
-                counter += 1
-
-    Flattening into a list: ::
-
-        messages = [message async for message in channel.history(limit=123)]
-        # messages is now a list of Message...
-
-    All parameters are optional.
-
-    Parameters
-    -----------
-    limit: Optional[:class:`int`]
-        The number of messages to retrieve.
-        If ``None``, retrieves every message in the channel. Note, however,
-        that this would make it a slow operation.
-    before: Optional[Union[:class:`~discord.abc.Snowflake`, :class:`datetime.datetime`]]
-        Retrieve messages before this date or message.
-        If a datetime is provided, it is recommended to use a UTC aware datetime.
-        If the datetime is naive, it is assumed to be local time.
-    after: Optional[Union[:class:`~discord.abc.Snowflake`, :class:`datetime.datetime`]]
-        Retrieve messages after this date or message.
-        If a datetime is provided, it is recommended to use a UTC aware datetime.
-        If the datetime is naive, it is assumed to be local time.
-    around: Optional[Union[:class:`~discord.abc.Snowflake`, :class:`datetime.datetime`]]
-        Retrieve messages around this date or message.
-        If a datetime is provided, it is recommended to use a UTC aware datetime.
-        If the datetime is naive, it is assumed to be local time.
-        When using this argument, the maximum limit is 101. Note that if the limit is an
-        even number then this will return at most limit + 1 messages.
-    oldest_first: Optional[:class:`bool`]
-        If set to ``True``, return messages in oldest->newest order. Defaults to ``True`` if
-        ``after`` is specified, otherwise ``False``.
-
-    Raises
-    ------
-    ~discord.Forbidden
-        You do not have permissions to get channel message history.
-    ~discord.HTTPException
-        The request to get message history failed.
-
-    Yields
-    -------
-    :class:`~discord.Message`
-        The message with the message data parsed.
-    """
-
     async def _around_strategy(retrieve: int, around: Optional[Snowflake], limit: Optional[int]):
         if not around:
             return []
@@ -174,62 +120,248 @@ async def raw_history(
 discord.abc.Messageable.raw_history = raw_history
 
 
-def ensuredir(path: Path):
-    os.makedirs(path, exist_ok=True)
+async def log_and_send(content: str, logger: logging.Logger, message: discord.Message | Context) -> discord.Message:
+    if isinstance(message, Context):
+        msg = await message.send(content=content)
+    else:
+        msg = await message.edit(content=content)
+    logger.info(content)
+    return msg
+
+
+async def get_messages(channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None) -> list:
+    # If this ever errors, I blame future fripe.
+    self_perms = channel.permissions_for(channel.guild.me)
+    if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
+        # Reasoning for me not using the get_object_atrs function:
+        # There can easily be millions of messages, any non-essential parsing will slow it down noticeably.
+        return [message async for message in channel.history(limit=message_limit)]
+    return []
+
+
+# This is a bit uggly looking, but it's infinately better than specifying each key: value pair by hand
+async def get_object_atrs(obj: Any, /, check: callable = None) -> dict:
+    return_dict = {}
+    for name in dir(obj):
+        # We have no need for these
+        if name.startswith("_"):
+            continue
+
+        value = getattr(obj, name)
+        # We don't care about the atribute if it's a method or function
+        if callable(value):
+            continue
+
+        # Perform our custom check
+        if check is not None:
+            result = await check(name, value)
+            if result is not None:
+                if isinstance(result, tuple) and len(result) == 2:
+                    name, value = result
+                else:
+                    value = result
+                return_dict[name] = value
+                continue
+
+        allowed_standad_types = (str, int, float, bool, type(None))
+        # Elif chain my beloved
+        if (
+            isinstance(value, allowed_standad_types)
+            or (isinstance(value, (list, tuple)) and all(type(i) in allowed_standad_types for i in value))
+            or value.__class__.__module__
+            in [
+                "discord.enums",
+            ]
+        ):
+            return_dict[name] = value
+        elif isinstance(value, set) and all(type(i) in allowed_standad_types for i in value):
+            return_dict[name] = list(value)
+        elif isinstance(value, datetime):
+            return_dict[name] = time.mktime(value.timetuple())
+        elif isinstance(value, discord.asset.Asset):
+            return_dict[name] = value.url
+        elif isinstance(value, discord.SystemChannelFlags):
+            return_dict[name] = value.value
+        elif isinstance(
+            value,
+            (discord.member.Member, discord.User, discord.role.Role, discord.abc.GuildChannel, discord.Guild),
+        ):
+            return_dict[name] = value.id
+        elif isinstance(value, (discord.Colour, discord.Permissions)):
+            return_dict[name] = value.value
+
+    return return_dict
+
+
+async def get_guild_data(guild: discord.Guild) -> dict:
+    async def check(name, value):
+        if isinstance(value, list):
+            return_value = await get_object_atrs(value)
+            return return_value
+        return None
+
+    atrs = await get_object_atrs(guild, check=check)
+
+    return atrs
+
+
+async def get_emojis(guild: discord.Guild) -> list:
+    emojis = []
+    for emoji in guild.emojis:
+
+        async def check(name, value):
+            if isinstance(value, list):
+                return_value = await get_object_atrs(value)
+                return return_value
+            return None
+
+        atrs = await get_object_atrs(emoji, check=check)
+        emojis.append(atrs)
+
+    return emojis
+
+
+async def get_stickers(guild: discord.Guild) -> list:
+    return [await get_object_atrs(sticker) for sticker in guild.stickers]
+
+
+async def get_members(guild: discord.Guild) -> list:
+    members = []
+
+    async for member in guild.fetch_members(limit=None):
+        member = guild.get_member(member.id)
+
+        async def check(name, value):
+            if isinstance(value, (list, tuple)):
+                return_value = await get_object_atrs(value, check=check)
+                return return_value
+            elif isinstance(value, (discord.Colour, discord.PublicUserFlags, discord.Permissions)):
+                return value.value
+            elif value.__class__.__module__ == "discord.activity":
+                return value.to_dict()
+            return None
+
+        with contextlib.suppress(AttributeError):
+            atrs = await get_object_atrs(member, check=check)
+            members.append(atrs)
+
+    return members
+
+
+async def get_roles(guild: discord.Guild) -> list:
+    roles = []
+
+    for role in guild.roles:
+
+        async def check(name, value):
+            if isinstance(value, list) and all(isinstance(item, discord.Member) for item in value):
+                return [member.id for member in value]
+            if isinstance(value, discord.RoleTags):
+                return await get_object_atrs(value, check=check)
+            if isinstance(value, discord.utils.SequenceProxy):
+                tmp_return = [await get_object_atrs(i) for i in value]
+                return tmp_return
+            return None
+
+        atrs = await get_object_atrs(role, check=check)
+        roles.append(atrs)
+
+    return roles
 
 
 class Scraping(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    async def get_messages(self, channel, limit=100):
-        messages = []
-        async for message in channel.history(limit=limit):
-            messages.append(message)
-        return messages
+    async def get_channels(
+        self, guild: discord.Guild, /, message_limit: int = 100, log_message: discord.Message = None
+    ) -> dict:
+        channels = {}
+
+        for channel in guild.channels:
+            if log_message is not None:
+                await log_and_send(
+                    f"Scraping metadata of channel {channel.mention} ({channel.id} in {guild.name} ({guild.id})",
+                    self.bot.logger,
+                    log_message,
+                )
+
+            async def check(name, value):
+                if isinstance(value, list) and all(isinstance(item, discord.Member) for item in value):
+                    return [member.id for member in value]
+                if (
+                    isinstance(value, dict)
+                    and all(isinstance(item, (discord.Role, discord.Member)) for item in value.keys())
+                    and all(isinstance(item, discord.PermissionOverwrite) for item in value.values())
+                ):
+                    return_value = {key.id: await get_object_atrs(value) for key, value in value.items()}
+                    return return_value
+
+                if isinstance(value, list) and all(
+                    isinstance(item, (discord.Role, discord.abc.GuildChannel, discord.abc.Messageable))
+                    for item in value
+                ):
+                    return [i.id for i in value]
+                return None if isinstance(value, discord.Message) else None
+
+            atrs = await get_object_atrs(channel, check=check)
+            if (
+                message_limit > 0
+                and isinstance(channel, discord.abc.Messageable)
+                and isinstance(channel, discord.abc.GuildChannel)
+            ):
+                if log_message is not None:
+                    await log_and_send(
+                        f"Scraping messages in channel {channel.mention} ({channel.id}) in {guild.name} ({guild.id})",
+                        self.bot.logger,
+                        log_message,
+                    )
+                atrs["messages"] = await get_messages(channel, message_limit=message_limit)
+
+            channels[channel.id] = atrs
+
+        return channels
 
     @commands.command()
     @commands.is_owner()
     async def scrape(self, ctx: commands.Context, limit: int = None):
-        self.bot.logger.info(f"Scraping the content of {ctx.guild.name} ({ctx.guild.id})")
-        scrape_msg = await ctx.send("Scraping guild!")
-        guildpath = Path(f"scraped guilds/{ctx.guild.name}")
-        ensuredir(guildpath)
+        msg = await log_and_send(
+            f"Scraping general metadata of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, ctx
+        )
 
-        for channel in ctx.guild.channels:
-            if isinstance(channel, discord.CategoryChannel):
-                continue
-            perms = channel.permissions_for(ctx.guild.me)
-            if not perms.read_messages or not perms.read_message_history:
-                continue
+        guild_path = Path(f"scraped guilds/{ctx.guild.name}")
 
-            await scrape_msg.edit(content=f"Scraping: {channel.mention} ({channel.name})")
+        guild_dict = await get_object_atrs(ctx.guild)
+        guild_dict["premium_subscribers"] = [member.id for member in ctx.guild.premium_subscribers]
+        guild_dict["scheduled_events"] = [await get_object_atrs(i) for i in ctx.guild.scheduled_events]
+        guild_dict["stage_instances"] = [await get_object_atrs(i) for i in ctx.guild.stage_instances]
 
-            channelpath = guildpath / "channels"
-            ensuredir(channelpath)
-            if channel.category:
-                channelpath = channelpath / str(channel.category.name)
-                ensuredir(channelpath)
-            channelpath = channelpath / str(channel.name)
+        await log_and_send(f"Scraping emojis from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["emojis"] = await get_emojis(ctx.guild)
 
-            self.bot.logger.info(f"Started scraping {channel.name}.")
-            messages = []
-            try:
-                # Trust me PyCharm, this exists :)
-                # noinspection PyUnresolvedReferences
-                async for message in channel.raw_history(limit=limit):
-                    messages.append(message)
-            except discord.errors.Forbidden:
-                continue
+        await log_and_send(f"Scraping stickers from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["stickers"] = await get_stickers(ctx.guild)
 
-            with open(f"{channelpath}.json", "w") as f:
-                json.dump(messages, f, indent=4)
+        await log_and_send(f"Scraping members in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["members"] = await get_members(ctx.guild)
 
-            self.bot.logger.info(f"Finished scraping {channel.name}.")
+        await log_and_send(f"Scraping roles in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["roles"] = await get_roles(ctx.guild)
 
-        self.bot.logger.info(f"Finished scraping the content of {ctx.guild.name} ({ctx.guild.id})")
-        await scrape_msg.edit(content="Finished scraping channels.")
-        await scrape_msg.reply(f"{ctx.author.mention}")
+        guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
+
+        await log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id}), saving...", self.bot.logger, msg)
+
+        print(json.dumps(guild_dict["channels"][796492337789403156], indent=4))
+        guild_dir = Path("scraped guilds/")
+        guild_dir.mkdir(exist_ok=True)
+        file_name = "".join(char for char in ctx.guild.name if char.isalnum() or char in "-_ .") + ".json"
+
+        with open(guild_dir / file_name, "w") as f:
+            json.dump(guild_dict, f)  # No indentation because the file's big enough without it
+
+        await log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        await ctx.author.send("Scrape finished, here's the file!", file=discord.File(guild_dir / "help.json"))
 
 
 async def setup(bot: commands.Bot) -> None:
