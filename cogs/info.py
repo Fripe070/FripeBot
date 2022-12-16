@@ -456,22 +456,6 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         embed.set_footer(text=f"Requested by {ctx.author}")
         await ctx.reply(embed=embed)
 
-    @commands.command(aliases=["getmsg", "raw", "rawmsg"])
-    async def getraw(self, ctx: commands.Context, msg: int | str = None):
-        """Returns the raw message being linked"""
-        if isinstance(msg, int):
-            message = await ctx.channel.fetch_message(msg)
-        elif msg_link_regex := re.match(
-            f"https://.*discord.com/channels/{ctx.guild.id}/{ctx.channel.id}/([0-9]+)", str(msg)
-        ):
-            message = await ctx.channel.fetch_message(msg_link_regex[1])
-        elif msg is None and ctx.message.reference and ctx.message.reference.fail_if_not_exists:
-            message = await ctx.channel.fetch_message(ctx.message.reference.message_id)
-        else:
-            return await ctx.reply("You need to provide me with a message, either through an id. link or a reply")
-
-        await ctx.send(discord.utils.escape_markdown(message.content))
-
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Info(bot))

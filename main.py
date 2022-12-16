@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 import discord
 from discord.ext import commands
@@ -52,6 +53,20 @@ for command in bot.commands:
 @bot.event
 async def on_ready():
     bot.logger.info(f"Logged in as {bot.user.name} with the id {bot.user.id}")
+
+
+@bot.tree.context_menu(name="Get Raw Message")
+async def raw_msg(interaction: discord.Interaction, message: discord.Message):
+    def into_codeblock(text: Any) -> str:
+        return "```\n" + str(text).replace("```", "``\u200b`") + "\n```"
+
+    msg = ""
+    if message.content:
+        msg += f"Content:{into_codeblock(message.content)}"
+    if message.embeds:
+        msg += f"Embed:{into_codeblock(json.dumps(message.embeds[0].to_dict(), indent=4))}"
+
+    await interaction.response.send_message(msg, ephemeral=True)
 
 
 if __name__ == "__main__":

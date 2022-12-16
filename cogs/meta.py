@@ -33,6 +33,16 @@ class Meta(commands.Cog):
         self.bot.help_command = Help()
         bot.help_command.cog = self
 
+    @commands.command()
+    @commands.is_owner()
+    async def sync(self, ctx, guild: discord.Guild = None):
+        """Syncs the bot with the slash commands."""
+        msg = await ctx.reply("Syncing app commands...")
+        if guild is not None:
+            self.bot.tree.copy_global_to(guild=guild)
+        await self.bot.tree.sync(guild=guild)
+        await msg.edit(content="Synced app commands.")
+
     @commands.command(aliases=["source", "git", "code"])
     async def github(self, ctx: commands.Context, user: discord.Member = None):
         """Links the bots GitHub repository"""
