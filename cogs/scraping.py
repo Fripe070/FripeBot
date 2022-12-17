@@ -13,6 +13,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.object import OLDEST_OBJECT
 
+from main import Bot
+
 
 # Code from the discord.py source code, but with a singular line changed :D
 # danny pls add to d.py :)
@@ -122,7 +124,7 @@ discord.abc.Messageable.raw_history = raw_history
 
 class Scraping(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
+        self.bot: Bot = bot
 
     @commands.command()
     @commands.is_owner()
@@ -148,11 +150,15 @@ class Scraping(commands.Cog):
         await self.log_and_send(f"Scraping roles in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
         guild_dict["roles"] = await self.get_roles(ctx.guild)
 
-        await self.log_and_send(f"Scraping audit logs of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["audit_logs"] = await self.get_audit_log(ctx.guild)
+        if ctx.guild.me.guild_permissions.view_audit_log:
+            await self.log_and_send(f"Scraping audit logs of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+            guild_dict["audit_logs"] = await self.get_audit_log(ctx.guild)
 
-        await self.log_and_send(f"Scraping automod rules from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["automod_rules"] = await self.get_automod_rules(ctx.guild)
+        if ctx.guild.me.guild_permissions.manage_channels:
+            await self.log_and_send(
+                f"Scraping automod rules from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg
+            )
+            guild_dict["automod_rules"] = await self.get_automod_rules(ctx.guild)
 
         # Logging is done within the get_channels method
         guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
@@ -242,15 +248,17 @@ class Scraping(commands.Cog):
 
     async def get_messages(
         self, channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None
-    ) -> list:
-        # If this ever errors, I blame future fripe.
-        self_perms = channel.permissions_for(channel.guild.me)
-        if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
-            # Reasoning for me not using the get_object_atrs function on the normal Messageable.history method output:
-            # There can easily be millions of messages, any non-essential parsing will slow it down noticeably.
-            # noinspection PyUnresolvedReferences
-            return [message async for message in channel.raw_history(limit=message_limit)]
-        return []
+    ) -> list | None:
+        # I despise discord
+        with contextlib.suppress(discord.errors.Forbidden):
+            self_perms = channel.permissions_for(channel.guild.me)
+            channel.history(limit=1)
+            if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
+                # Reasoning for me not using the get_object_atrs function on the normal Messageable.history method output:
+                # There can easily be millions of messages, any non-essential parsing will slow it down noticeably.
+                # noinspection PyUnresolvedReferences
+                return [message async for message in channel.raw_history(limit=message_limit)]
+        return None
 
     async def get_guild_data(self, guild: discord.Guild) -> dict:
         async def check(name, value):
@@ -263,9 +271,9 @@ class Scraping(commands.Cog):
 
         return atrs
 
-    async def get_audit_log(self, guild: discord.Guild) -> list:
+    async def get_audit_log(self, guild: discord.Guild) -> list | None:
         audit_log = []
-        async for entry in guild.audit_logs(limit=1):
+        async for entry in guild.audit_logs(limit=None):
 
             async def check(name, value):
                 if isinstance(value, (discord.AuditLogAction, discord.AuditLogActionCategory)):
@@ -414,7 +422,7 @@ class Scraping(commands.Cog):
 
             atrs = await self.get_object_atrs(channel, check=check)
             if (
-                message_limit > 0
+                (message_limit is None or message_limit > 0)
                 and isinstance(channel, discord.abc.Messageable)
                 and isinstance(channel, discord.abc.GuildChannel)
             ):
