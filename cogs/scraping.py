@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, AsyncIterator, Optional, Union
 
 import discord
-from discord import Object, utils
+from discord import Object, utils, AutoModRuleEventType, ChannelType
 from discord.abc import Snowflake
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -120,178 +120,251 @@ async def raw_history(
 discord.abc.Messageable.raw_history = raw_history
 
 
-async def log_and_send(content: str, logger: logging.Logger, message: discord.Message | Context) -> discord.Message:
-    if isinstance(message, Context):
-        msg = await message.send(content=content)
-    else:
-        msg = await message.edit(content=content)
-    logger.info(content)
-    return msg
-
-
-async def get_messages(
-    channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None
-) -> list:
-    # If this ever errors, I blame future fripe.
-    self_perms = channel.permissions_for(channel.guild.me)
-    if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
-        # Reasoning for me not using the get_object_atrs function:
-        # There can easily be millions of messages, any non-essential parsing will slow it down noticeably.
-        return [message async for message in channel.history(limit=message_limit)]
-    return []
-
-
-# This is a bit uggly looking, but it's infinately better than specifying each key: value pair by hand
-async def get_object_atrs(obj: Any, /, check: callable = None) -> dict:
-    return_dict = {}
-    for name in dir(obj):
-        # We have no need for these
-        if name.startswith("_"):
-            continue
-
-        value = getattr(obj, name)
-        # We don't care about the atribute if it's a method or function
-        if callable(value):
-            continue
-
-        # Perform our custom check
-        if check is not None:
-            result = await check(name, value)
-            if result is not None:
-                if isinstance(result, tuple) and len(result) == 2:
-                    name, value = result
-                else:
-                    value = result
-                return_dict[name] = value
-                continue
-
-        allowed_standad_types = (str, int, float, bool, type(None))
-        # Elif chain my beloved
-        if (
-            isinstance(value, allowed_standad_types)
-            or (isinstance(value, (list, tuple)) and all(type(i) in allowed_standad_types for i in value))
-            or value.__class__.__module__
-            in [
-                "discord.enums",
-            ]
-        ):
-            return_dict[name] = value
-        elif isinstance(value, set) and all(type(i) in allowed_standad_types for i in value):
-            return_dict[name] = list(value)
-        elif isinstance(value, datetime):
-            return_dict[name] = time.mktime(value.timetuple())
-        elif isinstance(value, discord.asset.Asset):
-            return_dict[name] = value.url
-        elif isinstance(value, discord.SystemChannelFlags):
-            return_dict[name] = value.value
-        elif isinstance(
-            value,
-            (discord.member.Member, discord.User, discord.role.Role, discord.abc.GuildChannel, discord.Guild),
-        ):
-            return_dict[name] = value.id
-        elif isinstance(value, (discord.Colour, discord.Permissions)):
-            return_dict[name] = value.value
-
-    return return_dict
-
-
-async def get_guild_data(guild: discord.Guild) -> dict:
-    async def check(name, value):
-        if isinstance(value, list):
-            return_value = await get_object_atrs(value)
-            return return_value
-        return None
-
-    atrs = await get_object_atrs(guild, check=check)
-
-    return atrs
-
-
-async def get_audit_log(guild: discord.Guild) -> list:
-    audit_log = []
-    async for entry in guild.audit_logs(limit=1):
-
-        async def check(name, value):
-            if isinstance(value, (discord.AuditLogAction, discord.AuditLogActionCategory)):
-                # noinspection PyUnresolvedReferences
-                return value.name
-            return None
-
-        atrs = await get_object_atrs(entry, check=check)
-        print(atrs)
-
-        audit_log.append(atrs)
-
-    return audit_log
-
-
-async def get_emojis(guild: discord.Guild) -> list:
-    emojis = []
-    for emoji in guild.emojis:
-
-        async def check(name, value):
-            if isinstance(value, list):
-                return_value = await get_object_atrs(value)
-                return return_value
-            return None
-
-        atrs = await get_object_atrs(emoji, check=check)
-        emojis.append(atrs)
-
-    return emojis
-
-
-async def get_stickers(guild: discord.Guild) -> list:
-    return [await get_object_atrs(sticker) for sticker in guild.stickers]
-
-
-async def get_members(guild: discord.Guild) -> list:
-    members = []
-
-    async for member in guild.fetch_members(limit=None):
-        member = guild.get_member(member.id)
-
-        async def check(name, value):
-            if isinstance(value, (list, tuple)):
-                return_value = await get_object_atrs(value, check=check)
-                return return_value
-            elif isinstance(value, (discord.Colour, discord.PublicUserFlags, discord.Permissions)):
-                return value.value
-            elif value.__class__.__module__ == "discord.activity":
-                return value.to_dict()
-            return None
-
-        with contextlib.suppress(AttributeError):
-            atrs = await get_object_atrs(member, check=check)
-            members.append(atrs)
-
-    return members
-
-
-async def get_roles(guild: discord.Guild) -> list:
-    roles = []
-
-    for role in guild.roles:
-
-        async def check(name, value):
-            if isinstance(value, list) and all(isinstance(item, discord.Member) for item in value):
-                return [member.id for member in value]
-            if isinstance(value, discord.RoleTags):
-                return await get_object_atrs(value, check=check)
-            if isinstance(value, discord.utils.SequenceProxy):
-                tmp_return = [await get_object_atrs(i) for i in value]
-                return tmp_return
-            return None
-
-        atrs = await get_object_atrs(role, check=check)
-        roles.append(atrs)
-
-    return roles
-
-
 class Scraping(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command()
+    @commands.is_owner()
+    async def scrape(self, ctx: commands.Context, limit: int = None):
+        msg = await self.log_and_send(
+            f"Scraping general metadata of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, ctx
+        )
+
+        guild_dict = await self.get_object_atrs(ctx.guild)
+        guild_dict["premium_subscribers"] = [member.id for member in ctx.guild.premium_subscribers]
+        guild_dict["scheduled_events"] = [await self.get_object_atrs(i) for i in ctx.guild.scheduled_events]
+        guild_dict["stage_instances"] = [await self.get_object_atrs(i) for i in ctx.guild.stage_instances]
+
+        await self.log_and_send(f"Scraping emojis from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["emojis"] = await self.get_emojis(ctx.guild)
+
+        await self.log_and_send(f"Scraping stickers from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["stickers"] = await self.get_stickers(ctx.guild)
+
+        await self.log_and_send(f"Scraping members in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["members"] = await self.get_members(ctx.guild)
+
+        await self.log_and_send(f"Scraping roles in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["roles"] = await self.get_roles(ctx.guild)
+
+        await self.log_and_send(f"Scraping audit logs of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["audit_logs"] = await self.get_audit_log(ctx.guild)
+
+        await self.log_and_send(f"Scraping automod rules from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        guild_dict["automod_rules"] = await self.get_automod_rules(ctx.guild)
+
+        # Logging is done within the get_channels method
+        guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
+        await self.log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id}), saving...", self.bot.logger, msg)
+
+        guild_dir = Path("scraped guilds/")
+        guild_dir.mkdir(exist_ok=True)
+        file_name = "".join(char for char in ctx.guild.name if char.isalnum() or char in "-_ .") + ".json"
+
+        print(guild_dict)
+        with open(guild_dir / file_name, "w") as f:
+            json.dump(guild_dict, f)  # No indentation because the file's big enough without it
+
+        await self.log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
+        await ctx.author.send("Scrape finished, here's the file!", file=discord.File(guild_dir / file_name))
+
+    # This is a bit uggly looking, but still infinately better than specifying each key: value pair by hand
+    async def get_object_atrs(self, obj: Any, /, check: callable = None) -> dict:
+        return_dict = {}
+        for name in dir(obj):
+            # We have no need for these
+            if name.startswith("_"):
+                continue
+
+            value = getattr(obj, name)
+            # We don't care about the atribute if it's a method or function
+            if callable(value):
+                continue
+
+            # Perform our custom check
+            if check is not None:
+                result = await check(name, value)
+                if result is not None:
+                    if isinstance(result, tuple) and len(result) == 2:
+                        name, value = result
+                    else:
+                        value = result
+                    return_dict[name] = value
+                    continue
+
+            allowed_standad_types = (str, int, float, bool, type(None))
+            # Elif chain my beloved
+            if (
+                isinstance(value, allowed_standad_types)
+                or (isinstance(value, (list, tuple)) and all(type(i) in allowed_standad_types for i in value))
+                or value.__class__.__module__
+                in [
+                    "discord.enums",
+                ]
+            ):
+                return_dict[name] = value
+            elif isinstance(value, set) and all(type(i) in allowed_standad_types for i in value):
+                return_dict[name] = list(value)
+            elif isinstance(value, datetime):
+                return_dict[name] = time.mktime(value.timetuple())
+            elif isinstance(value, discord.asset.Asset):
+                return_dict[name] = value.url
+            elif isinstance(value, discord.SystemChannelFlags):
+                return_dict[name] = value.value
+            elif isinstance(
+                value,
+                (discord.member.Member, discord.User, discord.role.Role, discord.abc.GuildChannel, discord.Guild, discord.Message),
+            ):
+                return_dict[name] = value.id
+            elif isinstance(value, (discord.Colour, discord.Permissions)):
+                return_dict[name] = value.value
+            else:
+                self.bot.logger.debug(f"Unknown type {type(value)} for {name}")
+
+        return return_dict
+
+    @staticmethod
+    async def log_and_send(content: str, logger: logging.Logger, message: discord.Message | Context) -> discord.Message:
+        if isinstance(message, Context):
+            msg = await message.send(content=content)
+        else:
+            msg = await message.edit(content=content)
+        logger.info(content)
+        return msg
+
+    async def get_messages(
+        self, channel: discord.abc.GuildChannel | discord.abc.Messageable, /, message_limit: int = None
+    ) -> list:
+        # If this ever errors, I blame future fripe.
+        self_perms = channel.permissions_for(channel.guild.me)
+        if self_perms.read_messages and self_perms.read_message_history and hasattr(channel, "history"):
+            # Reasoning for me not using the get_object_atrs function on the normal Messageable.history method output:
+            # There can easily be millions of messages, any non-essential parsing will slow it down noticeably.
+            # noinspection PyUnresolvedReferences
+            return [message async for message in channel.raw_history(limit=message_limit)]
+        return []
+
+    async def get_guild_data(self, guild: discord.Guild) -> dict:
+        async def check(name, value):
+            if isinstance(value, list):
+                return_value = await self.get_object_atrs(value)
+                return return_value
+            return None
+
+        atrs = await self.get_object_atrs(guild, check=check)
+
+        return atrs
+
+    async def get_audit_log(self, guild: discord.Guild) -> list:
+        audit_log = []
+        async for entry in guild.audit_logs(limit=1):
+            async def check(name, value):
+                if isinstance(value, (discord.AuditLogAction, discord.AuditLogActionCategory)):
+                    # noinspection PyUnresolvedReferences
+                    return value.name
+                elif isinstance(value, discord.AuditLogDiff):
+                    return_value = await self.get_object_atrs(value, check=check)
+                    return return_value
+                elif isinstance(value, discord.abc.GuildChannel):
+                    return value.id
+                elif isinstance(value, ChannelType):
+                    # noinspection PyUnresolvedReferences
+                    return value.name
+                return None
+
+            atrs = await self.get_object_atrs(entry, check=check)
+            audit_log.append(atrs)
+
+        return audit_log
+
+    async def get_automod_rules(self, guild: discord.Guild) -> list:
+        automod_rules = []
+        try:
+            rules = await guild.fetch_automod_rules()
+        except discord.errors.NotFound:
+            return []
+
+        for rule in rules:
+            # Separate check to prevent recursion
+            async def event_type_check(n, v):
+                # noinspection PyUnresolvedReferences
+                return v.name if isinstance(v, AutoModRuleEventType) else None
+
+            async def check(name, value):
+                if isinstance(value, list) and all(isinstance(i, discord.AutoModRuleAction) for i in value):
+                    return_value = await self.get_object_atrs(rule, check=event_type_check)
+                    return return_value
+                if isinstance(value, discord.automod.AutoModTrigger):
+                    return_value = await self.get_object_atrs(rule, check=event_type_check)
+                    return return_value
+                return_value = await event_type_check(name, value)
+                return return_value
+
+            atrs = await self.get_object_atrs(rule, check=check)
+            automod_rules.append(atrs)
+
+        return automod_rules
+
+    async def get_emojis(self, guild: discord.Guild) -> list:
+        emojis = []
+        for emoji in guild.emojis:
+
+            async def check(name, value):
+                if isinstance(value, list):
+                    return_value = await self.get_object_atrs(value)
+                    return return_value
+                return None
+
+            atrs = await self.get_object_atrs(emoji, check=check)
+            emojis.append(atrs)
+
+        return emojis
+
+    async def get_stickers(self, guild: discord.Guild) -> list:
+        return [await self.get_object_atrs(sticker) for sticker in guild.stickers]
+
+    async def get_members(self, guild: discord.Guild) -> list:
+        members = []
+
+        async for member in guild.fetch_members(limit=None):
+            member = guild.get_member(member.id)
+
+            async def check(name, value):
+                if isinstance(value, (list, tuple)):
+                    return_value = await self.get_object_atrs(value, check=check)
+                    return return_value
+                elif isinstance(value, (discord.Colour, discord.PublicUserFlags, discord.Permissions)):
+                    return value.value
+                elif value.__class__.__module__ == "discord.activity":
+                    return value.to_dict()
+                return None
+
+            with contextlib.suppress(AttributeError):
+                atrs = await self.get_object_atrs(member, check=check)
+                members.append(atrs)
+
+        return members
+
+    async def get_roles(self, guild: discord.Guild) -> list:
+        roles = []
+
+        for role in guild.roles:
+
+            async def check(name, value):
+                if isinstance(value, list) and all(isinstance(item, discord.Member) for item in value):
+                    return [member.id for member in value]
+                if isinstance(value, discord.RoleTags):
+                    return await self.get_object_atrs(value, check=check)
+                if isinstance(value, discord.utils.SequenceProxy):
+                    tmp_return = [await self.get_object_atrs(i) for i in value]
+                    return tmp_return
+                return None
+
+            atrs = await self.get_object_atrs(role, check=check)
+            roles.append(atrs)
+
+        return roles
 
     async def get_channels(
         self, guild: discord.Guild, /, message_limit: int = 100, log_message: discord.Message = None
@@ -300,8 +373,15 @@ class Scraping(commands.Cog):
 
         for channel in guild.channels:
             if log_message is not None:
-                await log_and_send(
-                    f"Scraping metadata of channel {channel.mention} ({channel.id} in {guild.name} ({guild.id})",
+                # sourcery skip: swap-if-expression
+                await self.log_and_send(
+                    "Scraping metadata of"
+                    + (
+                        f" channel {channel.mention} ({channel.id}"
+                        if not isinstance(channel, discord.CategoryChannel)
+                        else f" category {channel.name} ({channel.id}"
+                    )
+                    + f" in {guild.name} ({guild.id})",
                     self.bot.logger,
                     log_message,
                 )
@@ -314,7 +394,7 @@ class Scraping(commands.Cog):
                     and all(isinstance(item, (discord.Role, discord.Member)) for item in value.keys())
                     and all(isinstance(item, discord.PermissionOverwrite) for item in value.values())
                 ):
-                    return_value = {key.id: await get_object_atrs(value) for key, value in value.items()}
+                    return_value = {key.id: await self.get_object_atrs(value) for key, value in value.items()}
                     return return_value
 
                 if isinstance(value, list) and all(
@@ -322,66 +402,25 @@ class Scraping(commands.Cog):
                     for item in value
                 ):
                     return [i.id for i in value]
-                return None if isinstance(value, discord.Message) else None
+                return None
 
-            atrs = await get_object_atrs(channel, check=check)
+            atrs = await self.get_object_atrs(channel, check=check)
             if (
                 message_limit > 0
                 and isinstance(channel, discord.abc.Messageable)
                 and isinstance(channel, discord.abc.GuildChannel)
             ):
                 if log_message is not None:
-                    await log_and_send(
+                    await self.log_and_send(
                         f"Scraping messages in channel {channel.mention} ({channel.id}) in {guild.name} ({guild.id})",
                         self.bot.logger,
                         log_message,
                     )
-                atrs["messages"] = await get_messages(channel, message_limit=message_limit)
+                atrs["messages"] = await self.get_messages(channel, message_limit=message_limit)
 
             channels[channel.id] = atrs
 
         return channels
-
-    @commands.command()
-    @commands.is_owner()
-    async def scrape(self, ctx: commands.Context, limit: int = None):
-        msg = await log_and_send(
-            f"Scraping general metadata of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, ctx
-        )
-
-        guild_dict = await get_object_atrs(ctx.guild)
-        guild_dict["premium_subscribers"] = [member.id for member in ctx.guild.premium_subscribers]
-        guild_dict["scheduled_events"] = [await get_object_atrs(i) for i in ctx.guild.scheduled_events]
-        guild_dict["stage_instances"] = [await get_object_atrs(i) for i in ctx.guild.stage_instances]
-
-        await log_and_send(f"Scraping emojis from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["emojis"] = await get_emojis(ctx.guild)
-
-        await log_and_send(f"Scraping stickers from {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["stickers"] = await get_stickers(ctx.guild)
-
-        await log_and_send(f"Scraping members in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["members"] = await get_members(ctx.guild)
-
-        await log_and_send(f"Scraping roles in {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["roles"] = await get_roles(ctx.guild)
-
-        await log_and_send(f"Scraping audit logs of {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        guild_dict["audit_logs"] = await get_audit_log(ctx.guild)
-
-        # Logging is done within the get_channels method
-        guild_dict["channels"] = await self.get_channels(ctx.guild, message_limit=limit, log_message=msg)
-        await log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id}), saving...", self.bot.logger, msg)
-
-        guild_dir = Path("scraped guilds/")
-        guild_dir.mkdir(exist_ok=True)
-        file_name = "".join(char for char in ctx.guild.name if char.isalnum() or char in "-_ .") + ".json"
-
-        with open(guild_dir / file_name, "w") as f:
-            json.dump(guild_dict, f)  # No indentation because the file's big enough without it
-
-        await log_and_send(f"Finished scraping {ctx.guild.name} ({ctx.guild.id})", self.bot.logger, msg)
-        await ctx.author.send("Scrape finished, here's the file!", file=discord.File(guild_dir / "help.json"))
 
 
 async def setup(bot: commands.Bot) -> None:
