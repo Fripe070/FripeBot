@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, AsyncIterator, Optional, Union
 
 import discord
-from discord import Object, utils, AutoModRuleEventType, ChannelType
+from discord import AutoModRuleEventType, ChannelType, Object, utils
 from discord.abc import Snowflake
 from discord.ext import commands
 from discord.ext.commands import Context
@@ -214,7 +214,14 @@ class Scraping(commands.Cog):
                 return_dict[name] = value.value
             elif isinstance(
                 value,
-                (discord.member.Member, discord.User, discord.role.Role, discord.abc.GuildChannel, discord.Guild, discord.Message),
+                (
+                    discord.member.Member,
+                    discord.User,
+                    discord.role.Role,
+                    discord.abc.GuildChannel,
+                    discord.Guild,
+                    discord.Message,
+                ),
             ):
                 return_dict[name] = value.id
             elif isinstance(value, (discord.Colour, discord.Permissions)):
@@ -259,6 +266,7 @@ class Scraping(commands.Cog):
     async def get_audit_log(self, guild: discord.Guild) -> list:
         audit_log = []
         async for entry in guild.audit_logs(limit=1):
+
             async def check(name, value):
                 if isinstance(value, (discord.AuditLogAction, discord.AuditLogActionCategory)):
                     # noinspection PyUnresolvedReferences
