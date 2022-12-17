@@ -145,7 +145,7 @@ class Utility(commands.Cog):
         await asyncio.sleep(seconds)
         await ctx.send(f"Hey! {ctx.author.mention}!\n{message}")
 
-    @commands.command(aliases=["tourl"])
+    @commands.command()
     async def tourl(self, ctx: commands.Context):
         """Converts attached files into base64 encoded data:// urls"""
         files = [
