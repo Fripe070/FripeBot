@@ -57,14 +57,14 @@ async def on_ready():
 
 @bot.tree.context_menu(name="Get Raw Message")
 async def raw_msg(interaction: discord.Interaction, message: discord.Message):
-    def into_codeblock(text: Any) -> str:
-        return "```\n" + str(text).replace("```", "``\u200b`") + "\n```"
+    def into_codeblock(text: Any, syntax_highlighting: str = "") -> str:
+        return f"```{syntax_highlighting}\n" + str(text).replace("```", "``\u200b`") + "\n```"
 
     msg = ""
     if message.content:
         msg += f"Content:{into_codeblock(message.content)}"
     if message.embeds:
-        msg += f"Embed:{into_codeblock(json.dumps(message.embeds[0].to_dict(), indent=4))}"
+        msg += f"Embed:{into_codeblock(json.dumps(message.embeds[0].to_dict(), indent=4), 'json')}"
 
     await interaction.response.send_message(msg, ephemeral=True)
 
