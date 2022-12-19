@@ -46,7 +46,8 @@ class Meta(commands.Cog):
     @commands.command(aliases=["source", "git", "code"])
     async def github(self, ctx: commands.Context, user: discord.Member = None):
         """Links the bots GitHub repository"""
-        await ctx.message.delete()
+        if user is not None:
+            await ctx.message.delete()
         embed = discord.Embed(
             title="FripeBot",
             description="This bot is open source!",
