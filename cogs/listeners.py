@@ -47,6 +47,17 @@ class Listeners(commands.Cog):
 
                 await message.reply(url, mention_author=False)
 
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(self, reaction: discord.RawReactionActionEvent):
+        message = await self.bot.get_channel(reaction.channel_id).fetch_message(reaction.message_id)
+        if message.author != self.bot.user or reaction.emoji.name != "🚮":
+            return
+
+        reactions = [r for r in message.reactions if r.emoji == "🚮" and r.me == False]
+        if len(reactions) >= 2:
+            await message.delete()
+
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Listeners(bot))
