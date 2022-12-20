@@ -336,7 +336,7 @@ class Fun(commands.Cog):
                 "**Seeds:** " + ", ".join([f"`{gen['seed']}`" for gen in r]) + " (random)\n" if seed is None else "\n"
             )
         else:
-            embed.description += f"**Seed:** `{r[0]['seed']}` {'(random)\n' if seed is None else '\n'}"
+            embed.description += f"**Seed:** `{r[0]['seed']}` {'(random)' if seed is None else ''}" + "\n"
 
         embed.description += f"**Model:** {r[0]['model'].replace('_', ' ').title()}"
 
