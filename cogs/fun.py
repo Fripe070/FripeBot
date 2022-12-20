@@ -330,7 +330,7 @@ class Fun(commands.Cog):
         r = requests.get(f"{base_url}/v2/generate/status/{generation_id}").json()["generations"]
         embed = discord.Embed(title=f"Image{'s' if len(r) > 1 else ''} generated.", colour=ctx.author.colour)
         embed.description = f"**Prompt:** {discord.utils.escape_markdown(prompt)}" + "\n"
-       
+
         if len(r) > 1:
             embed.description += (
                 "**Seeds:** " + ", ".join([f"`{gen['seed']}`" for gen in r]) + " (random)\n" if seed is None else "\n"
