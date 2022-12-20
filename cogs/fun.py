@@ -332,11 +332,11 @@ class Fun(commands.Cog):
         embed.description = f"**Prompt:** {discord.utils.escape_markdown(prompt)}"
         embed.description += f"**Model:** {r[0]['model'].replace('_', ' ').title()}"
         if len(r) > 1:
-            embed.description = (
+            embed.description += (
                 "**Seeds:** " + ", ".join([f"`{gen['seed']}`" for gen in r]) + " (random)" if seed is None else ""
             )
         else:
-            embed.description = f"**Seed:** `{r[0]['seed']}` {'(random)' if seed is None else ''}"
+            embed.description += f"**Seed:** `{r[0]['seed']}` {'(random)' if seed is None else ''}"
 
         embed.set_footer(text=f"React with 🚮 to delete {'these images' if len(r) > 1 else 'this image'}.")
         files = [discord.File(io.BytesIO(base64.b64decode(gen["img"])), filename="image.webp") for gen in r]
