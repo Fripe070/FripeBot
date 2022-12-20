@@ -269,24 +269,38 @@ class Fun(commands.Cog):
         if prompt == "":
             return await ctx.reply("You need to provide a prompt.")
 
+        models = [
+            "stable_diffusion",
+            "waifu_diffusion",
+            "Anything Diffusion",
+        ]
+        model = random.choice(models)
+
         base_url = "https://stablehorde.net/api"
         r = requests.post(
             f"{base_url}/v2/generate/async",
             headers={"apikey": config["stable_horde"]},
             json={
                 "prompt": prompt,
-                "nsfw": False,
+                "params": {"height": 512, "width": 512, "steps": 40, "n": 1},
+                "nsfw": True,  # Very sensitive, thus I rely on cencoring rather than flat out blocking
+                "censor_nsfw": True,
                 "trusted_workers": False,
+                "models": [model],
             },
         )
         if r.status_code != 202:
-            return await ctx.reply(f"API returned status code {r.status_code}")
+            return await ctx.reply(f"API returned status code {r.status_code}: {r.json()['message']}")
 
         generation_id = r.json()["id"]
 
         embed = discord.Embed(
             title="Generating image...",
-            description=f"**Prompt:** {discord.utils.escape_markdown(prompt)}\n**Seed:** {seed if seed is not None else 'random'}",
+            description=f"""
+**Prompt:** {discord.utils.escape_markdown(prompt)}
+**Seed:** {seed if seed is not None else 'random'}
+**Model:** {model.replace("_", " ").title()}
+""",
             colour=ctx.author.colour,
         )
         embed.add_field(name="Status", value="Initialising...")
@@ -301,7 +315,7 @@ class Fun(commands.Cog):
                 name="Status",
                 value=f"""
 **Images finished:** {r["finished"]}
-**Estimated to be done:**: <t:{round(time.time()) + r["wait_time"]}:R>
+**Estimated to be done:** <t:{round(time.time()) + r["wait_time"]}:R>
 **Queue position:** {r["queue_position"]}
 **State:** {"Processing" if r["processing"] else "Waiting"}
 """,
@@ -314,34 +328,19 @@ class Fun(commands.Cog):
             await asyncio.sleep(1)
 
         r = requests.get(f"{base_url}/v2/generate/status/{generation_id}").json()["generations"]
-        r = r[0]  # only one image is generated with this command
-        embed = discord.Embed(title="Image generated.", colour=ctx.author.colour)
-        embed.description = f"""
-**Prompt:** {discord.utils.escape_markdown(prompt)}
-**Seed:** `{r["seed"]}` {"(random)" if seed is None else ""}
-**Model:** {r["model"].replace("_", " ").title()}
-"""
+        embed = discord.Embed(title=f"Image{'s' if len(r) > 1 else ''} generated.", colour=ctx.author.colour)
+        embed.description = f"**Prompt:** {discord.utils.escape_markdown(prompt)}"
+        embed.description += f"**Model:** {r[0]['model'].replace('_', ' ').title()}"
+        if len(r) > 1:
+            embed.description = (
+                "**Seeds:** " + ", ".join([f"`{gen['seed']}`" for gen in r]) + " (random)" if seed is None else ""
+            )
+        else:
+            embed.description = f"**Seed:** `{r[0]['seed']}` {'(random)' if seed is None else ''}"
 
-        file = discord.File(io.BytesIO(base64.b64decode(r["img"])), filename="image.webp")
-        embed.set_image(url="attachment://image.webp")
-        embed.set_footer(text="React with 🚮 to delete this image.")
-
-        await msg.edit(embed=embed, attachments=[file])
-
-        def check(reaction, user):
-            try:
-                trash = list(filter(lambda x: x.emoji == "🚮", reaction.message.reactions))
-                # We do greater than because the bot always reacts, so the number will be 1 higher than we might expect
-                return trash[0].count > 2 and reaction.message == msg
-            except IndexError:
-                return False
-
-        await msg.add_reaction("🚮")
-        with contextlib.suppress(asyncio.TimeoutError):
-            await self.bot.wait_for("reaction_add", timeout=60 * 10, check=check)
-            embed.title = "Image deleted."
-            await msg.edit(embed=embed, attachments=[])
-            return
+        embed.set_footer(text=f"React with 🚮 to delete {'these images' if len(r) > 1 else 'this image'}.")
+        files = [discord.File(io.BytesIO(base64.b64decode(gen["img"])), filename="image.webp") for gen in r]
+        await msg.edit(embed=embed, attachments=files)
 
 
 async def setup(bot: commands.Bot) -> None:
