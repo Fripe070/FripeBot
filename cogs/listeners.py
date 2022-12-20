@@ -58,6 +58,5 @@ class Listeners(commands.Cog):
             await message.delete()
 
 
-
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Listeners(bot))
