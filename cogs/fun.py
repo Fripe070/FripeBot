@@ -23,6 +23,7 @@ class Fun(commands.Cog):
         self.snipe_message = {}
 
     @commands.command(aliases=["tc"])
+    @commands.is_owner()
     async def tagcreate(self, ctx: commands.Context, name: str, *, content: str):
         config["tags"][name] = content
         with open("config.json", "w") as f:
@@ -30,6 +31,7 @@ class Fun(commands.Cog):
         await ctx.reply("Tag added.")
 
     @commands.command(aliases=["t", "tags"])
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def tag(self, ctx: commands.Context, name: str = None):
         if name is None:
             embed = discord.Embed(title="Tags:", description=", ".join(config["tags"].keys()), colour=ctx.author.colour)
