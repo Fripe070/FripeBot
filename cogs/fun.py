@@ -329,14 +329,16 @@ class Fun(commands.Cog):
 
         r = requests.get(f"{base_url}/v2/generate/status/{generation_id}").json()["generations"]
         embed = discord.Embed(title=f"Image{'s' if len(r) > 1 else ''} generated.", colour=ctx.author.colour)
-        embed.description = f"**Prompt:** {discord.utils.escape_markdown(prompt)}"
-        embed.description += f"**Model:** {r[0]['model'].replace('_', ' ').title()}"
+        embed.description = f"**Prompt:** {discord.utils.escape_markdown(prompt)}" + "\n"
+
         if len(r) > 1:
-            embed.description = (
-                "**Seeds:** " + ", ".join([f"`{gen['seed']}`" for gen in r]) + " (random)" if seed is None else ""
+            embed.description += (
+                "**Seeds:** " + ", ".join([f"`{gen['seed']}`" for gen in r]) + " (random)\n" if seed is None else "\n"
             )
         else:
-            embed.description = f"**Seed:** `{r[0]['seed']}` {'(random)' if seed is None else ''}"
+            embed.description += f"**Seed:** `{r[0]['seed']}` {'(random)' if seed is None else ''}" + "\n"
+
+        embed.description += f"**Model:** {r[0]['model'].replace('_', ' ').title()}"
 
         embed.set_footer(text=f"React with 🚮 to delete {'these images' if len(r) > 1 else 'this image'}.")
         files = [discord.File(io.BytesIO(base64.b64decode(gen["img"])), filename="image.webp") for gen in r]
