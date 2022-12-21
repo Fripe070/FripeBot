@@ -62,5 +62,6 @@ class Listeners(commands.Cog):
         if trash_reaction.count - trash_reaction.me >= 2:
             await message.delete()
 
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Listeners(bot))
