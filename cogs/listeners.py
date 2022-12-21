@@ -50,13 +50,17 @@ class Listeners(commands.Cog):
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, reaction: discord.RawReactionActionEvent):
         message = await self.bot.get_channel(reaction.channel_id).fetch_message(reaction.message_id)
-        if message.author != self.bot.user or reaction.emoji.name != "🚮":
+        if message.author == self.bot.user:
             return
 
-        reactions = [r for r in message.reactions if r.emoji == "🚮" and r.me == False]
-        if len(reactions) >= 2:
-            await message.delete()
+        trash_reaction: discord.reaction.Reaction = next(
+            (msg_reaction for msg_reaction in message.reactions if msg_reaction.emoji == "🚮"), None
+        )
+        if trash_reaction is None:
+            return
 
+        if trash_reaction.count - trash_reaction.me >= 2:
+            await message.delete()
 
 
 async def setup(bot: commands.Bot) -> None:
