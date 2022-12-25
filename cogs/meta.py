@@ -1,4 +1,6 @@
+import contextlib
 import platform
+import subprocess
 import sys
 
 import discord
@@ -89,14 +91,17 @@ class Meta(commands.Cog):
         pyver = sys.version_info
 
         embed.description = f"""
-Python Version: {pyver.major}.{pyver.minor}.{pyver.micro}
-Discord.py Version: {discord.__version__}
-Running on: {platform.system()} {platform.release()}"""
+**Python Version:** {pyver.major}.{pyver.minor}.{pyver.micro}
+**Discord.py Version:** {discord.__version__}
+**Running on:** {platform.system()} {platform.release()}
+**Git commit:** {subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).decode('ascii').strip()}"""
         await ctx.reply(embed=embed)
 
     @commands.command()
     async def issue(self, ctx: commands.Context, user: discord.Member = None):
-        await ctx.message.delete()
+        """Sends a link prompting the user to create an issue on GitHub"""
+        with contextlib.suppress(discord.HTTPException):
+            await ctx.message.delete()
         embed = discord.Embed(
             title="Foud an issue?",
             description="[Report it on github!](https://github.com/Fripe070/FripeBot/issues/new)",
