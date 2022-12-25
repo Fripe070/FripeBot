@@ -80,10 +80,7 @@ class Meta(commands.Cog):
         else:
             colour = 0xFF2200
 
-        embed = discord.Embed(
-            title="Pong! :ping_pong:",
-            colour=colour
-        )
+        embed = discord.Embed(title="Pong! :ping_pong:", colour=colour)
         embed.description = f"""
 **Websocket latency:** {websocket_latency}ms
 **Message latency:** {message_latency}ms"""
