@@ -278,8 +278,10 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
                 }
                 embed.description += f"**Pronouns:** {pronouns[pronoun]}\n"
 
+        files = []
         if user.banner:
-            embed.set_image(url=user.banner.url)
+            files.append(await user.banner.to_file(filename="banner.png"))
+            embed.set_image(url="attachment://banner.png")
 
         if memberhere is not None:
             avatar_user = memberhere
@@ -295,10 +297,12 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
         except discord.errors.NotFound:
             avatar = user.default_avatar
 
-        embed.set_thumbnail(url=avatar)
+        files.append(await avatar.to_file(filename="avatar.png"))
+
+        embed.set_thumbnail(url="attachment://avatar.png")
         embed.set_footer(text=f"Requested by {ctx.author}")
 
-        await ctx.send(embed=embed)
+        await ctx.send(embed=embed, files=files)
 
     @commands.command(aliases=["serverinfo"])
     async def guildinfo(self, ctx: commands.Context):
@@ -378,7 +382,8 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             timestamp=ctx.message.created_at,
             title=f"{user.display_name}'s pfp",
         )
-        global_avatar_embed.set_image(url=global_avatar)
+        files = [await global_avatar.to_file(filename="global.png")]
+        global_avatar_embed.set_image(url="attachment://global.png")
         global_avatar_embed.set_footer(text=f"Requested by {ctx.author}")
         embeds = [global_avatar_embed]
 
@@ -402,11 +407,12 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
                 timestamp=ctx.message.created_at,
                 title=f"{new_user.display_name}'s server specific pfp",
             )
-            local_avatar_embed.set_image(url=local_avatar)
+            files.append(await local_avatar.to_file(filename="local.png"))
+            local_avatar_embed.set_image(url="attachment://local.png")
             local_avatar_embed.set_footer(text=f"Requested by {ctx.author}")
             embeds.append(local_avatar_embed)
 
-        await ctx.send(embeds=embeds)
+        await ctx.send(embeds=embeds, files=files)
 
     @commands.command(aliases=["bannerget", "banner"])
     async def getbanner(self, ctx: commands.Context, user: discord.User = None):
@@ -426,9 +432,10 @@ Likes/Dislikes: {r['thumbs_up']}/{r['thumbs_down']}
             timestamp=ctx.message.created_at,
             title=f"{user.display_name}'s banner",
         )
-        embed.set_image(url=banner)
+        file = await banner.to_file(filename="banner.png")
+        embed.set_image(url="attachment://banner.png")
         embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.send(embed=embed)
+        await ctx.send(file=file, embed=embed)
 
     @commands.command(aliases=["jumbo", "emote"])
     async def emoji(self, ctx: commands.Context, emoji: str):
