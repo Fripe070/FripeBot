@@ -2,6 +2,7 @@ import contextlib
 import platform
 import subprocess
 import sys
+import time
 
 import discord
 from discord.ext import commands
@@ -61,23 +62,33 @@ class Meta(commands.Cog):
         embed.set_footer(text=f"Requested by: {ctx.author.display_name}", icon_url=ctx.author.avatar)
         await ctx.send(f"{user.mention} Please take a look at my github." if user else "", embed=embed)
 
-    @commands.command()
+    @commands.command(aliaes=["latency"])
     async def ping(self, ctx: commands.Context):
-        """Displays the bots ping"""
+        """Checks and returns the bot latency"""
         await ctx.message.add_reaction("🏓")
-        bot_ping = round(self.bot.latency * 1000)
-        if bot_ping < 130:
-            color = 0x44FF44
-        elif 130 < bot_ping < 180:
-            color = 0xFF8C00
+
+        now = time.perf_counter()
+        msg = await ctx.reply("Checking message latency..")
+        then = time.perf_counter()
+        message_latency = round((then - now) * 1000)
+
+        websocket_latency = round(self.bot.latency * 1000)
+        if websocket_latency < 130:
+            colour = 0x44FF44
+        elif websocket_latency < 180:
+            colour = 0xFF8C00
         else:
-            color = 0xFF2200
+            colour = 0xFF2200
+
         embed = discord.Embed(
             title="Pong! :ping_pong:",
-            description=f"The ping is **{bot_ping}ms!**",
-            color=color,
+            colour=colour
         )
-        await ctx.reply(embed=embed)
+        embed.description = f"""
+**Websocket latency:** {websocket_latency}ms
+**Message latency:** {message_latency}ms"""
+
+        await msg.edit(content="", embed=embed)
 
     @commands.command(alias=["botstatus", "botinfo"])
     async def status(self, ctx: commands.Context):
