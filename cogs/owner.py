@@ -10,33 +10,26 @@ class Owner(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
+    @commands.command(aliases=["setactivity"])
     @commands.is_owner()
     async def setstatus(self, ctx: commands.Context, activity, *, new_status=None):
         """Sets the bots status"""
-        status = new_status
+
+        async def status_helper(*, status, activity: discord.ActivityType) -> None:
+            await self.bot.change_presence(activity=discord.Activity(name=status, type=activity))
 
         if activity == "watching":
-            self.bot.logger.info(f'Status set to "{activity} {status}')
-            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.watching))
-            await ctx.reply(f'Status set to "{activity} {status}"')
-
+            await status_helper(status=new_status, activity=discord.ActivityType.watching)
         elif activity == "playing":
-            self.bot.logger.info(f'Status set to "{activity} {status}')
-            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.playing))
-            await ctx.reply(f'Status set to "{activity} {status}"')
-
+            await status_helper(status=new_status, activity=discord.ActivityType.playing)
         elif activity == "listening":
-            self.bot.logger.info(f'Status set to "{activity} to {status}')
-            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.listening))
-            await ctx.reply(f'Status set to "{activity} to {status}"')
-
+            await status_helper(status=new_status, activity=discord.ActivityType.listening)
         elif activity == "competing":
-            self.bot.logger.info(f'Status set to "{activity} in {status}')
-            await self.bot.change_presence(activity=discord.Activity(name=status, type=discord.ActivityType.competing))
-            await ctx.reply(f'Status set to "{activity} in {status}"')
+            await status_helper(status=new_status, activity=discord.ActivityType.competing)
         else:
             await ctx.reply("That's not a valid activity!")
+
+        await ctx.reply('Status changed."')
 
     @staticmethod
     async def extension_fetching_helper(cog_path: Path | str) -> list[str]:
@@ -62,6 +55,7 @@ class Owner(commands.Cog):
     @commands.is_owner()
     async def reload(self, ctx: commands.Context, *, to_reload: str = "./"):
         """Reloads the bot cog(s) specified"""
+        # TODO: most of this logic shouldn't be too hard to separate nto a separate method, so do that
         reply_message = await ctx.reply(embed=BetterEmbed(colour=ctx.author, title="Reloading Cog(s)..."))
 
         try:
