@@ -3,7 +3,7 @@ from pathlib import Path
 import discord
 from discord.ext import commands
 
-from utils import get_extensions, get_extension, BetterEmbed
+from utils import BetterEmbed, get_extension, get_extensions
 
 
 class Owner(commands.Cog):
