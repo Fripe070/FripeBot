@@ -45,5 +45,5 @@ jobs:
         run: pip install flake8
 
       - name: Run flake8
-        run: flake8 --max-line-length 120 --extend-ignore E203,E501,E731,F403 --show-source --count
+        run: flake8 --max-line-length 120 --extend-ignore E203,E501,E731 --show-source --count
 
