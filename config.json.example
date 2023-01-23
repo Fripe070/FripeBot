@@ -4,8 +4,7 @@
     "disabled_cogs": ["cogs.example", "cogs.example2"],
     "disabled_commands": ["example_command", "example_command2"],
     "token": "ExampleToken",
-    "snipeblock": [000000000000000000],
     "tags": {},
-    "snipetimeout" : 10,
+    "snipe_timeout" : 10,
     "stable_horde": "0000000000"
 }

@@ -7,6 +7,8 @@ import discord
 import requests
 from discord.ext import commands
 
+from utils import BetterEmbed
+
 
 class Info(commands.Cog):
     def __init__(self, bot):
@@ -17,28 +19,23 @@ class Info(commands.Cog):
         """Counts the amount of people in the server"""
         users = len([member for member in ctx.guild.members if not member.bot])
         bots = len([member for member in ctx.guild.members if member.bot])
-        embed = discord.Embed(
-            title="Member Info",
-            description=f"**Bot/user ratio:** {round(bots/users, 2)} bots for each human",
-            colour=ctx.author.colour,
-            timestamp=ctx.message.created_at,
-        )
+
+        embed = BetterEmbed(title="Guild member Info", colour=ctx.author)
         embed.set_footer(text=f"Requested by {ctx.author.display_name}")
-        embed.add_field(
-            name="Users:",
-            value=f"{users}",
+
+        embed.description = (
+            f"**Total:** {len(ctx.guild.members)}\n"
+            f"**Users:** {users}\n"
+            f"**Bots:** {bots}\n"
+            f"**Bot/user ratio:** {round(bots / users, 2)} bots per user\n"
         )
-        embed.add_field(
-            name="Bots:",
-            value=f"{bots}",
-        )
-        embed.add_field(name="Total:", value=f"{len(ctx.guild.members)}")
+
         await ctx.reply(embed=embed)
 
     @commands.command(aliases=["def", "definition"])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def define(self, ctx: commands.Context, *, word):
-        """Gets the definition for a word"""
+        """Gets the definition of a word"""
         r = requests.get(f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}", verify=True)
         fields = []
         if r.status_code == 200 and isinstance(r.json(), list):

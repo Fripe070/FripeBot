@@ -68,11 +68,11 @@ class Meta(commands.Cog):
         await ctx.message.add_reaction("🏓")
 
         now = time.perf_counter()
-        msg = await ctx.reply("Checking message latency..")
+        msg = await ctx.reply("Checking message latency...")
         then = time.perf_counter()
-        message_latency = round((then - now) * 1000)
+        message_latency = (then - now) * 1000
 
-        websocket_latency = round(self.bot.latency * 1000)
+        websocket_latency = self.bot.latency * 1000
         if websocket_latency < 130:
             colour = 0x44FF44
         elif websocket_latency < 180:
@@ -80,13 +80,10 @@ class Meta(commands.Cog):
         else:
             colour = 0xFF2200
 
-        embed = discord.Embed(
-            title="Pong! :ping_pong:",
-            colour=colour
-        )
+        embed = discord.Embed(title="Pong! :ping_pong:", colour=colour)
         embed.description = f"""
-**Websocket latency:** {websocket_latency}ms
-**Message latency:** {message_latency}ms"""
+**Websocket latency:** {round(websocket_latency)}ms ({round(websocket_latency * 100 ** 2)}ns)
+**Message latency:** {round(message_latency)}ms ({round(message_latency * 100 ** 2)}ns)"""
 
         await msg.edit(content="", embed=embed)
 

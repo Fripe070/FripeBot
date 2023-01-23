@@ -7,21 +7,23 @@ import json
 import math
 import random
 import time
+from collections import defaultdict
 
 import discord
 import requests
 from discord.ext import commands
 
-from assets.customfuncs import randomstring
 from main import config
+from utils import BetterEmbed
 
 
 class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-        self.snipe_message = {}
+        self.snipe_messages = defaultdict(dict)
 
+    # noinspection SpellCheckingInspection
     @commands.command(aliases=["tc"])
     @commands.is_owner()
     async def tagcreate(self, ctx: commands.Context, name: str, *, content: str):
@@ -73,14 +75,10 @@ class Fun(commands.Cog):
                     "Yes",
                     "No",
                     "<:perhaps:819028239275655169>",
-                    "Surely",
-                    "Maybe tomorrow",
                     "Not yet",
                     "If you say so 🙃",
                     "Absolutely!",
-                    "For sure!",
                     "I don't think so",
-                    "I don't know",
                     "If you wish 😉",
                 ]
             )
@@ -91,121 +89,132 @@ class Fun(commands.Cog):
         """Scrambles the text you give it"""
         await ctx.reply("".join(random.sample(arg, len(arg))))
 
-    @commands.command(aliases=["Say"])
-    @commands.is_owner()
+    @commands.command(aliases=["say"])
     async def echo(self, ctx: commands.Context, *, msg):
         """Makes the bot say things"""
         with contextlib.suppress(discord.errors.Forbidden):
             await ctx.message.delete()
         await ctx.send(msg)
 
+    # noinspection SpellCheckingInspection
     @commands.command(aliases=["esay", "embedsay", "eecho"])
-    async def embedecho(self, ctx: commands.Context, *, msg):
-        """Makes the bot say things"""
-        with contextlib.suppress(discord.errors.Forbidden):
-            await ctx.message.delete()
-        embed = discord.Embed(
-            title=msg.split(" ")[0],
-            description=" ".join(msg.split(" ")[1:]),
-            color=ctx.author.color,
-        )
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.send(embed=embed)
+    async def embedecho(self, ctx: commands.Context, *, embed_str: str):
+        """Send custom embeds through the bot."""
+        try:
+            embed_dict = json.loads(embed_str)
+            embed = discord.Embed.from_dict(embed_dict)
+            await ctx.send(embed=embed)
+            with contextlib.suppress(discord.errors.Forbidden):
+                await ctx.message.delete()
+        except (json.JSONDecodeError, discord.HTTPException):
+            await ctx.send(
+                "The json you provided is invalid.\n"
+                "For information about what fields discord embeds accept, visit:\n"
+                "https://discord.com/developers/docs/resources/channel#embed-object."
+            )
+
+    async def save_snipe_message(self, *, message: discord.Message, current_message: discord.Message = None) -> None:
+        if message.author == self.bot.user:
+            return
+        self.snipe_messages[message.guild.id][message.channel.id] = {
+            "message": message,
+            "current_message": current_message,
+            "time": time.mktime(datetime.datetime.now().timetuple()),
+        }
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
-        if message.author != self.bot.user:
-            self.snipe_message = {
-                message.guild.id: {
-                    message.channel.id: {
-                        "old_msg": message,
-                        "new_msg": None,
-                        "time": time.mktime(datetime.datetime.now().timetuple()),
-                    }
-                }
-            }
+        await self.save_snipe_message(message=message)
 
     @commands.Cog.listener()
     async def on_message_edit(self, old_message: discord.Message, new_message: discord.Message):
-        if old_message.author != self.bot.user:
-            self.snipe_message = {
-                old_message.guild.id: {
-                    old_message.channel.id: {
-                        "old_msg": old_message,
-                        "new_msg": new_message,
-                        "time": time.mktime(datetime.datetime.now().timetuple()),
-                    }
-                }
-            }
+        await self.save_snipe_message(message=old_message, current_message=new_message)
 
     @commands.command()
     async def snipe(self, ctx: commands.Context):
         """Snipes the last deleted message."""
-        if (
-            not self.snipe_message
-            or ctx.guild.id not in self.snipe_message.keys()
-            or ctx.channel.id not in self.snipe_message[ctx.guild.id].keys()
-            or self.snipe_message[ctx.guild.id][ctx.channel.id] is None
-        ):
-            await ctx.reply("No message was deleted/edited.")
-            return
 
-        snipe = self.snipe_message.get(ctx.guild.id, {}).get(ctx.channel.id, {})
+        # https://docs.python.org/3/glossary.html#term-EAFP
+        try:
+            assert list(self.snipe_messages[ctx.guild.id][ctx.channel.id].keys()) == [
+                "message",
+                "current_message",
+                "time",
+            ]
+        except (KeyError, AssertionError):
+            return await ctx.reply("There is no deleted/edited message to snipe.")
 
-        old_message = snipe["old_msg"]
-        new_message = snipe["new_msg"]
+        sniped_message = self.snipe_messages[ctx.guild.id][ctx.channel.id]
 
-        if time.mktime(datetime.datetime.now().timetuple()) - snipe["time"] > config["snipetimeout"]:
-            await ctx.reply(
-                f"The message you are trying to snipe was {'edited' if new_message else 'deleted'} more than {config['snipetimeout']} seconds ago. "
+        if time.mktime(datetime.datetime.now().timetuple()) - sniped_message["time"] > config["snipe_timeout"]:
+            return await ctx.reply(
+                f"The message you are trying to snipe was edited/deleted more than {config['snipe_timeout']}s ago."
             )
-            return
 
-        embed = discord.Embed(
-            title=f"Message {'edited' if new_message else 'deleted'} <t:{round(snipe['time'])}:R>",
-            timestamp=old_message.created_at,
-            colour=old_message.author.colour,
+        message: discord.Message = sniped_message["message"]
+        current_message: discord.Message = sniped_message["current_message"]
+        edited = current_message is not None
+
+        response_embed = BetterEmbed(
+            title=f"Sniped message {'edit' if edited else 'deletion'} from <t:{round(sniped_message['time'])}:R>",
+            colour=message.author,
         )
 
-        if old_message.reference:
-            try:
-                ref = await ctx.fetch_message(old_message.reference.message_id)
-                embed.add_field(
-                    name=f"Replied to {ref.author.display_name} ({ref.author.id}) who said:", value=ref.content
+        response_embed.set_author(name=message.author.display_name, icon_url=message.author.avatar.url)
+        response_embed.set_footer(text="You can react with 🚮 to delete this message.")
+
+        if reference := message.reference:
+            if reference.fail_if_not_exists and not isinstance(reference.resolved, discord.Message):
+                response_embed.description += "Replying to a message that mo longer exists."
+            else:
+                resolved = reference.resolved
+                response_embed.add_field(
+                    name=f"Replying to a message by {resolved.author.display_name} ({resolved.author.id})",
+                    value=reference.resolved.content,
+                    inline=False,
                 )
 
-            except discord.errors.NotFound:
-                embed.set_footer(
-                    text="Replying to a message that doesn't exist anymore."
-                    if old_message.author.id in config["snipeblock"]
-                    else "Replying to a message that doesn't exist anymore. React with 🚮 to delete this message."
-                )
-        if new_message is not None:
-            embed.add_field(name="Orignal:", value=old_message.content, inline=False)
-            embed.add_field(name="New:", value=new_message.content, inline=False)
+        # noinspection SpellCheckingInspection
+        if message.content:
+            response_embed.add_field(
+                name=f"{'Original' if edited else 'Deleted'} messages content",
+                value=message.content,
+                inline=False,
+            )
+
+        response_embeds = [response_embed]
+        files = []
+
+        if edited:
+            response_embed.add_field(
+                name="New message content",
+                value=current_message.content,
+                inline=False,
+            )
         else:
-            embed.description = old_message.content
+            if len(message.attachments) > 0:
+                files = [await attachment.to_file() for attachment in message.attachments]
 
-        if not embed.footer and old_message.author.id not in config["snipeblock"]:
-            embed.set_footer(text="React with 🚮 to delete this message.")
+            if len(message.embeds) > 0:
+                for embed in message.embeds[:9]:
+                    response_embeds.append(embed)
+                if len(response_embeds) - 1 < len(message.embeds):
+                    response_embeds[0].add_field(
+                        name="Message embeds",
+                        value=f"Too many embeds to show, {len(message.embeds) - 9} has been hidden.",
+                        inline=False,
+                    )
 
-        snipemsg = await ctx.reply(
-            f"Sniped {'edited' if new_message else 'deleted'} message by {old_message.author.mention}",
-            embed=embed,
-        )
+        snipe_message = await ctx.reply(embeds=response_embeds, files=files)
+        self.snipe_messages[ctx.guild.id][ctx.channel.id] = {}
 
-        self.snipe_message[ctx.guild.id][ctx.channel.id] = None
+        def check(reaction: discord.Reaction, user: discord.Member | discord.User):
+            return user == message.author and str(reaction.emoji) == "🚮" and reaction.message == snipe_message
 
-        if old_message.author.id in config["snipeblock"]:
-            return
-
-        def check(reaction, user):
-            return user == old_message.author and str(reaction.emoji) == "🚮" and reaction.message == snipemsg
-
-        await snipemsg.add_reaction("🚮")
-        with contextlib.suppress(asyncio.exceptions.TimeoutError):
+        await snipe_message.add_reaction("🚮")
+        with contextlib.suppress(asyncio.exceptions.TimeoutError, discord.HTTPException):
             await self.bot.wait_for("reaction_add", timeout=60 * 5, check=check)
-            await snipemsg.delete()
+            await snipe_message.delete()
 
     @commands.command()
     async def unsplash(self, ctx: commands.Context, query: str = "bread"):
@@ -226,7 +235,7 @@ class Fun(commands.Cog):
 
     @commands.command(aliases=["l33t", "leetspeak"])
     async def leet(self, ctx: commands.Context, *, msg: str):
-        """Converts a string into leetspeak"""
+        """Converts a string into l33tspeak :sunglasses:"""
         msg = msg.lower()
         l33t = msg.maketrans(
             {
@@ -249,16 +258,21 @@ class Fun(commands.Cog):
 
     @commands.command()
     async def token(self, ctx: commands.Context):
-        """Gets a (very real) token!!!"""
-        tokenid = randomstring(18, "0123456789").encode("ascii")
+        """Get the bot token!!!!! (real)"""
+
+        def random_string(length=0, key="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_0123456789"):
+            return "".join(random.choice(key) for _ in range(length))
+
+        token_id = random_string(18, "0123456789").encode("ascii")
 
         if random.random() < 0.15:
-            return f"mfa.{randomstring(math.floor(random.random() * (68 - 20)) + 20)}"
-        encodedid = base64.b64encode(bytes(tokenid)).decode("utf-8")
-        timestamp = randomstring(math.floor(random.random() * (7 - 6) + 6))
-        hmac = randomstring(27)
+            return f"mfa.{random_string(math.floor(random.random() * (68 - 20)) + 20)}"
 
-        await ctx.reply(f"{encodedid}.{timestamp}.{hmac}")
+        encoded_id = base64.b64encode(bytes(token_id)).decode("utf-8")
+        timestamp = random_string(math.floor(random.random() * (7 - 6) + 6))
+        hmac = random_string(27)
+
+        await ctx.reply(f"{encoded_id}.{timestamp}.{hmac}")
 
     @commands.command(aliases=["aigen", "aiimg", "imggen"])
     async def stablehorde(self, ctx: commands.Context, seed: int | str, *, prompt: str = ""):

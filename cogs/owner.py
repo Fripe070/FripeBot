@@ -1,11 +1,9 @@
-import asyncio
-import subprocess
+from pathlib import Path
 
 import discord
 from discord.ext import commands
 
-from assets.customfuncs import get_cogs
-from main import config
+from utils import get_extensions, get_extension, BetterEmbed
 
 
 class Owner(commands.Cog):
@@ -40,120 +38,135 @@ class Owner(commands.Cog):
         else:
             await ctx.reply("That's not a valid activity!")
 
-    @commands.command()
-    @commands.is_owner()
-    async def load(self, ctx: commands.Context, to_load=None):
-        """Loads a specified cog"""
-        if to_load is None:
-            await ctx.reply("Thats not a valid cog.")
-            return
+    @staticmethod
+    async def extension_fetching_helper(cog_path: Path | str) -> list[str]:
+        default_cog_directory = Path("./cogs/")
+        cog_path = default_cog_directory / cog_path
 
-        embed_color = discord.Color.green()
-        embed_desc = ""
+        if (
+            not cog_path.is_file()
+            and not cog_path.is_dir()
+            and cog_path.suffix == ""
+            and (python_file_path := cog_path.with_suffix(".py")).is_file()
+        ):
+            cog_path = python_file_path
 
-        self.bot.logger.info("Loading cogs...")
-        for cog in get_cogs(to_load):
-            try:
-                await self.bot.load_extension(cog)
-                self.bot.logger.info(f"Cog loaded: {cog}")
-                embed_desc += f"<:RedX:999549005342187620> {cog}\n"
-            except Exception as error:
-                self.bot.logger.error(error)
-                embed_color = discord.Color.red()
-                embed_desc += f"✅ {cog} - {error}\n"
-                raise error
-
-        embed = discord.Embed(title="Loaded cog(s)!", description=embed_desc, color=embed_color)
-
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.send(embed=embed)
-
-        await ctx.message.add_reaction("👍")
+        if cog_path.is_file():
+            return [get_extension(cog_path)]
+        elif cog_path.is_dir():
+            return get_extensions(cog_path)
+        else:
+            raise FileNotFoundError
 
     @commands.command()
     @commands.is_owner()
-    async def unload(self, ctx: commands.Context, to_unload=None):
-        """Unloads a specified cog"""
-        unloads = {"successful": [], "errored": []}
-        embedcolor = 0x34EB40
-        if to_unload is None:
-            await ctx.reply("Thats not valid.")
-            return
+    async def reload(self, ctx: commands.Context, *, to_reload: str = "./"):
+        """Reloads the bot cog(s) specified"""
+        reply_message = await ctx.reply(embed=BetterEmbed(colour=ctx.author, title="Reloading Cog(s)..."))
 
-        self.bot.logger.info("Unloading cogs...")
-        for cog in get_cogs(to_unload):
+        try:
+            extensions = await self.extension_fetching_helper(to_reload)
+        except FileNotFoundError:
+            return await ctx.reply("There is no file or directory at the specified location.")
+
+        reloaded_extensions = {}
+        for extension in extensions:
+            styled_extension_name = "/".join(extension.split(".")[1:])
             try:
-                await self.bot.unload_extension(cog)
-                self.bot.logger.info(f"Cog loaded: {cog}")
-                unloads["successful"].append(cog)
+                await self.bot.reload_extension(extension)
+                self.bot.logger.info(f"Reloaded extension {extension}")
+                reloaded_extensions[styled_extension_name] = {"success": True, "error": None}
             except Exception as error:
-                self.bot.logger.error(error)
-                unloads["errored"].append(cog)
+                self.bot.logger.error(f"Failed to reload extension {extension}: {error}")
+                reloaded_extensions[styled_extension_name] = {"success": False, "error": str(error)}
 
-        embed = discord.Embed(title="Unloaded cogs!", color=embedcolor)
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.send(embed=embed)
+        embed = BetterEmbed(
+            title=f"Cog{'s' if len(extensions) > 1 else ''} Reloaded!",
+            description="\n".join(
+                sorted(
+                    f"{'✅' if status['success'] else '❌'} {name} {'' if status['success'] else status['error']}"
+                    for name, status in reloaded_extensions.items()
+                )
+            ),
+            colour=ctx.author,
+        )
 
-        await ctx.message.add_reaction("👍")
+        await reply_message.edit(embed=embed)
 
     @commands.command()
     @commands.is_owner()
-    async def reload(self, ctx: commands.Context, to_reload="cogs"):
-        """Restarts the bot"""
+    async def load(self, ctx: commands.Context, *, to_load: str = "./"):
+        """Loads the bot cog(s) specified"""
+        reply_message = await ctx.reply(embed=BetterEmbed(colour=ctx.author, title="Loading Cog(s)..."))
 
-        embed_color = discord.Color.green()
-        embed_desc = ""
+        try:
+            extensions = await self.extension_fetching_helper(to_load)
+        except FileNotFoundError:
+            return await ctx.reply("There is no file or directory at the specified location.")
 
-        self.bot.logger.info("Reloading cogs...")
-        for cog in get_cogs(to_reload):
+        loaded_extensions = {}
+        for extension in extensions:
+            styled_extension_name = " ".join(extension.split(".")[1:]).title()
             try:
-                await self.bot.reload_extension(cog)
-                self.bot.logger.info(f"Cog reloaded: {cog}")
-                embed_desc += f"✅ {cog}\n"
+                await self.bot.load_extension(extension)
+                self.bot.logger.info(f"Loaded extension {extension}")
+                loaded_extensions[styled_extension_name] = {"success": True, "error": None}
             except Exception as error:
-                self.bot.logger.error(error)
-                embed_color = discord.Color.red()
-                embed_desc += f"<:RedX:999549005342187620> {cog} - {error}\n"
+                self.bot.logger.error(f"Failed to load extension {extension}: {error}")
+                loaded_extensions[styled_extension_name] = {"success": False, "error": str(error)}
 
-        for command in self.bot.commands:
-            if command in config["disabled_commands"]:
-                command.update(enabled=False)
+        embed = BetterEmbed(
+            title=f"Cog{'s' if len(extensions) > 1 else ''} Loaded!",
+            description="\n".join(
+                f"{'✅' if status['success'] else '❌'} {name} {'' if status['success'] else status['error']}"
+                for name, status in loaded_extensions.items()
+            ),
+            colour=ctx.author,
+        )
 
-        embed = discord.Embed(title="Reloaded cog(s)!", description=embed_desc, color=embed_color)
+        await reply_message.edit(embed=embed)
 
-        embed.set_footer(text=f"Requested by {ctx.author}")
-        await ctx.send(embed=embed)
+    @commands.command()
+    @commands.is_owner()
+    async def unload(self, ctx: commands.Context, *, to_unload: str = "./"):
+        """Unloads the bot cog(s) specified"""
+        reply_message = await ctx.reply(embed=BetterEmbed(colour=ctx.author, title="Unloading Cog(s)..."))
 
-        await ctx.message.add_reaction("👍")
+        try:
+            extensions = await self.extension_fetching_helper(to_unload)
+        except FileNotFoundError:
+            return await ctx.reply("There is no file or directory at the specified location.")
 
-    @commands.command(aliases=["die", "shutdown"])
+        unloaded_extensions = {}
+        for extension in extensions:
+            styled_extension_name = " ".join(extension.split(".")[1:]).title()
+            try:
+                await self.bot.unload_extension(extension)
+                self.bot.logger.info(f"Unloaded extension {extension}")
+                unloaded_extensions[styled_extension_name] = {"success": True, "error": None}
+            except Exception as error:
+                self.bot.logger.error(f"Failed to unload extension {extension}: {error}")
+                unloaded_extensions[styled_extension_name] = {"success": False, "error": str(error)}
+
+        embed = BetterEmbed(
+            title=f"Cog{'s' if len(extensions) > 1 else ''} Unloaded!",
+            description="\n".join(
+                f"{'✅' if status['success'] else '❌'} {name} {'' if status['success'] else status['error']}"
+                for name, status in unloaded_extensions.items()
+            ),
+            colour=ctx.author,
+        )
+
+        await reply_message.edit(embed=embed)
+
+    @commands.command(aliases=["shutdown"])
     @commands.is_owner()
     async def stop(self, ctx: commands.Context):
         """Stops the bot"""
         await ctx.message.add_reaction("👍")
         await ctx.reply("Ok. :(\nShutting down...")
-        self.bot.logger.info(f"{ctx.author.name} Told me to shut down.")
+        self.bot.logger.info("Stopping bot.")
         await self.bot.close()
-
-    @commands.command()
-    @commands.is_owner()
-    async def update(self, ctx: commands.Context):
-        """Updates the bot"""
-        await ctx.message.add_reaction("👍")
-        await ctx.reply("Updating...")
-        self.bot.logger.info(f"{ctx.author.name} Told me to update.")
-        shellscript = subprocess.Popen(
-            ["sh", "update.sh"],
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE,
-        )
-        stdout, stderr = shellscript.communicate()
-        respnse = "Done!"
-        if stdout is not None:
-            respnse += f"```bash\n{stdout.decode('utf-8')}```"
-        if stderr is not None:
-            respnse += f"```bash\n{stderr.decode('utf-8')}```"
-        await ctx.reply(respnse)
 
 
 async def setup(bot: commands.Bot) -> None:

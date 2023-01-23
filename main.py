@@ -1,11 +1,10 @@
 import json
 import logging
-from typing import Any
 
 import discord
 from discord.ext import commands
 
-from assets.customfuncs import get_cogs
+from utils import get_extensions
 
 
 class Bot(commands.Bot):
@@ -14,14 +13,15 @@ class Bot(commands.Bot):
 
         self.logger = logging.getLogger("discord")
         self.logger.setLevel(logging.INFO)
+        # noinspection SpellCheckingInspection
         formatter = logging.Formatter("[%(asctime)s %(levelname)s] %(name)s: %(message)s")
         handler = logging.FileHandler("discord.log", "w", "utf-8")
         handler.setFormatter(formatter)
         self.logger.addHandler(handler)
 
-    async def setup_hook(self):
-        bot.logger.info("Loading cogs...")
-        for cog in get_cogs("cogs"):
+    async def setup_hook(self) -> None:
+        bot.logger.debug("Loading cogs")
+        for cog in get_extensions("cogs/"):
             try:
                 await bot.load_extension(cog)
                 bot.logger.info(f"Cog loaded: {cog}")
@@ -44,21 +44,17 @@ bot = Bot(
     strip_after_prefix=True,
 )
 
-for command in bot.commands:
-    if command in config["disabled_commands"]:
-        command.update(enabled=False)
-        bot.logger.info(f'Disabled command: "{command}"')
-
 
 @bot.event
 async def on_ready():
     bot.logger.info(f"Logged in as {bot.user.name} with the id {bot.user.id}")
 
 
+# TODO: Move to a cog
 @bot.tree.context_menu(name="Get Raw Message")
 async def raw_msg(interaction: discord.Interaction, message: discord.Message):
-    def into_codeblock(text: Any, syntax_highlighting: str = "") -> str:
-        return f"```{syntax_highlighting}\n" + str(text).replace("```", "``\u200b`") + "\n```"
+    def into_codeblock(text: str, syntax_highlighting: str = "") -> str:
+        return f"```{syntax_highlighting}\n" + text.replace("```", "``\u200b`") + "\n```"
 
     msg = ""
     if message.content:

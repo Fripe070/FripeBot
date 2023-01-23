@@ -1,5 +1,6 @@
 import asyncio
 import base64
+import contextlib
 import datetime
 import io
 import re
@@ -11,7 +12,7 @@ import discord
 import requests
 from discord.ext import commands
 
-from assets.customfuncs import splitstring
+from utils.customfuncs import splitstring
 
 
 class Utility(commands.Cog):
@@ -76,8 +77,9 @@ class Utility(commands.Cog):
                 stderr = None
         stdout = out.getvalue() or None
 
-        await ctx.message.remove_reaction("<a:loading:894950036964782141>", self.bot.user)
-        await ctx.message.add_reaction("<:yes:823202605123502100>")
+        with contextlib.suppress(discord.errors.HTTPException):
+            await ctx.message.remove_reaction("<a:loading:894950036964782141>", self.bot.user)
+            await ctx.message.add_reaction("<:yes:823202605123502100>")
 
         title = "Code executed "
         if stderr is not None:
@@ -94,7 +96,8 @@ class Utility(commands.Cog):
         if stderr is not None:
             embed.add_field(name="stderr:", value=f"```ansi\n{stderr}```", inline=False)
 
-        await ctx.reply(embed=embed)
+        with contextlib.suppress(discord.errors.HTTPException):
+            await ctx.reply(embed=embed)
 
     @commands.command(aliases=["Eval"])
     @commands.is_owner()
@@ -128,8 +131,9 @@ class Utility(commands.Cog):
         if stderr:
             embed.add_field(name="stderr:", value=f"```ansi\n{stderr}```", inline=False)
 
-        await ctx.reply(embed=embed)
-        await ctx.message.add_reaction("<:yes:823202605123502100>")
+        with contextlib.suppress(discord.errors.HTTPException):
+            await ctx.reply(embed=embed)
+            await ctx.message.add_reaction("<:yes:823202605123502100>")
 
     @commands.command()
     async def remind(self, ctx: commands.Context, ae: str, *, message=None):

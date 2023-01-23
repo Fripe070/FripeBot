@@ -13,7 +13,7 @@ class Listeners(commands.Cog):
         self.bot = bot
 
     @commands.Cog.listener()
-    async def on_message(self, message):
+    async def on_message(self, message: discord.Message):
         if message.author == self.bot.user:
             return
         # Detect if the bot is mentioned in the message
@@ -40,7 +40,8 @@ class Listeners(commands.Cog):
                 await self.bot.wait_for("reaction_add", timeout=60.0, check=check)
                 await msg.delete()
 
-        prefixes = config["prefixes"]  # doesn't work when I put this directly inside the regex for some reason
+        prefixes = config["prefixes"]  # doesn't work when I put this directly inside the regex
+        # noinspection RegExpUnnecessaryNonCapturingGroup
         if colours := re.findall(rf"(?:{'|'.join(prefixes)})#([\dA-Fa-f]{{6}})", message.content, flags=re.IGNORECASE):
             for colour in colours:
                 url = f"https://www.colorhexa.com/{colour}.png"
@@ -49,7 +50,11 @@ class Listeners(commands.Cog):
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, reaction: discord.RawReactionActionEvent):
-        message = await self.bot.get_channel(reaction.channel_id).fetch_message(reaction.message_id)
+        try:
+            message = await self.bot.get_channel(reaction.channel_id).fetch_message(reaction.message_id)
+        except discord.errors.NotFound:
+            return
+
         if message.author == self.bot.user:
             return
 
@@ -60,7 +65,9 @@ class Listeners(commands.Cog):
             return
 
         if trash_reaction.count - trash_reaction.me >= 2:
-            await message.delete()
+            # Message is already deleted
+            with contextlib.suppress(discord.HTTPException):
+                await message.delete()
 
 
 async def setup(bot: commands.Bot) -> None:
