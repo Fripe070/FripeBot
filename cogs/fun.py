@@ -384,11 +384,10 @@ class Fun(commands.Cog):
         reply_content = f"<https://www.reddit.com{post['permalink']}>\n"
 
         # https://docs.python.org/3/glossary.html#term-EAFP
-        try:
+        with contextlib.suppress(KeyError, TypeError):
             reply_content += post["secure_media"]["reddit_video"]["fallback_url"]
-        except (KeyError, TypeError):
-            if "url_overridden_by_dest" in post:
-                reply_content += post["url_overridden_by_dest"]
+        if "url_overridden_by_dest" in post:
+            reply_content += post["url_overridden_by_dest"]
 
         await ctx.reply(reply_content)
 
