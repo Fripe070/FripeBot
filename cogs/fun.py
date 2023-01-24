@@ -22,6 +22,7 @@ class Fun(commands.Cog):
         self.bot = bot
 
         self.snipe_messages = defaultdict(dict)
+        self.reddit_cache = {"subreddit": "", "posts": []}
 
     # noinspection SpellCheckingInspection
     @commands.command(aliases=["tc"])
@@ -357,6 +358,39 @@ class Fun(commands.Cog):
         embed.set_footer(text=f"React with 🚮 to delete {'these images' if len(r) > 1 else 'this image'}.")
         files = [discord.File(io.BytesIO(base64.b64decode(gen["img"])), filename="image.webp") for gen in r]
         await msg.edit(embed=embed, attachments=files)
+
+    @commands.command()
+    async def reddit(self, ctx: commands.Context, subreddit: str):
+        subreddit = subreddit.removeprefix("r/")
+
+        if "error" in (
+            response := requests.get(
+                # We're heavily rate limited when using the default requests user agent
+                f"https://www.reddit.com/r/{subreddit}/random.json",
+                headers={"User-agent": "FripeBot"},
+            ).json()
+        ):
+            await ctx.reply(response["message"])
+        if len(response) == 0 or len(response[0]["data"]["children"]) == 0:
+            await ctx.reply(
+                "Couldn't fetch any posts.\nAre you sure the subreddit specified exists? Capitalisation matters!"
+            )
+
+        if "error_message" in response:
+            return await ctx.reply(response["error_message"])
+
+        post = response[0]["data"]["children"][0]["data"]
+
+        reply_content = f"<https://www.reddit.com{post['permalink']}>\n"
+
+        # https://docs.python.org/3/glossary.html#term-EAFP
+        try:
+            reply_content += post["secure_media"]["reddit_video"]["fallback_url"]
+        except (KeyError, TypeError):
+            if "url_overridden_by_dest" in post:
+                reply_content += post["url_overridden_by_dest"]
+
+        await ctx.reply(reply_content)
 
 
 async def setup(bot: commands.Bot) -> None:
