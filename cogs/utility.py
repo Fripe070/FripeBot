@@ -25,13 +25,14 @@ class Utility(commands.Cog):
         if not site.startswith("http://") and not site.startswith("https://"):
             site = f"https://{site}"
         out = requests.get(site).text
-        for part in splitstring(out):
-            embed = discord.Embed(
-                timestamp=ctx.message.created_at,
-                title="Output:",
-                description=f"```\n{discord.utils.escape_markdown(part)}```",
+        for part in splitstring(out, length=4000 - 15):
+            await ctx.send(
+                embed=discord.Embed(
+                    timestamp=ctx.message.created_at,
+                    title="Output:",
+                    description=f"```\n{discord.utils.escape_markdown(part)}```",
+                )
             )
-            await ctx.send(embed=embed)
 
     @commands.command(aliases=["bash", "batch"])
     @commands.is_owner()
