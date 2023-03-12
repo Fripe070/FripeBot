@@ -14,7 +14,6 @@ class BetterEmbed(discord.Embed):
         color: Optional[Union[int, Colour, Member]] = None,
         **kwargs
     ) -> None:
-
         maybe_member = colour if colour is not None else color
         if isinstance(maybe_member, Member):
             color = colour = maybe_member.color
