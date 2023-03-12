@@ -370,20 +370,19 @@ class Fun(commands.Cog):
                 headers={"User-agent": "FripeBot"},
             ).json()
         ):
-            await ctx.reply(response["message"])
-        if len(response) == 0 or len(response[0]["data"]["children"]) == 0:
-            await ctx.reply(
-                "Couldn't fetch any posts.\nAre you sure the subreddit specified exists? Capitalisation matters!"
-            )
-
+            return await ctx.reply(response["message"])
         if "error_message" in response:
             return await ctx.reply(response["error_message"])
+        try:
+            assert response[0]["data"]["children"][0]["data"]
+        except (AssertionError, KeyError):
+            return await ctx.reply(
+                "Couldn't fetch any posts.\nAre you sure the specified subreddit exists? Capitalisation matters!"
+            )
 
         post = response[0]["data"]["children"][0]["data"]
-
         reply_content = f"<https://www.reddit.com{post['permalink']}>\n"
 
-        # https://docs.python.org/3/glossary.html#term-EAFP
         with contextlib.suppress(KeyError, TypeError):
             reply_content += post["secure_media"]["reddit_video"]["fallback_url"]
         if "url_overridden_by_dest" in post:
