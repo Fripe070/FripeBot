@@ -26,7 +26,8 @@ class Error(commands.Cog):
                 and "or fewer in length." in error.original.text
             ):
                 return await ctx.send("Too long message.")
-
+        elif isinstance(error, commands.MissingRequiredArgument):
+            return await ctx.send_help(ctx.command)
         # If the command does not exist/is not found.
         if isinstance(error, (commands.CommandNotFound, commands.DisabledCommand)):
             return await ctx.message.add_reaction("❓")
@@ -64,8 +65,6 @@ class Error(commands.Cog):
             return
         elif isinstance(error, commands.MissingPermissions):
             return await ctx.reply(str(error))
-        elif isinstance(error, commands.MissingRequiredArgument):
-            return await ctx.send_help(ctx.command)
         else:
             try:
                 embed = discord.Embed(
