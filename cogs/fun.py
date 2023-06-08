@@ -267,7 +267,8 @@ class Fun(commands.Cog):
         token_id = random_string(18, "0123456789").encode("ascii")
 
         if random.random() < 0.15:
-            return f"mfa.{random_string(math.floor(random.random() * (68 - 20)) + 20)}"
+            await ctx.reply(f"mfa.{random_string(math.floor(random.random() * (68 - 20)) + 20)}")
+            return
 
         encoded_id = base64.b64encode(bytes(token_id)).decode("utf-8")
         timestamp = random_string(math.floor(random.random() * (7 - 6) + 6))
